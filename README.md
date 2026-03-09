@@ -48,3 +48,49 @@ team pro team na pomoc propagačním systémům pro školu
  - [ ] Umístění firmy do učeben
  - [ ] Formulář na přihlášení
  - [ ] Generátor brožurek
+
+# prop
+zadávání učeben + úprava (admin)
+foto učebny pro vizuál
+účet pro uchazeče
+formulář
+- možnost posazení spolu
+- přijít osobně
+- nepřijde 2. sobotu
+auto email
+- úprava těchto emailů
+- potvrzení vyplnění formuláře
+- potvrzení platby zaškrtnout v admin
+- připomenutí před zahájením (14 dní, den před)
+- možnost přidat fotky / příloha
+- hromadné odesílání výsledků
+- děkování za účast
+admin panel
+- úprava členů
+- vyhledávání
+- hromadná / jednotná korespondence
+- úprava zasedání
+- detekce omylného přihlášení 2× {při odeslání formuláře}
+- vložit dokument se zobrazením
+- možnost side admin účtů
+- nebyl dostane materiály ?
+list škol
+formulář na odhlášení
+plakátky k učebnám abecedně příjmení
+prezenčka
+přidání materiálů k účtům
+- časovač 
+- zobrazení
+
+# firm
+loga 
+popisky
+brožurka
+firmy i ve třídách přednášky
+rozvrh přednášek
+počet lidí
+počet stolů
+prezenčka v den (side admin)
+kávové stolky + rozvoz občerstvení
+seznam pomocníků (pomoc před a po + role)
+wifi
