@@ -42,9 +42,54 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Materiály lze změtit
   - [ ] Po skončení celé akce poděkování + hodně štěstí
   - [ ] Přesun E-Mailů z kurzy@purkynka.cz na účet paní Klobásové + přiložit i do admin panelu
+  - [ ] Počet přihlášených a zaplacených
+	  - Přihlašení + zaplacení
+	  - Přihlášení + nezaplacní
+	  - Přihlášení + nezaplacení po termínu (nepočítat do počtu)
+  - [ ] Splatnost
+	  - Dle termínu akce
+	  - Zkracování splatnosti s blížícím se termínem
+  - [ ] Zaplaceno -> Informace o akci upravit dle data
+  - Max 1 zákonný zástupce
+  - [ ] Oslovování
+	  - Skloňování
+	  - Více jmen a přijmení
+  - [ ] V kolik hodin odešel E-Mail
+  - [ ] Odhlášení
+ 	   - Jak
+ 	   - Kdy
+ 	   - Přes co
+ 	   - Důvod
+   - [ ] Z jedné školy více než jedné školy - mixovat dle pohlaví - graficky znázornit
  
 # Požadavky paní Klobásová = Den Firem
  - [ ] Plánek školy
  - [ ] Umístění firmy do učeben
  - [ ] Formulář na přihlášení
  - [ ] Generátor brožurek
+	 - [ ] Jméno
+	 - [ ] Obory
+	 - [ ] Co chtějí
+	 - [ ] Popis krátký
+	 - [ ] Popis dlouhý
+ 
+# Požadavky pana Nitčeho = Den Firem
+ - [ ] Rozhraní pro firmy
+	 - [ ] Informace o firmě
+	 - [ ] Nároky a požadavky na učebnu / stánek
+	 - [ ] Zda mají přednášky
+	 - [ ] Lze nějak stronovat
+	 - [ ] Popis, co chtějí a co nabízí
+	 - [ ] Feedback po dni firem pomocí požadavku v E-Mailu
+ - [ ] Rozhraní pro admina
+	 - [ ] Defaultí seznam firem rozeslat těmto firmám obecný e-mail
+	 - [ ] Vložit firmy - info o nich 
+	 - [ ] Rozházení pomocí plánku školy po patrech (půdorys) pomocí třídících kritérií - Zaměření
+	 - [ ] Provázání učebny / stánku k pozicím a k firmám - lze víckrát
+	 - [ ] Výstupem bude mapka
+	 - [ ] Znovu poslat E-Mail těsně před - automaticky poslat + rozmístění poslat E-Mailem
+	 - [ ] Databanku firem a výbírat, zda tento rok budou nebo ne
+- [ ] Rozhraní pro studenty
+	- [ ] ? Feedback
+	- [ ] ? Mapka pro studenty
+	- [ ] ? Popis firem
