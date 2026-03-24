@@ -1,1 +1,6 @@
-./checkMailFolderList.php
+checkMailFolderList.php
+m4.php
+mail.php
+assets/config.php
+test.php
+cron-mail.php

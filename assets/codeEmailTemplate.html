@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f7;
+            color: #51545e;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f7;
+            padding-bottom: 40px;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #4A90E2;
+            padding: 25px;
+            text-align: center;
+            color: white;
+        }
+
+        .body-content {
+            padding: 30px;
+            line-height: 1.6;
+            text-align: center;
+            color: black;
+        }
+
+        .code-container {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 2px dashed #e1e1e1;
+            border-radius: 6px;
+        }
+
+        .verification-code {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #333333;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .expiry {
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <h1 style="margin:0; font-size: 24px;">Potvrďte Váš Email</h1>
+            </div>
+
+            <div class="body-content">
+                <p>Dobrý den,</p>
+                <p>Děkujeme za přihlášení. Prosím použijte kód přiložený níže pro potvrzení Vašeho Emailu.</p>
+
+                <div class="code-container">
+                    <span class="verification-code">$code</span>
+                </div>
+
+                <p style="font-size: 14px;">Pokud jste se nikam nepřihlašovali, tento Email můžete ignorovat.</p>
+            </div>
+
+            <div class="footer">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
