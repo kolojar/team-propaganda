@@ -1,21 +1,27 @@
 <?php
 session_start();
+require "assets/config.php";
+//user already logged in
 if (isset($_SESSION["userId"])) {
     header("userPanel.html");
     exit();
 }
+//login
 if (isset($_POST["login"])) {
     $_SESSION["email"] = $_POST["login"];
-} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"])) {
+} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"])) { //sign in
     $_SESSION["email"] = $_POST["email"];
     $_SESSION["name"] = $_POST["name"];
     $_SESSION["surname"] = $_POST["surname"];
     verify($_POST["email"]);
-} else {
+} else { //trying to go around
     header('Location: ./loginForm.html');
     exit;
 }
 
+/**
+ * create verify code and call sendMail() with email prepared
+ */
 function verify($email)
 {
     $code = rand(10000, 99999);
@@ -24,28 +30,6 @@ function verify($email)
     $message = str_replace("\$code", $code, file_get_contents("./assets/codeEmailTemplate.html"));
     sendMail($email, "Ověření Emailu", $message);
 }
-
-function sendMail($email, $subject, $message)
-{
-    $url = "https://alba-rosa.cz/school-projects/emailSender/mail.php";
-
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-    $data = [
-        "email" => $email,
-        "subject" => $subject,
-        "message" => $message
-    ];
-
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-
-    $resp = curl_exec($curl);
-    echo $resp;
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
