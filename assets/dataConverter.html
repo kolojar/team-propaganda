@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Converter</title>
+</head>
+
+<body>
+    <input type="file" name="" id="fileInput" accept=".jsonld">
+</body>
+<script>
+    fileInput.onchange = e => {
+        //On file insert = read
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            //Load JSON
+            console.log("LOADED");
+            const raw = JSON.parse(reader.result);
+            const data = raw.list;
+            console.log(data.length);
+
+            //Filter ZŠ
+            const filtered = data.filter(x =>
+                (x.skolyAZarizeni || []).some(s =>
+                    (s.uplnyNazev || "").toLowerCase().includes("základní škola")
+                )
+            );
+            console.log("filtered:", filtered.length);
+
+            //Make Unique
+            const unique = Array.from(
+                new Map(filtered.map(x => [x.redIzo, x])).values()
+            );
+
+            //Make CSV
+            const csv = [
+                ["nazev", "adresa"],
+                ...unique.map(x => [
+                    x.uplnyNazev,
+                    (`${x.adresa?.ulice || ""} ${x.adresa?.cisloDomovni || ""} ${x.adresa?.cisloOrientacni || "" == "" ? "" : "/" + x.adresa?.cisloOrientacni}, ${x.adresa?.obec} ${x.adresa?.psc}`).trim()
+                ])
+            ]
+                .map(r => r.map(v => `"${v}"`).join(","))
+                .join("\n");
+
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "zs.csv";
+            a.click();
+        };
+
+        reader.readAsText(file);
+    };
+
+    document.body.appendChild(fileInput)
+</script>
+
+</html>

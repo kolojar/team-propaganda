@@ -1,0 +1,321 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Rejstřík škol a školských zařízení",
+    "description": "Data rejstříku škol a školských zařízení",
+    "type": "object",
+    "required": [
+        "@context",
+        "datumVystupu",
+        "list"
+    ],
+    "properties": {
+        "@context": {"const": "http://msmt.cz/"},
+        "datumVystupu": {
+            "description": "Datum, kdy byl seznam SUB sestaven",
+            "type": "string",
+            "format": "date"
+        },
+        "list": {
+            "description": "Seznam jednotlivých SUB",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "ico",
+                    "uplnyNazev",
+                    "adresa",
+                    "platnostNaDobuNeurcitou"
+                ],
+                "properties": {
+                    "redIzo": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "ico": {
+                        "type": "string",
+                        "maxLength": 8
+                    },
+                    "kraj": {
+                        "type": [
+							"string",
+							"null"
+						],
+                        "maxLength": 255
+                    },
+                    "uplnyNazev": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "zkracenyNazev": {
+                        "type": [
+							"string",
+							"null"
+						],
+                        "maxLength": 255
+                    },
+                    "adresa": {"$ref": "https://lkod-test.msmt.gov.cz/schemas/adresa-json-schema.jschema"},
+                    "pravniForma": {
+						"type": [
+							"string",
+							"null"
+						],
+                        "maxLength": 50,
+                        "description": "Kód právní formy"
+                    },
+                    "typZrizovatele": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "description": "Kód typu zřizovatele"
+                    },
+                    "emaily": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 50
+                        }
+                    },
+                    "platnostNaDobuNeurcitou": {"type": "boolean"},
+                    "reditel": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "required": [
+                            "nazevOsoby",
+                            "reditelJeStatutar",
+                            "adresa"
+                        ],
+                        "properties": {
+                            "nazevOsoby": {
+                                "type": "string",
+                                "maxLength": 255,
+                                "description": "Úplný název nebo úplné jméno osoby"
+                            },
+                            "reditelJeStatutar": {"type": "boolean"},
+                            "datumVznikuFunkce": {
+                                "type": [
+									"string",
+									"null"
+								],
+                                "format": "date"
+                            },
+                            "adresa": {
+                                "type": [
+									"string",
+									"null"
+								],
+                                "maxLength": 255,
+                                "description": "Složenina adresy osoby"
+                            }
+                        }
+                    },
+                    "statutarniOrgany": {
+                        "type": "array",
+                        "items": {"$ref": "https://lkod-test.msmt.gov.cz/schemas/osoba-json-schema.jschema"}
+                    },
+                    "zrizovatele": {
+                        "type": "array",
+                        "items": {
+                            "oneOf": [
+                                {
+                                    "type": "object",
+                                    "required": [
+                                        "druhOsoby",
+                                        "adresa",
+                                        "nazevOsoby"
+                                    ],
+                                    "properties": {
+                                        "druhOsoby": {"const": "FO"},
+                                        "datumNarozeni": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "format": "date"
+                                        },
+                                        "nazevOsoby": {
+                                            "type": "string",
+                                            "maxLength": 255,
+                                            "description": "Úplný název nebo úplné jméno osoby"
+                                        },
+                                        "adresa": {
+                                            "type": [
+												"string",
+												"null"
+											],
+                                            "maxLength": 255,
+                                            "description": "Složenina adresy osoby"
+                                        },
+                                        "statutarniOrgany": {
+                                            "type": "array",
+                                            "items": {"$ref": "https://lkod-test.msmt.gov.cz/schemas/osoba-json-schema.jschema"}
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "required": [
+                                        "druhOsoby",
+                                        "pravniForma",
+                                        "ico",
+                                        "adresa",
+                                        "nazevOsoby"
+                                    ],
+                                    "properties": {
+                                        "druhOsoby": {"const": "PO"},
+                                        "pravniForma": {
+											"type": [
+												"string",
+												"null"
+											],
+                                            "maxLength": 50,
+                                            "description": "Kód právní formy"
+                                        },
+                                        "ico": {
+                                            "type": [
+												"string",
+												"null"
+											],
+                                            "maxLength": 50
+                                        },
+                                        "nazevOsoby": {
+                                            "type": "string",
+                                            "maxLength": 255,
+                                            "description": "Úplný název nebo úplné jméno osoby"
+                                        },
+                                        "adresa": {
+                                            "type": [
+												"string",
+												"null"
+											],
+                                            "maxLength": 255,
+                                            "description": "Složenina adresy osoby"
+                                        },
+                                        "statutarniOrgany": {
+                                            "type": "array",
+                                            "items": {"$ref": "https://lkod-test.msmt.gov.cz/schemas/osoba-json-schema.jschema"}
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "skolyAZarizeni": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "izo": {
+                                    "type": "string",
+                                    "maxLength": 50
+                                },
+                                "uplnyNazev": {
+                                    "type": "string",
+                                    "maxLength": 255
+                                },
+                                "druh": {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "description": "Kód druhu/typu školy"
+                                },
+                                "jazyk": {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "description": "Kód jazyka školy"
+                                },
+                                "kapacity": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "mernaJednotka": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "nejvyssiPovolenyPocet": {
+                                                "type": "integer",
+                                                "format": "int32"
+                                            }
+                                        }
+                                    }
+                                },
+                                "mistaVyuky": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "izo": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "typ": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "adresa": {"$ref": "https://lkod-test.msmt.gov.cz/schemas/adresa-json-schema.jschema"}
+                                        }
+                                    }
+                                },
+                                "obory": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "kod": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "nazev": {
+                                                "type": "string",
+                                                "maxLength": 255
+                                            },
+                                            "formaVzdelavani": {
+                                                "type": [
+													"string",
+													"null"
+												],
+                                                "maxLength": 50
+                                            },
+                                            "delkaVzdelavani": {
+                                                "type": [
+													"string",
+													"null"
+												],
+                                                "maxLength": 50
+                                            },
+                                            "jazykOboru": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "mernaJednotka": {
+                                                "type": "string",
+                                                "maxLength": 50
+                                            },
+                                            "kapacita": {
+                                                "type": [
+													"integer",
+													"null"
+												],
+                                                "format": "int32"
+                                            }
+                                        }
+                                    }
+                                },
+                                "datumZapisu": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Datum zápisu do rejstříku"
+                                },
+                                "datumZahajeniCinnosti": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Datum zahájení činnosti"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
