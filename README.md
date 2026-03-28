@@ -1,5 +1,7 @@
 # team-propaganda
 team pro team na pomoc propagačním systémům pro školu
+- Update pomocí: ``` git submodule update --remote --recursive ```
+- Zdroj dat základních škol: https://lkod-test.msmt.gov.cz/datasets
 
 # Požadavky paní Klobásová - Kurzy
   - [ ] Formuláře na přihlášení - kdo, odkud, na kterou akci
