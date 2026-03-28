@@ -36,7 +36,7 @@ INSERT INTO `schools`(`name`, `address`) VALUES ('Církevní základní škola s
 INSERT INTO `schools`(`name`, `address`) VALUES ('Soukromá základní škola, spol. s r.o.','Pasteurova 1285 , Ostrava 703 00');
 INSERT INTO `schools`(`name`, `address`) VALUES ('Církevní základní škola a mateřská škola Přemysla Pittra','Jungmannova 349 , Ostrava 702 00');
 INSERT INTO `schools`(`name`, `address`) VALUES ('Základní škola a Mateřská škola Sluníčko s.r.o.','Loučská 237 , Lipník nad Bečvou 751 31');
-INSERT INTO `schools`(`name`, `address`) VALUES ('Soukromá základní škola Acorn's & John's school s.r.o.','U Bečvy 2883 , Přerov 750 02');
+INSERT INTO `schools`(`name`, `address`) VALUES ('Soukromá základní škola Acorns & Johns school s.r.o.','U Bečvy 2883 , Přerov 750 02');
 INSERT INTO `schools`(`name`, `address`) VALUES ('Základní škola Salvátor','Komenského 2 , Valašské Meziříčí 757 01');
 INSERT INTO `schools`(`name`, `address`) VALUES ('Základní škola INTEGRA Vsetín','Na Rybníkách 1628 , Vsetín 755 01');
 INSERT INTO `schools`(`name`, `address`) VALUES ('Základní škola Sedmikráska, o.p.s.','Bezručova 293 , Rožnov pod Radhoštěm 756 61');
