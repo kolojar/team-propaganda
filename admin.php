@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="./formWebScripts/css/tableStyle.css">
+    <link rel="stylesheet" href="./assets/style.css">
 </head>
 
 <body>
@@ -42,23 +43,24 @@
                 </tr>
                 <?php
                 //Request users
-                $stmt = $conn->prepare("SELECT username, email  password FROM users");
+                $stmt = $conn->prepare("SELECT id_users, name,surname, email  password FROM users");
                 $stmt->execute();
                 $stmt->store_result();
 
                 //List all users in table
                 for ($i = 0; $i < $stmt->num_rows; $i++) {
-                    $stmt->bind_result($username, $email);
+                    $stmt->bind_result($id, $name,$surname, $email);
                     $stmt->fetch();
                     ?>
                     <tr>
                         <td>
+                            <button class="formButton formOkColor">Poslat zprávu</button>    
                             <button class="formButton formWarnColor">Upravit</button>
-                            <button class="formButton formErrorColor">Odstranit</button>
+                            <button class="formButton formErrorColor deleteUserButton" userId=<?php echo ($id) ?> userName="<?php echo ($name . " " . $surname) ?>">Odstranit</button>
                         </td>
-                        <td><?php echo $username ?></td>
+                        <td><?php echo ($name . " " . $surname) ?></td>
                         <td><?php echo $email ?></td>
-                        <td>?</td>
+                        <td class="parentOfUserCell">?</td>
                         <td>NE</td>
                         <td>?</td>
                     </tr>
