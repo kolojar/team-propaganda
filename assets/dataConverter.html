@@ -9,6 +9,7 @@
 
 <body>
     <input type="file" name="" id="fileInput" accept=".jsonld">
+    <br>
 </body>
 <script>
     fileInput.onchange = e => {
@@ -38,20 +39,31 @@
 
             //Make CSV
             const csv = [
-                ["nazev", "adresa"],
+                ["name", "address"],
                 ...unique.map(x => [
                     x.uplnyNazev,
                     (`${x.adresa?.ulice || ""} ${x.adresa?.cisloDomovni || ""} ${x.adresa?.cisloOrientacni || "" == "" ? "" : "/" + x.adresa?.cisloOrientacni}, ${x.adresa?.obec} ${x.adresa?.psc}`).trim()
                 ])
-            ]
-                .map(r => r.map(v => `"${v}"`).join(","))
-                .join("\n");
+            ].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
 
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
             a.download = "zs.csv";
             a.click();
+
+            //Make SQL
+            let sql = ""
+            unique.forEach(x => {
+                sql += "INSERT INTO `schools`(`name`, `address`) VALUES ('" + x.uplnyNazev + "','" + (`${x.adresa?.ulice || ""} ${x.adresa?.cisloDomovni || ""} ${x.adresa?.cisloOrientacni || "" == "" ? "" : "/" + x.adresa?.cisloOrientacni}, ${x.adresa?.obec} ${x.adresa?.psc}`).trim() + "');"
+                sql += "\n"
+            })
+            const blob2 = new Blob([sql], { type: "text/sql;charset=utf-8;" });
+            const a2 = document.createElement("a");
+            a.href = URL.createObjectURL(blob2);
+            a.download = "zs.sql";
+            a.click();
+
         };
 
         reader.readAsText(file);
