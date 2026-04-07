@@ -30,7 +30,7 @@
         session_start();
         require "./assets/config.php";
         if ($_GET["view"] == "attendants") {
-            ?>
+        ?>
             <h1>Zájemci</h1>
             <table class="styledTable">
                 <tr>
@@ -43,18 +43,18 @@
                 </tr>
                 <?php
                 //Request users
-                $stmt = $conn->prepare("SELECT id_users, name,surname, email  password FROM users");
+                $stmt = $conn->prepare("SELECT id_users, name,surname, email  password FROM users_teamPropaganda");
                 $stmt->execute();
                 $stmt->store_result();
 
                 //List all users in table
                 for ($i = 0; $i < $stmt->num_rows; $i++) {
-                    $stmt->bind_result($id, $name,$surname, $email);
+                    $stmt->bind_result($id, $name, $surname, $email);
                     $stmt->fetch();
-                    ?>
+                ?>
                     <tr>
                         <td>
-                            <button class="formButton formOkColor">Poslat zprávu</button>    
+                            <button class="formButton formOkColor">Poslat zprávu</button>
                             <button class="formButton formWarnColor">Upravit</button>
                             <button class="formButton formErrorColor deleteUserButton" userId=<?php echo ($id) ?> userName="<?php echo ($name . " " . $surname) ?>">Odstranit</button>
                         </td>
@@ -64,19 +64,19 @@
                         <td>NE</td>
                         <td>?</td>
                     </tr>
-                    <?php
+                <?php
                 }
                 ?>
             </table>
-            <?php
+        <?php
         } else if ($_GET["view"] == "classrooms") {
-            ?>
+        ?>
             <h1>Učebny</h1>
-            <?php
+        <?php
         } else {
-            ?>
-                <h1>Hlavní menu</h1>
-            <?php
+        ?>
+            <h1>Hlavní menu</h1>
+        <?php
         }
         ?>
     </main>

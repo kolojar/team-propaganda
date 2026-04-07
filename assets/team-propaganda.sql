@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Sob 28. bře 2026, 05:58
+-- Vytvořeno: Úte 07. dub 2026, 06:16
 -- Verze serveru: 12.2.2-MariaDB
 -- Verze PHP: 8.5.4
 
@@ -24,44 +24,50 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `email_send`
+-- Struktura tabulky `email_send_teamPropaganda`
 --
 
-CREATE TABLE `email_send` (
-  `id_email_send` int(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `email_send_teamPropaganda` (
+  `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `subject` varchar(255) NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+  `message` text NOT NULL,
+  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  PRIMARY KEY (`id_email_send`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `email_send_user`
+-- Struktura tabulky `email_send_user_teamPropaganda`
 --
 
-CREATE TABLE `email_send_user` (
+CREATE TABLE IF NOT EXISTS `email_send_user_teamPropaganda` (
   `id_users` int(10) UNSIGNED NOT NULL,
-  `id_email_send` int(10) UNSIGNED NOT NULL
+  `id_email_send` int(10) UNSIGNED NOT NULL,
+  `sent` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id_users`,`id_email_send`),
+  KEY `id_email_send` (`id_email_send`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `schools`
+-- Struktura tabulky `schools_teamPropaganda`
 --
 
-CREATE TABLE `schools` (
-  `id_schools` int(16) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `schools_teamPropaganda` (
+  `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL
+  `address` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_schools`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Vypisuji data pro tabulku `schools`
+-- Vypisuji data pro tabulku `schools_teamPropaganda`
 --
 
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (1, 'Modrý klíč - základní škola speciální a mateřská škola speciální, o.p.s.', 'Smolkova 567 , Praha 142 00'),
 (2, 'ARCHA základní škola a mateřská škola při Církvi československé husitské', '74 , Petroupim 256 01'),
 (3, 'Mateřská škola a základní škola Sluníčko - Montessori, s.r.o.', 'Šrámkova 432 , Brno 638 00'),
@@ -525,8 +531,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (461, 'Základní škola a Mateřská škola, Praha 6, Bílá 1', 'Bílá 1784 , Praha 160 00'),
 (462, 'Základní škola a Mateřská škola, Praha 6, Na Dlouhém lánu 43', 'Na dlouhém lánu 555 , Praha 160 00'),
 (463, 'Základní škola Petřiny - sever, Praha 6, Na Okraji 43', 'Na okraji 305 , Praha 162 00'),
-(464, 'Základní škola a Mateřská škola T. G. Masaryka, Praha 6, náměstí Českého povstání 6', 'náměstí Českého povstání 511 , Praha 161 00');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(464, 'Základní škola a Mateřská škola T. G. Masaryka, Praha 6, náměstí Českého povstání 6', 'náměstí Českého povstání 511 , Praha 161 00'),
 (465, 'Základní škola a Mateřská škola Antonína Čermáka, Praha 6', 'Antonína Čermáka 1022 , Praha 160 00'),
 (466, 'Základní škola a Mateřská škola Emy Destinnové, Praha 6, náměstí Svobody 3/930', 'náměstí Svobody 930 , Praha 160 00'),
 (467, 'Základní škola a Mateřská škola, Praha 6, náměstí Svobody 2', 'náměstí Svobody 930 , Praha 160 00'),
@@ -1046,8 +1051,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (981, 'Základní škola a Mateřská škola Čistá, okres Rakovník', 'Tyršova 127 , Čistá 270 34'),
 (982, 'Základní škola a mateřská škola Jesenice, okres Rakovník', 'Školní 323 , Jesenice 270 33'),
 (983, 'Základní škola a Mateřská škola Kounov, okres Rakovník', '196 , Kounov 270 06'),
-(984, 'Základní škola a Mateřská škola Křivoklát', '157 , Křivoklát 270 23');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(984, 'Základní škola a Mateřská škola Křivoklát', '157 , Křivoklát 270 23'),
 (985, 'Základní škola Charlotty Garrigue Masarykové Lány, okres Kladno', 'Školní 93 , Lány 270 61'),
 (986, 'Základní škola a mateřská škola Lužná, příspěvková organizace', 'Masarykovo nám. 252 , Lužná 270 51'),
 (987, 'Základní škola Mutějovice, okres Rakovník', 'Husova 245 , Mutějovice 270 07'),
@@ -1535,8 +1539,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (1469, 'Základní škola Chomutov, Zahradní 5265', 'Zahradní 5265 , Chomutov 430 04'),
 (1470, 'Městské gymnázium a Základní škola Jirkov', 'Krušnohorská 1675 , Jirkov 431 11'),
 (1471, 'Základní škola, Klášterec nad Ohří, Krátká 676, okres Chomutov', 'Krátká 676 , Klášterec nad Ohří 431 51'),
-(1472, 'Základní škola, Klášterec nad Ohří, Petlérská 447, okres Chomutov', 'Petlérská 447 , Klášterec nad Ohří 431 51');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(1472, 'Základní škola, Klášterec nad Ohří, Petlérská 447, okres Chomutov', 'Petlérská 447 , Klášterec nad Ohří 431 51'),
 (1473, 'Základní škola a Mateřská škola Vysoká Pec, okres Chomutov, příspěvková organizace', 'Julia Fučíka 40 , Vysoká Pec 431 59'),
 (1474, 'Základní škola a Mateřská škola, Chomutov, 17. listopadu 4728, příspěvková organizace', '17. listopadu 4728 , Chomutov 430 04'),
 (1475, 'Základní škola a mateřská škola při nemocnici, Kadaň, Chomutovská 1289', 'Chomutovská 1289 , Kadaň 432 01'),
@@ -2019,8 +2022,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (1952, 'Základní škola Rovensko pod Troskami, příspěvková organizace', 'Revoluční 413 , Rovensko pod Troskami 512 63'),
 (1953, 'Základní škola Turnov, 28. října 18, příspěvková organizace', '28. října 18 , Turnov 511 01'),
 (1954, 'Waldorfská základní škola a střední škola Semily, příspěvková organizace', 'Tyršova 485 , Semily 513 01'),
-(1955, 'Základní škola, Mírová pod Kozákovem, příspěvková organizace', '31 , Mírová pod Kozákovem 511 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(1955, 'Základní škola, Mírová pod Kozákovem, příspěvková organizace', '31 , Mírová pod Kozákovem 511 01'),
 (1956, 'Základní škola a Mateřská škola Josefa Šíra, Horní Branná, příspěvková organizace', '257 , Horní Branná 512 36'),
 (1957, 'Krkonošská základní škola a mateřská škola Vítkovice, příspěvková organizace', '28 , Vítkovice 512 38'),
 (1958, 'Základní škola Jilemnice, Komenského 288, příspěvková organizace', 'Komenského 288 , Jilemnice 514 01'),
@@ -2503,8 +2505,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (2435, 'Základní škola a Mateřská škola Prušánky, okres Hodonín, příspěvková organizace', '289 , Prušánky 696 21'),
 (2436, 'Základní škola a mateřská škola Rohatec, příspěvková organizace', 'Školní 742 , Rohatec 696 01'),
 (2437, 'Základní škola M. Kudeříkové, Strážnice, Příční 1365, příspěvková organizace', 'Příční 1365 , Strážnice 696 62'),
-(2438, 'Základní škola a Mateřská škola Svatobořice-Mistřín, okres Hodonín, příspěvková organizace', 'Hlavní 871 , Svatobořice-Mistřín 696 04');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(2438, 'Základní škola a Mateřská škola Svatobořice-Mistřín, okres Hodonín, příspěvková organizace', 'Hlavní 871 , Svatobořice-Mistřín 696 04'),
 (2439, 'Základní škola T. G. Masaryka Šardice, okres Hodonín, příspěvková organizace', '521 , Šardice 696 13'),
 (2440, 'Masarykova základní škola Velká nad Veličkou, příspěvková organizace', '461 , Velká nad Veličkou 696 74'),
 (2441, 'Základní škola Vnorovy, okres Hodonín, příspěvková organizace', 'Hlavní 17 , Vnorovy 696 61'),
@@ -2976,8 +2977,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (2907, 'Základní škola Frýdek-Místek, Jiřího z Poděbrad 3109', 'Jiřího z Poděbrad 3109 , Frýdek-Místek 738 01'),
 (2908, 'Základní škola a mateřská škola Frýdek-Místek, Lískovec, K Sedlištím 320', 'K Sedlištím 320 , Frýdek-Místek 738 01'),
 (2909, 'Základní škola Frýdek-Místek, Komenského 402', 'Komenského 402 , Frýdek-Místek 738 01'),
-(2910, 'Základní škola Frýdek-Místek, Pionýrů 400', 'Pionýrů 400 , Frýdek-Místek 738 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(2910, 'Základní škola Frýdek-Místek, Pionýrů 400', 'Pionýrů 400 , Frýdek-Místek 738 01'),
 (2911, 'Základní škola a mateřská škola Frýdek-Místek - Skalice 192, příspěvková organizace', '192 , Frýdek-Místek 738 01'),
 (2912, 'Základní škola a mateřská škola Pstruží, příspěvková organizace', '104 , Pstruží 739 11'),
 (2913, 'Základní škola Frýdlant nad Ostravicí, náměstí T. G. Masaryka 1260, příspěvková organizace', 'Nám. T. G. Masaryka 1260 , Frýdlant nad Ostravicí 739 11'),
@@ -3421,8 +3421,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (3351, 'Základní škola a Mateřská škola Bušín, okres Šumperk, příspěvková organizace', '150 , Bušín 789 62'),
 (3352, 'Základní škola Šumperk, Dr.E.Beneše 1', 'Dr. E. Beneše 974 , Šumperk 787 01'),
 (3353, 'Základní škola a mateřská škola Kamenná, okres Šumperk, příspěvková organizace', '66 , Kamenná 789 74'),
-(3354, 'Základní škola Valašské Meziříčí, Šafaříkova 726, okres Vsetín, příspěvková organizace', 'Šafaříkova 726 , Valašské Meziříčí 757 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(3354, 'Základní škola Valašské Meziříčí, Šafaříkova 726, okres Vsetín, příspěvková organizace', 'Šafaříkova 726 , Valašské Meziříčí 757 01'),
 (3355, 'Základní škola Valašské Meziříčí, Masarykova 291, okres Vsetín, příspěvková organizace', 'Masarykova 291 , Valašské Meziříčí 757 01'),
 (3356, 'Základní škola Lešná, okres Vsetín', '133 , Lešná 756 41'),
 (3357, 'Základní škola Valašské Meziříčí, Vyhlídka 380, okres Vsetín, příspěvková organizace', 'Králova 380 , Valašské Meziříčí 757 01'),
@@ -3912,8 +3911,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (3841, 'Základní škola a mateřská škola, Předměřice nad Labem, okres Hradec Králové', 'Školská 279 , Předměřice nad Labem 503 02'),
 (3842, 'Základní škola a mateřská škola, Mžany, okres Hradec Králové', '62 , Mžany 503 15'),
 (3843, 'Základní škola, Základní umělecká škola a Mateřská škola Kašperské Hory, příspěvková organizace', 'Vimperská 230 , Kašperské Hory 341 92'),
-(3844, 'Základní škola Manětín, příspěvková organizace', '12 , Manětín 331 62');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(3844, 'Základní škola Manětín, příspěvková organizace', '12 , Manětín 331 62'),
 (3845, 'Základní škola a Mateřská škola Ejpovice, okres Rokycany, příspěvková organizace', 'Hlavní 87 , Ejpovice 337 01'),
 (3846, 'Základní škola a mateřská škola Postřekov, příspěvková organizace', '271 , Postřekov 345 35'),
 (3847, 'Základní škola a Mateřská škola T. G. Masaryka Sedlice, okres Strakonice', 'Komenského 256 , Sedlice 387 32'),
@@ -4418,86 +4416,35 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `users`
+-- Struktura tabulky `users_teamPropaganda`
 --
 
-CREATE TABLE `users` (
-  `id_users` int(16) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `users_teamPropaganda` (
+  `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `surname` varchar(255) NOT NULL,
-  `id_schools` int(16) UNSIGNED NOT NULL
+  `id_schools` int(16) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_users`),
+  KEY `school` (`id_schools`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Indexy pro exportované tabulky
---
-
---
--- Indexy pro tabulku `email_send`
---
-ALTER TABLE `email_send`
-  ADD PRIMARY KEY (`id_email_send`);
-
---
--- Indexy pro tabulku `email_send_user`
---
-ALTER TABLE `email_send_user`
-  ADD PRIMARY KEY (`id_users`,`id_email_send`),
-  ADD KEY `id_email_send` (`id_email_send`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- Indexy pro tabulku `schools`
---
-ALTER TABLE `schools`
-  ADD PRIMARY KEY (`id_schools`);
-
---
--- Indexy pro tabulku `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id_users`),
-  ADD KEY `school` (`id_schools`);
-
---
--- AUTO_INCREMENT pro tabulky
---
-
---
--- AUTO_INCREMENT pro tabulku `email_send`
---
-ALTER TABLE `email_send`
-  MODIFY `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT pro tabulku `schools`
---
-ALTER TABLE `schools`
-  MODIFY `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4345;
-
---
--- AUTO_INCREMENT pro tabulku `users`
---
-ALTER TABLE `users`
-  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Omezení pro exportované tabulky
 --
 
 --
--- Omezení pro tabulku `email_send_user`
+-- Omezení pro tabulku `email_send_user_teamPropaganda`
 --
-ALTER TABLE `email_send_user`
-  ADD CONSTRAINT `id_email_send` FOREIGN KEY (`id_email_send`) REFERENCES `email_send` (`id_email_send`),
-  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`);
+ALTER TABLE `email_send_user_teamPropaganda`
+  ADD CONSTRAINT `id_email_send` FOREIGN KEY (`id_email_send`) REFERENCES `email_send_teamPropaganda` (`id_email_send`),
+  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users_teamPropaganda` (`id_users`);
 
 --
--- Omezení pro tabulku `users`
+-- Omezení pro tabulku `users_teamPropaganda`
 --
-ALTER TABLE `users`
-  ADD CONSTRAINT `school` FOREIGN KEY (`id_schools`) REFERENCES `schools` (`id_schools`);
+ALTER TABLE `users_teamPropaganda`
+  ADD CONSTRAINT `school` FOREIGN KEY (`id_schools`) REFERENCES `schools_teamPropaganda` (`id_schools`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

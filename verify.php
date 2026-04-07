@@ -9,6 +9,7 @@ if (isset($_SESSION["userId"])) {
 //login
 if (isset($_POST["login"])) {
     $_SESSION["email"] = $_POST["login"];
+    verify($_POST["email"]);
 } else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"])) { //sign in
     $_SESSION["email"] = $_POST["email"];
     $_SESSION["name"] = $_POST["name"];
@@ -27,7 +28,7 @@ function verify($email)
     $code = rand(10000, 99999);
     //echo $code;
     $_SESSION["verify"] = $code;
-    $message = str_replace("\$code", $code, file_get_contents("./assets/codeEmailTemplate.html"));
+    $message = str_replace("\$code", $code, file_get_contents("./templates/verifyEmail.html"));
     sendMail($email, "Ověření Emailu", $message);
 }
 ?>
