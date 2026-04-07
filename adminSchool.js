@@ -1,3 +1,4 @@
+var _a, _b;
 import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
 import { SendToast } from "./formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
@@ -39,19 +40,19 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
     input.addEventListener("focusout", attendantValidate);
 }
 //Make attendant save button work
-document.getElementById("schoolBtnSave").addEventListener("click", async function () {
+(_a = document.getElementById("schoolBtnSave")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async function () {
     //Check attendantValidate for changes
     let foundChange = false;
     const changes = [];
     for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         const inputHolder = inputElement.children.item(0);
-        const input = inputHolder.children.item(0);
-        inputHolder.dispatchEvent(new Event("input"));
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
+        const input = inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.children.item(0);
+        inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.dispatchEvent(new Event("input"));
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formErrorBorderColor")) {
             SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error");
             return;
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formWarnBorderColor")) {
             foundChange = true;
             changes.push("• " + input.placeholder + " → " + input.value);
         }
@@ -85,19 +86,19 @@ document.getElementById("schoolBtnSave").addEventListener("click", async functio
     }
 });
 //Make attendant cancel button work
-document.getElementById("schoolBtnCancel").addEventListener("click", async function () {
+(_b = document.getElementById("schoolBtnCancel")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", async function () {
     //Check attendantValidate for changes
     let foundChange = false;
     const changes = [];
     for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         const inputHolder = inputElement.children.item(0);
-        const input = inputHolder.children.item(0);
-        inputHolder.dispatchEvent(new Event("input"));
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
+        const input = inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.children.item(0);
+        inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.dispatchEvent(new Event("input"));
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formErrorBorderColor")) {
             SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error");
             return;
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formWarnBorderColor")) {
             foundChange = true;
             changes.push("• " + input.placeholder + " → " + input.value);
         }
@@ -107,4 +108,13 @@ document.getElementById("schoolBtnCancel").addEventListener("click", async funct
         window.location.reload();
     }
 });
+let func = async () => {
+    const data = new FormData(undefined, null);
+    data.set("action", "getSchools");
+    data.set("table", "");
+    data.set("query", "zakladni skola ivancice");
+    const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+    console.log(JSON.parse(msg));
+};
+func();
 //# sourceMappingURL=adminSchool.js.map

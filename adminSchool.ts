@@ -41,19 +41,19 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
 }
 
 //Make attendant save button work
-document.getElementById("schoolBtnSave").addEventListener("click", async function () {
+document.getElementById("schoolBtnSave")?.addEventListener("click", async function () {
     //Check attendantValidate for changes
     let foundChange = false
     const changes  = []
     for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         const inputHolder = inputElement.children.item(0)
-        const input = inputHolder.children.item(0) as HTMLInputElement
-        inputHolder.dispatchEvent(new Event("input"))
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
+        const input = inputHolder?.children.item(0) as HTMLInputElement
+        inputHolder?.dispatchEvent(new Event("input"))
+        if (inputHolder?.classList.contains("formErrorBorderColor")) {
             SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error")
             return
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
+        if (inputHolder?.classList.contains("formWarnBorderColor")) {
             foundChange = true
             changes.push("• " + input.placeholder + " → " + input.value);
         }
@@ -71,7 +71,7 @@ document.getElementById("schoolBtnSave").addEventListener("click", async functio
         const data = new FormData()
         data.append("action","update")
         data.append("table","schools")
-        data.append("id",urlSearchParams.get("school"));
+        data.append("id",urlSearchParams.get("school")as string);
         data.append("name",(document.getElementById("schoolName") as HTMLInputElement).value);
         data.append("address",(document.getElementById("schoolAddress") as HTMLInputElement).value);
         const [ok,_] = await SendPOSTDataToServerAsync("./adminFunctions.php",data)
@@ -89,19 +89,19 @@ document.getElementById("schoolBtnSave").addEventListener("click", async functio
 })
 
 //Make attendant cancel button work
-document.getElementById("schoolBtnCancel").addEventListener("click", async function () {
+document.getElementById("schoolBtnCancel")?.addEventListener("click", async function () {
     //Check attendantValidate for changes
     let foundChange = false
     const changes  = []
     for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         const inputHolder = inputElement.children.item(0)
-        const input = inputHolder.children.item(0) as HTMLInputElement
-        inputHolder.dispatchEvent(new Event("input"))
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
+        const input = inputHolder?.children.item(0) as HTMLInputElement
+        inputHolder?.dispatchEvent(new Event("input"))
+        if (inputHolder?.classList.contains("formErrorBorderColor")) {
             SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error")
             return
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
+        if (inputHolder?.classList.contains("formWarnBorderColor")) {
             foundChange = true
             changes.push("• " + input.placeholder + " → " + input.value);
         }
@@ -112,3 +112,13 @@ document.getElementById("schoolBtnCancel").addEventListener("click", async funct
         window.location.reload()
     }
 })
+
+let func = async () =>  {
+const data = new FormData(undefined,null)
+data.set("action","getSchools")
+data.set("table","")
+data.set("query","zakladni skola ivancice")
+const [ok,msg] = await SendPOSTDataToServerAsync("./adminFunctions.php",data)
+console.log(JSON.parse(msg));
+};
+func()
