@@ -130,9 +130,9 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o zájemci: $name $surname</h1>";
-            echo "<p>Křestní jméno: <inputfield class='attendantValidate' type='text' valueId='attendantName' initialValue='$name' placeholder='$name'></inputfield></p>";
-            echo "<p>Přijmení: <inputfield class='attendantValidate' type='text' valueId='attendantSurname' initialValue='$surname' placeholder='$surname'></inputfield></p>";
-            echo "<p>Email: <inputfield class='attendantValidate' type='email' valueId='attendantEmail' initialValue='$email' placeholder='$email'></inputfield></p>";
+            echo "<p>Křestní jméno: <form-input class='attendantValidate' type='text' id='attendantName' value='$name' placeholder='$name'></form-input></p>";
+            echo "<p>Přijmení: <form-input class='attendantValidate' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input></p>";
+            echo "<p>Email: <form-input class='attendantValidate' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input></p>";
             echo "<p>Zákonný zástupce: <b><?php echo '?' ?></b></p>";
             echo "<p>Základní škola: <a href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor'>Změnit školu</button></p>";
             echo "<div class='formButtonBoxHolder'>";
@@ -188,8 +188,8 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o škole: $name → $address</h1>";
-            echo "<p>Název: <inputfield class='schoolValidate' type='text' valueId='schoolName' initialValue='$name' placeholder='$name'></inputfield></p>";
-            echo "<p>Adresa: <inputfield class='schoolValidate' type='text' valueId='schoolAddress' initialValue='$address' placeholder='$address'></inputfield></p>";
+            echo "<p>Název: <form-input class='schoolValidate' type='text' valueId='schoolName' initialValue='$name' placeholder='$name'></form-input></p>";
+            echo "<p>Adresa: <form-input class='schoolValidate' type='text' valueId='schoolAddress' initialValue='$address' placeholder='$address'></form-input></p>";
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             echo "<button id='schoolBtnSave' class='formButton formOkColor'>Uložit změny</button>";

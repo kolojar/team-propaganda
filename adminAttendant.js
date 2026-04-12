@@ -1,7 +1,6 @@
 import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
 import { SendToast } from "./formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
-import { KeyValuePair } from "./formWebScripts/js/sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
 async function deleteUser(userId, name) {
@@ -16,43 +15,22 @@ for (const button of document.getElementsByClassName("deleteUserButton")) {
 //Make Parent of user clickable
 for (const button of document.getElementsByClassName("parentOfUserCell")) {
     button.addEventListener("click", async () => {
-        console.log(await dialogManager.OpenSelect("Vyberte akci", "Co chcete provést?", 0, [new KeyValuePair("Napsat", 1), new KeyValuePair("Zobrazit komunikaci", 2)]));
+        console.log(await dialogManager.OpenSelect("Vyberte akci", "Co chcete provést?", 0, new Map([["Napsat", 1], ["Zobrazit komunikaci", 2]])));
     });
 }
 //Make attendantValidate validable
 for (const inputElement of document.getElementsByClassName("attendantValidate")) {
-    const attendantValidate = () => {
-        if (input.value == undefined || input.value.trim().length == 0) {
+    const input = inputElement;
+    input.validationFunction = (value) => {
+        if (value == undefined || value.trim().length == 0) {
             //Value empty
-            if (!inputHolder.classList.contains("formErrorBorderColor")) {
-                inputHolder.classList.add("formErrorBorderColor");
-            }
-            return;
+            return false;
         }
         else {
             //Value OK
-            if (inputHolder.classList.contains("formErrorBorderColor")) {
-                inputHolder.classList.remove("formErrorBorderColor");
-            }
-        }
-        if (input.value != input.placeholder) {
-            //Value changed
-            if (!inputHolder.classList.contains("formWarnBorderColor")) {
-                inputHolder.classList.add("formWarnBorderColor");
-            }
-            return;
-        }
-        else {
-            //Value same
-            if (inputHolder.classList.contains("formWarnBorderColor")) {
-                inputHolder.classList.remove("formWarnBorderColor");
-            }
+            return true;
         }
     };
-    const inputHolder = inputElement.children.item(0);
-    const input = inputHolder.children.item(0);
-    input.addEventListener("input", attendantValidate);
-    input.addEventListener("focusout", attendantValidate);
 }
 //Make attendant save button work
 document.getElementById("attendantBtnSave").addEventListener("click", async function () {
