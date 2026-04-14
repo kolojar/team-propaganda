@@ -110,3 +110,9 @@ document.getElementById("attendantBtnCancel").addEventListener("click", async fu
         window.location.reload()
     }
 })
+
+//Make attendant change school button work
+document.getElementById("attendantBtnChangeSchool")?.addEventListener("click", async function () {
+    const schoolId =  document.getElementById("schoolIdHolder")?.getAttribute("schoolId")
+    console.log(     await dialogManager.OpenSelect("Změnit školu","Zadejte název školy",schoolId,new Map([["1","Test"],["2","test 2"]])))
+})

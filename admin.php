@@ -130,11 +130,11 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o zájemci: $name $surname</h1>";
-            echo "<p>Křestní jméno: <form-input class='attendantValidate' type='text' id='attendantName' value='$name' placeholder='$name'></form-input></p>";
-            echo "<p>Přijmení: <form-input class='attendantValidate' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input></p>";
-            echo "<p>Email: <form-input class='attendantValidate' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input></p>";
+            echo "<p>Křestní jméno:</p><form-input class='attendantValidate' type='text' id='attendantName' value='$name' placeholder='$name'></form-input>";
+            echo "<p>Přijmení:</p><form-input class='attendantValidate' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input>";
+            echo "<p>Email:</p><form-input class='attendantValidate' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input>";
             echo "<p>Zákonný zástupce: <b><?php echo '?' ?></b></p>";
-            echo "<p>Základní škola: <a href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor'>Změnit školu</button></p>";
+            echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             echo "<button id='attendantBtnSave' class='formButton formOkColor'Uložit změny</button>";
