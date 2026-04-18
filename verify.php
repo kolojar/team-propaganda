@@ -3,13 +3,13 @@ session_start();
 require "assets/config.php";
 //user already logged in
 if (isset($_SESSION["userId"])) {
-    header("userPanel.html");
+    header("Location: ./userPanel.html");
     exit();
 }
 //login
 if (isset($_POST["login"])) {
     $_SESSION["email"] = $_POST["login"];
-    verify($_POST["email"]);
+    verify($_POST["login"]);
 } else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"])) { //sign in
     $_SESSION["email"] = $_POST["email"];
     $_SESSION["name"] = $_POST["name"];

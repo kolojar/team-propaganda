@@ -26,7 +26,7 @@ team pro team na pomoc propagačním systémům pro školu
 	  - [ ] Platba OK
 	  - [ ] 14 dnů před akcí - co, kdy, kde jak
 	  - [ ] Pátek před akcí - místo učebny
-	  - [ ] Hromadná korespondence
+	  - [X] Hromadná korespondence
   - [ ] Jednoduchý poradce a informační koutek
   - [ ] Úprava odeslaných textů + fotky
   - [ ] Přikládání souborů / příloh
@@ -56,7 +56,7 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Oslovování
 	  - Skloňování
 	  - Více jmen a přijmení
-  - [ ] V kolik hodin odešel E-Mail
+  - [X] V kolik hodin odešel E-Mail
   - [ ] Odhlášení
  	   - Jak
  	   - Kdy
@@ -95,7 +95,7 @@ admin panel
 - vložit dokument se zobrazením
 - možnost side admin účtů
 - nebyl dostane materiály ?
-list škol
+- [X] list škol
 formulář na odhlášení
 plakátky k učebnám abecedně příjmení
 prezenčka
