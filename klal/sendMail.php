@@ -1,5 +1,5 @@
 <?php
-require "./assets/config.php";
+require "../assets/config.php";
 //if (!isset($_SESSION["userId"])) {
 //    header("login.php");
 //    exit();

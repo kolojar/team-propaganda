@@ -1,4 +1,5 @@
 <?php
+session_start();
 if (!isset($_SESSION["admin"])) {
     //header("Location: loginAdmin.php");
 }
@@ -22,7 +23,7 @@ if (isset($_POST["template"], $_POST["name"], $_POST["message"])) {
 <html>
 
 <head>
-    <link rel="stylesheet" href="formWebScripts/css/formStyle.css">
+    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
 </head>
 
 <body>
@@ -58,10 +59,10 @@ if (isset($_POST["template"], $_POST["name"], $_POST["message"])) {
     <script type="module">
         import {
             SendPOSTDataToServerAsync
-        } from "./formWebScripts/js/serverComunication.js";
+        } from "../formWebScripts/js/serverComunication.js";
         import {
             SendToast
-        } from "./formWebScripts/js/formScript.js";
+        } from "../formWebScripts/js/formScript.js";
         let selectedTemplate = "none";
 
         let temp = document.getElementsByClassName("templateChange")
