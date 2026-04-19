@@ -1,4 +1,3 @@
-var _a;
 import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
 import { SendToast } from "./formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
@@ -104,9 +103,17 @@ document.getElementById("attendantBtnCancel").addEventListener("click", async fu
     }
 });
 //Make attendant change school button work
-(_a = document.getElementById("attendantBtnChangeSchool")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async function () {
-    var _a;
-    const schoolId = (_a = document.getElementById("schoolIdHolder")) === null || _a === void 0 ? void 0 : _a.getAttribute("schoolId");
-    console.log(await dialogManager.OpenSelect("Změnit školu", "Zadejte název školy", schoolId, new Map([["1", "Test"], ["2", "test 2"]])));
-});
+const attendantSchool = document.getElementById("attendantSchool");
+attendantSchool.validationFunction = (value) => {
+    const func = async () => {
+        const data = new FormData(undefined, null);
+        data.set("action", "getSchools");
+        data.set("table", "");
+        data.set("query", "zakladni skola ivancice");
+        const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+        console.log(JSON.parse(msg));
+    };
+    func();
+    return true;
+};
 //# sourceMappingURL=adminAttendant.js.map

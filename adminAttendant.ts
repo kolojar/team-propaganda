@@ -112,7 +112,16 @@ document.getElementById("attendantBtnCancel").addEventListener("click", async fu
 })
 
 //Make attendant change school button work
-document.getElementById("attendantBtnChangeSchool")?.addEventListener("click", async function () {
-    const schoolId =  document.getElementById("schoolIdHolder")?.getAttribute("schoolId")
-    console.log(     await dialogManager.OpenSelect("Změnit školu","Zadejte název školy",schoolId,new Map([["1","Test"],["2","test 2"]])))
-})
+const attendantSchool = document.getElementById("attendantSchool") as HTMLFormInputElement
+attendantSchool.validationFunction = (value: string) => {
+    const func = async () => {
+    const data = new FormData(undefined, null)
+    data.set("action", "getSchools")
+    data.set("table", "")
+    data.set("query", "zakladni skola ivancice")
+    const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data)
+    console.log(JSON.parse(msg));
+    }
+    func()
+    return true;
+}

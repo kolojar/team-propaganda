@@ -64,7 +64,7 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
     }
     //Wait for confirm
     if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
-        const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", null, 0, false, true, true);
+        const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
         const data = new FormData();
         data.append("action", "update");
         data.append("table", "schools");
@@ -108,13 +108,4 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         window.location.reload();
     }
 });
-let func = async () => {
-    const data = new FormData(undefined, null);
-    data.set("action", "getSchools");
-    data.set("table", "");
-    data.set("query", "zakladni skola ivancice");
-    const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
-    console.log(JSON.parse(msg));
-};
-func();
 //# sourceMappingURL=adminSchool.js.map
