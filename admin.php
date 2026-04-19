@@ -130,19 +130,19 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o zájemci: $name $surname</h1>";
-            echo "<p>Křestní jméno:</p><form-input class='attendantValidate' type='text' id='attendantName' value='$name' placeholder='$name'></form-input>";
-            echo "<p>Přijmení:</p><form-input class='attendantValidate' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input>";
-            echo "<p>Email:</p><form-input class='attendantValidate' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input>";
+            echo "<p>Křestní jméno:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantName' value='$name' placeholder='$name'></form-input>";
+            echo "<p>Přijmení:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input>";
+            echo "<p>Email:</p><form-input class='attendantValidate' do-change-check='true' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input>";
             echo "<p>Zákonný zástupce: <b><?php echo '?' ?></b></p>";
             //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
             echo "<p>Základní škola:</p>";
-            echo "<form-input type='select' id='attendantSchool' value='$schoolName → $schoolAddress'></form-input>";
-            echo "<a href='?view=school&school=$schoolId'><button class='formButton formInfoColor'>Zobrazit informace o škole</button></a>";
+            echo "<form-input class='attendantValidate' type='select' do-change-check='true' id='attendantSchool' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             echo "<button id='attendantBtnSave' class='formButton formOkColor'>Uložit změny</button>";
             echo "<button id='attendantBtnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
             echo "<a href='?view=attendants'><button class='formButton formInfoColor'>Zpět na seznam zájemců</button></a>";
+            echo "<a href='?view=school&school=$schoolId'><button class='formButton formInfoColor'>Zobrazit informace o škole</button></a>";
             echo "</div>";
             echo "</div>";
             echo "<script type='module' src='./adminAttendant.js'></script>";

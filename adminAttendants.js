@@ -1,3 +1,4 @@
+"use strict";
 //Make Row of user highlightable
 for (const row of document.getElementsByClassName("clickHighlightRow")) {
     row.addEventListener("click", () => {

@@ -1,3 +1,4 @@
+var _a, _b;
 import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
 import { SendToast } from "./formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
@@ -7,11 +8,11 @@ async function deleteUser(userId, name) {
     await dialogManager.OpenConfirm("Smazání uživatele", "Opravdu chcete odebrat uživatele: " + name + "?", true, true);
 }
 //Make User delete buttons work
-for (const button of document.getElementsByClassName("deleteUserButton")) {
-    button.addEventListener("click", async () => {
-        await deleteUser(button.getAttribute("userId"), button.getAttribute("userName"));
-    });
-}
+//for (const button of document.getElementsByClassName("deleteUserButton")) {
+//    (button as HTMLButtonElement).addEventListener("click", async () => {
+//        await deleteUser(button.getAttribute("userId") as string, button.getAttribute("userName") as string)
+//    })
+//}
 //Make Parent of user clickable
 for (const button of document.getElementsByClassName("parentOfUserCell")) {
     button.addEventListener("click", async () => {
@@ -19,52 +20,49 @@ for (const button of document.getElementsByClassName("parentOfUserCell")) {
     });
 }
 //Make attendantValidate validable
-for (const inputElement of document.getElementsByClassName("attendantValidate")) {
-    const input = inputElement;
-    input.validationFunction = (value) => {
-        if (value == undefined || value.trim().length == 0) {
-            //Value empty
-            return false;
-        }
-        else {
-            //Value OK
-            return true;
-        }
-    };
-}
+//for (const inputElement of document.getElementsByClassName("attendantValidate")) {
+//    const input = inputElement as HTMLFormInputElement
+//    input.validationFunction = (value) => {
+//        if (value == undefined || value.trim().length == 0) {
+//            //Value empty
+//            return false
+//        } else {
+//            //Value OK
+//            return true
+//        }
+//    }
+//}
 //Make attendant save button work
-document.getElementById("attendantBtnSave").addEventListener("click", async function () {
+(_a = document.getElementById("attendantBtnSave")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async function () {
     //Check attendantValidate for changes
-    let foundChange = false;
     const changes = [];
-    for (const inputElement of document.getElementsByClassName("attendantValidate")) {
-        const inputHolder = inputElement.children.item(0);
-        const input = inputHolder.children.item(0);
-        inputHolder.dispatchEvent(new Event("input"));
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
-            SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error");
+    for (const inputElementOriginal of document.getElementsByClassName("attendantValidate")) {
+        const inputElement = inputElementOriginal;
+        const [changed, isValid] = await inputElement.validate();
+        console.log(changed, isValid);
+        if (!isValid) {
+            SendToast("Nelze uložit změny!", "Pole obsahuje neplatnou hodnotu.", "error");
             return;
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
-            foundChange = true;
-            changes.push("• " + input.placeholder + " → " + input.value);
+        if (changed) {
+            changes.push("• " + inputElement.getOriginalValue() + " → " + inputElement.getValue());
         }
     }
     //Show dialog if found change
-    if (!foundChange) {
+    if (changes.length == 0) {
         SendToast("Nelze uložit změny!", "Žádné změny nebyly provedeny.", "ok");
         return;
     }
     //Wait for confirm
     if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
-        const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", null, 0, false, true, true);
+        const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
         const data = new FormData();
         data.append("action", "update");
         data.append("table", "users");
         data.append("id", urlSearchParams.get("user"));
-        data.append("name", document.getElementById("attendantName").value);
-        data.append("surname", document.getElementById("attendantSurname").value);
-        data.append("email", document.getElementById("attendantEmail").value);
+        data.append("name", document.getElementById("attendantName").getValue());
+        data.append("surname", document.getElementById("attendantSurname").getValue());
+        data.append("email", document.getElementById("attendantEmail").getValue());
         const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
         //progress.CloseDialog()
         if (ok) {
@@ -80,19 +78,19 @@ document.getElementById("attendantBtnSave").addEventListener("click", async func
     }
 });
 //Make attendant cancel button work
-document.getElementById("attendantBtnCancel").addEventListener("click", async function () {
+(_b = document.getElementById("attendantBtnCancel")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", async function () {
     //Check attendantValidate for changes
     let foundChange = false;
     const changes = [];
     for (const inputElement of document.getElementsByClassName("attendantValidate")) {
         const inputHolder = inputElement.children.item(0);
-        const input = inputHolder.children.item(0);
-        inputHolder.dispatchEvent(new Event("input"));
-        if (inputHolder.classList.contains("formErrorBorderColor")) {
+        const input = inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.children.item(0);
+        inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.dispatchEvent(new Event("input"));
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formErrorBorderColor")) {
             SendToast("Nelze uložit změny!", "Některé údaje jsou neplatné.", "error");
             return;
         }
-        if (inputHolder.classList.contains("formWarnBorderColor")) {
+        if (inputHolder === null || inputHolder === void 0 ? void 0 : inputHolder.classList.contains("formWarnBorderColor")) {
             foundChange = true;
             changes.push("• " + input.placeholder + " → " + input.value);
         }
@@ -104,16 +102,21 @@ document.getElementById("attendantBtnCancel").addEventListener("click", async fu
 });
 //Make attendant change school button work
 const attendantSchool = document.getElementById("attendantSchool");
-attendantSchool.validationFunction = (value) => {
-    const func = async () => {
-        const data = new FormData(undefined, null);
-        data.set("action", "getSchools");
-        data.set("table", "");
-        data.set("query", "zakladni skola ivancice");
-        const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
-        console.log(JSON.parse(msg));
-    };
-    func();
-    return true;
+attendantSchool.validationFunction = async (value) => {
+    const timestamp = new Date();
+    const data = new FormData(undefined, null);
+    data.set("action", "getSchools");
+    data.set("table", "");
+    console.log(attendantSchool.getValue());
+    data.set("query", attendantSchool.getValue());
+    const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+    const options = [];
+    for (const school of JSON.parse(msg)) {
+        console.log(school);
+        options.push(school.name + " → " + school.address);
+    }
+    attendantSchool.setOptions(options, timestamp);
+    return Promise.resolve(true);
 };
+attendantSchool.validate();
 //# sourceMappingURL=adminAttendant.js.map
