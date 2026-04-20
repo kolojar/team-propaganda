@@ -45,7 +45,7 @@ for (const button of document.getElementsByClassName("parentOfUserCell")) {
             return;
         }
         if (changed) {
-            changes.push("• " + inputElement.getOriginalValue() + " → " + inputElement.getValue());
+            changes.push("• " + inputElement.getOriginalValue() + " → " + inputElement.getValueRaw());
         }
     }
     //Show dialog if found change
@@ -63,6 +63,7 @@ for (const button of document.getElementsByClassName("parentOfUserCell")) {
         data.append("name", document.getElementById("attendantName").getValue());
         data.append("surname", document.getElementById("attendantSurname").getValue());
         data.append("email", document.getElementById("attendantEmail").getValue());
+        data.append("school_id", document.getElementById("attendantSchool").getValue());
         const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
         //progress.CloseDialog()
         if (ok) {
@@ -108,13 +109,14 @@ attendantSchool.validationFunction = async (value) => {
     data.set("action", "getSchools");
     data.set("table", "");
     console.log(attendantSchool.getValue());
-    data.set("query", attendantSchool.getValue());
+    data.set("query", attendantSchool.getValueRaw());
     const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
-    const options = [];
+    const options = new Map();
     for (const school of JSON.parse(msg)) {
         console.log(school);
-        options.push(school.name + " → " + school.address);
+        options.set(school.name + " → " + school.address, school.id);
     }
+    console.log(options);
     attendantSchool.setOptions(options, timestamp);
     return Promise.resolve(true);
 };

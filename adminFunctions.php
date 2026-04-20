@@ -125,8 +125,8 @@ switch ($_POST["action"]) {
                 }
 
                 //Make SQL Update
-                $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=? WHERE id_users=?");
-                $stmt->bind_param("sssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["id"]);
+                $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
+                $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"],$_POST["school_id"], $_POST["id"]);
                 if ($stmt->execute()) {
                     http_response_code(201);
                     echo "Entry updated.";

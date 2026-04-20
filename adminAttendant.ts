@@ -50,7 +50,7 @@ document.getElementById("attendantBtnSave")?.addEventListener("click", async fun
             return
         }
         if(changed) {
-            changes.push("• " + inputElement.getOriginalValue() + " → " + inputElement.getValue());
+            changes.push("• " + inputElement.getOriginalValue() + " → " + inputElement.getValueRaw());
         }
     }
 
@@ -70,6 +70,7 @@ document.getElementById("attendantBtnSave")?.addEventListener("click", async fun
         data.append("name", (document.getElementById("attendantName") as HTMLFormInputElement).getValue());
         data.append("surname", (document.getElementById("attendantSurname") as HTMLFormInputElement).getValue());
         data.append("email", (document.getElementById("attendantEmail") as HTMLFormInputElement).getValue());
+        data.append("school_id", (document.getElementById("attendantSchool") as HTMLFormInputElement).getValue());
         const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data)
         //progress.CloseDialog()
         if (ok) {
@@ -116,13 +117,14 @@ attendantSchool.validationFunction = async (value: string) => {
     const data = new FormData(undefined, null)
     data.set("action", "getSchools")
     data.set("table", "")
-    console.log(attendantSchool.getValue()); data.set("query", attendantSchool.getValue())
+    console.log(attendantSchool.getValue()); data.set("query", attendantSchool.getValueRaw())
     const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data)
-    const options = []
+    const options = new Map()
     for (const school of JSON.parse(msg)) {
         console.log(school);
-        options.push(school.name + " → " + school.address)
+        options.set(school.name + " → " + school.address,school.id)
     }
+    console.log(options);
     attendantSchool.setOptions(options, timestamp)
     return Promise.resolve(true);
 }

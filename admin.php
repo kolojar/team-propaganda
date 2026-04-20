@@ -130,9 +130,9 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o zájemci: $name $surname</h1>";
-            echo "<p>Křestní jméno:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantName' value='$name' placeholder='$name'></form-input>";
-            echo "<p>Přijmení:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantSurname' value='$surname' placeholder='$surname'></form-input>";
-            echo "<p>Email:</p><form-input class='attendantValidate' do-change-check='true' type='email' id='attendantEmail' value='$email' placeholder='$email'></form-input>";
+            echo "<p>Křestní jméno:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantName' original-value='$name' value='$name' placeholder='$name'></form-input>";
+            echo "<p>Přijmení:</p><form-input class='attendantValidate' do-change-check='true' type='text' id='attendantSurname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
+            echo "<p>Email:</p><form-input class='attendantValidate' do-change-check='true' type='email' id='attendantEmail' original-value='$email' value='$email' placeholder='$email'></form-input>";
             echo "<p>Zákonný zástupce: <b><?php echo '?' ?></b></p>";
             //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
             echo "<p>Základní škola:</p>";
