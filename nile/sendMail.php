@@ -57,30 +57,27 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
 <body>
     <form id="form">
-        <fieldset id="users">
-            <table>
-                <tr>
-                    <th>×</th>
-                    <th>Jméno</th>
-                    <th>E-mail</th>
-                </tr>
-                <?php
-                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0;");
-                while ($row = $res->fetch_object()) {
-                    echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
-                }
-                ?>
-            </table>
-        </fieldset>
-        <input type="checkbox" id="checkall" name="checkall" onchange="checkallChange()">
+        <table id="users">
+            <tr>
+                <th>×</th>
+                <th>Jméno</th>
+                <th>E-mail</th>
+            </tr>
+            <?php
+            $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 1;");
+            while ($row = $res->fetch_object()) {
+                echo "<tr><td><input type='checkbox' name='users' onchange='userChange()' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
+            }
+            ?>
+        </table>
+        <input type="checkbox" id=checkall name="checkall" onchange="checkallChange()">
         <label for="checkall">Vybrat všechny</label><br>
-        <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
         <label for="subject">Předmět</label>
         <input type="text" id="subject" name="subject" required><br>
         <label for="message">Zpráva</label><br>
         <textarea name="message" id="message" required></textarea><br>
         <label for="templates">Předvolby</label>
-        <select id="templates">
+        <select id="templates" onchange="templateChange(this.value)">
             <option value="none" id="option-none">nový</option>
             <?php
             $files = array_diff(scandir("./templates/"), array('.', '..'));
@@ -89,7 +86,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
             ?>
         </select><br>
-        <input type="checkbox" checked id="now" name="now">
+        <input type="checkbox" checked id="now" name="now" onchange="nowChange()">
         <label for="now">Odeslat ihned</label><br>
         <input type="date" id="date" name="date" disabled>
         <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
@@ -99,18 +96,12 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     <script>
         let selectedTemplate = "none";
 
-        document.getElementById("now").addEventListener("change", () => {
-            document.getElementById("date").disabled = (document.getElementById("date").disabled == true) ? false : true;
-            document.getElementById("hour").disabled = (document.getElementById("hour").disabled == true) ? false : true;
-        });
+        function nowChange() {
+            date.disabled = (date.disabled == true) ? false : true;
+            hour.disabled = (hour.disabled == true) ? false : true;
+        }
 
-        document.getElementById("global").addEventListener("change", () => {
-            document.getElementById("checkall").disabled = (document.getElementById("checkall").disabled == true) ? false : true;
-            document.getElementById("users").disabled = (document.getElementById("users").disabled == true) ? false : true;
-        })
-
-        document.getElementById("templates").addEventListener("change", (e) => {
-            let template = document.getElementById("templates").value;
+        function templateChange(template) {
             if (!confirm("Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
                 templates.value = selectedTemplate;
                 //document.getElementById(selectedTemplate).selected = true;
@@ -124,15 +115,16 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     message.value = data;
                 });
             }
-        })
+        }
 
-        document.getElementsByName("users").addEventListener("change", () => {
+        function userChange() {
             checkall.indeterminate = true;
             let same = true;
             let sameCheck;
             for (check of document.getElementsByName("users")) {
                 if (sameCheck == null || sameCheck == undefined) {
                     sameCheck = check.checked;
+                    //console.log(sameCheck)
                 }
                 if (check.checked != sameCheck) {
                     same = false;
@@ -143,7 +135,9 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 checkall.indeterminate = false;
                 checkall.checked = sameCheck;
             }
-        })
+
+
+        }
 
         function checkallChange() {
             for (let check of document.getElementsByName("users")) {
@@ -151,7 +145,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
         }
 
-        document.getElementById("form").addEventListener('submit', (e) => {
+        form.addEventListener('submit', (e) => {
             sendToPHP(e)
         })
 
