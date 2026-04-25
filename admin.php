@@ -1,15 +1,3 @@
-<!DOCTYPE html>
-<html lang="cs">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin panel</title>
-    <link rel="stylesheet" href="./formWebScripts/css/sharedStyle.css">
-    <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="./formWebScripts/css/tableStyle.css">
-    <link rel="stylesheet" href="./assets/style.css">
-</head>
 <?php
 session_start();
 require "./assets/config.php";
@@ -27,6 +15,18 @@ function GetUserName(int $id): string
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin panel</title>
+    <link rel="stylesheet" href="./formWebScripts/css/sharedStyle.css">
+    <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
+    <link rel="stylesheet" href="./formWebScripts/css/tableStyle.css">
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
 <body>
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
         <h1>test</h1>
@@ -98,9 +98,38 @@ function GetUserName(int $id): string
             echo "</table>
             <script type='module' src='./adminAttendants.js'></script>";
         } else if ($_GET["view"] == "classrooms") {
-            ?>
-                <h1>Učebny</h1>
-            <?php
+            echo "<h1>Všechny dostupné učebny v databázi</h1>";
+            echo "<table class='styledTable styledTableAuto'>
+                <tr>
+                    <th>Akce</th>
+                    <th>Číslo učebny</th>
+                    <th>Název učebny</th>
+                    <th>Počet míst k sezení</th>
+                    <th>Je aktivní</th>
+                    <th>Poznámka</th>
+                </tr>";
+
+            //Request classrooms
+            $stmt = $conn->prepare("SELECT id_classrooms, name,placesToSit, isFunctional,  note FROM classrooms");
+            $stmt->execute();
+            $stmt->store_result();
+
+            //List all classrooms in table
+            for ($i = 0; $i < $stmt->num_rows; $i++) {
+                $stmt->bind_result($id, $name, $placesToSit, $isFunctional, $note);
+                $stmt->fetch();
+                echo "<tr class='clickHighlightRow'>
+                        <td>
+                            <a href='?view=classroom&classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <button class='formButton formErrorColor deleteClassroomButton' classroomId=$id classroomName='$name'>Odstranit</button>
+                        </td>
+                        <td>$id</td>
+                        <td>$name</td>
+                        <td>$placesToSit</td>
+                        <td>$isFunctional</td>
+                        <td>$note</td>
+                    </tr>";
+            }
         } else if ($_GET["view"] == "messages") {
             ?>
                     <h1>Zprávy</h1>
@@ -149,37 +178,6 @@ function GetUserName(int $id): string
         } else if ($_GET["view"] == "schools") {
             //Print HTML
             echo "<h1>Školy</h1>";
-            echo "<table class='styledTable styledTableAuto'>";
-            echo "<tr>";
-            echo "<th>Akce</th>";
-            echo "<th>Název</th>";
-            echo "<th>Počet zájemců</th>";
-            echo "<th>Adresa</th>";
-            echo "</tr>";
-
-            //Request schools with users
-            $stmt = $conn->prepare("SELECT schools.id_schools, COUNT(schools.id_schools), schools.name, schools.address FROM users JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools;");
-            $stmt->execute();
-            $stmt->store_result();
-
-             //List all users in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $count, $name, $address);
-                $stmt->fetch();
-
-                //Put in table
-                echo "<tr class='clickHighlightRow'>
-                        <td>
-                            <a href='?view=school&school=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <a href='?view=attendants&school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>
-                        </td>
-                        <td>$name</td>
-                        <td>$count</td>
-                        <td>$address</td>
-                    </tr>";
-            }
-            echo "</table>
-            <script type='module' src='./adminAttendants.js'></script>";
         } else if ($_GET["view"] == "school") {
             //Get school info
             $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
@@ -191,8 +189,10 @@ function GetUserName(int $id): string
 
             //Print HTML
             echo "<h1>Informace o škole: $name → $address</h1>";
-            echo "<p>Název: <form-input class='schoolValidate' type='text' valueId='schoolName' initialValue='$name' placeholder='$name'></form-input></p>";
-            echo "<p>Adresa: <form-input class='schoolValidate' type='text' valueId='schoolAddress' initialValue='$address' placeholder='$address'></form-input></p>";
+            echo "<p>Název:</p>";
+            echo "<form-input style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolName' value='$name' original-value='$name' placeholder='$name'></form-input>";
+            echo "<p>Adresa:</p>";
+            echo "<form-input style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolAddress' value='$address' original-value='$address' placeholder='$address'></form-input>";
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             echo "<button id='schoolBtnSave' class='formButton formOkColor'>Uložit změny</button>";
@@ -201,6 +201,8 @@ function GetUserName(int $id): string
             echo "</div>";
             echo "</div>";
             echo "<script type='module' src='./adminSchool.js'></script>";
+        } else if ($_GET["view"] == "school") {
+
         } else {
             ?>
                                 <h1>Hlavní menu</h1>
