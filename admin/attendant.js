@@ -1,37 +1,9 @@
 var _a, _b;
-import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
-import { SendToast } from "./formWebScripts/js/formScript.js";
-import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
+import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+import { SendToast } from "../formWebScripts/js/formScript.js";
+import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-async function deleteUser(userId, name) {
-    await dialogManager.OpenConfirm("Smazání uživatele", "Opravdu chcete odebrat uživatele: " + name + "?", true, true);
-}
-//Make User delete buttons work
-//for (const button of document.getElementsByClassName("deleteUserButton")) {
-//    (button as HTMLButtonElement).addEventListener("click", async () => {
-//        await deleteUser(button.getAttribute("userId") as string, button.getAttribute("userName") as string)
-//    })
-//}
-//Make Parent of user clickable
-for (const button of document.getElementsByClassName("parentOfUserCell")) {
-    button.addEventListener("click", async () => {
-        console.log(await dialogManager.OpenSelect("Vyberte akci", "Co chcete provést?", 0, new Map([["Napsat", 1], ["Zobrazit komunikaci", 2]])));
-    });
-}
-//Make attendantValidate validable
-//for (const inputElement of document.getElementsByClassName("attendantValidate")) {
-//    const input = inputElement as HTMLFormInputElement
-//    input.validationFunction = (value) => {
-//        if (value == undefined || value.trim().length == 0) {
-//            //Value empty
-//            return false
-//        } else {
-//            //Value OK
-//            return true
-//        }
-//    }
-//}
 //Make attendant save button work
 (_a = document.getElementById("attendantBtnSave")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async function () {
     //Check attendantValidate for changes
@@ -64,7 +36,7 @@ for (const button of document.getElementsByClassName("parentOfUserCell")) {
         data.append("surname", document.getElementById("attendantSurname").getValue());
         data.append("email", document.getElementById("attendantEmail").getValue());
         data.append("school_id", document.getElementById("attendantSchool").getValue());
-        const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+        const [ok, _] = await SendPOSTDataToServerAsync("./attendant.php", data);
         //progress.CloseDialog()
         if (ok) {
             SendToast("Ukládání dat", "Změny uloženy.", "ok");
@@ -101,7 +73,7 @@ for (const button of document.getElementsByClassName("parentOfUserCell")) {
         window.location.reload();
     }
 });
-//Make attendant change school button work
+//Make attendant change school field work
 const attendantSchool = document.getElementById("attendantSchool");
 attendantSchool.validationFunction = async (value) => {
     const timestamp = new Date();
@@ -121,4 +93,4 @@ attendantSchool.validationFunction = async (value) => {
     return Promise.resolve(true);
 };
 attendantSchool.validate();
-//# sourceMappingURL=adminAttendant.js.map
+//# sourceMappingURL=attendant.js.map

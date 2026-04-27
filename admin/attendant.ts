@@ -1,6 +1,6 @@
-import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
-import { HTMLFormInputElement, SendToast } from "./formWebScripts/js/formScript.js";
-import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
+import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
+import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
@@ -39,7 +39,7 @@ document.getElementById("attendantBtnSave")?.addEventListener("click", async fun
         data.append("surname", (document.getElementById("attendantSurname") as HTMLFormInputElement).getValue());
         data.append("email", (document.getElementById("attendantEmail") as HTMLFormInputElement).getValue());
         data.append("school_id", (document.getElementById("attendantSchool") as HTMLFormInputElement).getValue());
-        const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data)
+        const [ok, _] = await SendPOSTDataToServerAsync("./attendant.php", data)
         //progress.CloseDialog()
         if (ok) {
             SendToast("Ukládání dat", "Změny uloženy.", "ok")

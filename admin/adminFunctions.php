@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "./assets/config.php";
+require "../assets/config.php";
 
 class propertyWithoutPrefix
 {
@@ -114,55 +114,6 @@ switch ($_POST["action"]) {
         echo json_encode($jsonRecords);
         die();
     }
-    case 'update':
-        switch ($_POST["table"]) {
-            case "users":
-                //Check if values set
-                if (!isset($_POST["email"]) || !isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["id"])) {
-                    http_response_code(400);
-                    echo "Invalid usage of function - missing table column parameters";
-                    die();
-                }
-
-                //Make SQL Update
-                $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
-                $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"],$_POST["school_id"], $_POST["id"]);
-                if ($stmt->execute()) {
-                    http_response_code(201);
-                    echo "Entry updated.";
-                    die();
-                } else {
-                    http_response_code(400);
-                    echo "Entry could not be updated.";
-                    die();
-                }
-                ;
-            case "schools":
-                //Check if values set
-                if (!isset($_POST["name"]) || !isset($_POST["address"]) || !isset($_POST["id"])) {
-                    http_response_code(400);
-                    echo "Invalid usage of function - missing table column parameters";
-                    die();
-                }
-
-                //Make SQL Update
-                $stmt = $conn->prepare("UPDATE schools SET name=?, address=? WHERE id_schools=?");
-                $stmt->bind_param("ssi", $_POST["name"], $_POST["address"], $_POST["id"]);
-                if ($stmt->execute()) {
-                    http_response_code(201);
-                    echo "Entry updated.";
-                    die();
-                } else {
-                    http_response_code(400);
-                    echo "Entry could not be updated.";
-                    die();
-                }
-                ;
-            default:
-                http_response_code(400);
-                echo "Invalid usage of function - invalid table parameter";
-                die();
-        }
     default:
         http_response_code(400);
         echo "Invalid usage of function - invalid action parameter";

@@ -13,4 +13,4 @@ for (const row of document.getElementsByClassName("clickHighlightRow")) {
         }
     });
 }
-//# sourceMappingURL=adminAttendants.js.map
+//# sourceMappingURL=attendants.js.map

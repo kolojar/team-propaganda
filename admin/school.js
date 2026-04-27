@@ -1,7 +1,7 @@
 var _a, _b;
-import { FormDialogManager } from "./formWebScripts/js/formDialogScript.js";
-import { SendToast } from "./formWebScripts/js/formScript.js";
-import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunication.js";
+import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+import { SendToast } from "../formWebScripts/js/formScript.js";
+import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
 //Make attendantValidate validable
@@ -71,7 +71,7 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         data.append("id", urlSearchParams.get("school"));
         data.append("name", document.getElementById("schoolName").value);
         data.append("address", document.getElementById("schoolAddress").value);
-        const [ok, _] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+        const [ok, _] = await SendPOSTDataToServerAsync("./school.php", data);
         //progress.CloseDialog()
         if (ok) {
             SendToast("Ukládání dat", "Změny uloženy.", "ok");
@@ -108,4 +108,4 @@ for (const inputElement of document.getElementsByClassName("schoolValidate")) {
         window.location.reload();
     }
 });
-//# sourceMappingURL=adminSchool.js.map
+//# sourceMappingURL=school.js.map
