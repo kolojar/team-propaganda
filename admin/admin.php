@@ -35,6 +35,7 @@ require "../assets/config.php";
         </div>
     </header>
     <main>
+        <h1>Hlavní menu</h1>
         <?php
         
         ?>
@@ -43,6 +44,6 @@ require "../assets/config.php";
 
     </footer>
 </body>
-<script type="module" src="./formWebScripts/js/formScript.js"></script>
+<script type="module" src="../formWebScripts/js/formScript.js"></script>
 
 </html>

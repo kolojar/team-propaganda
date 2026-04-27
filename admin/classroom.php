@@ -55,10 +55,11 @@ require "../assets/config.php";
         }
 
         //Create HTML
-        echo "<p>Název učebny:</p><form-input do-change-check='$exists' type='text' id='classroomName' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<p>Počet míst k sezení:</p><form-input do-change-check='$exists' type='number' id='classroomPlacesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<br><form-toggle labelBefore='Je učebna aktivní: ' offColorClass='formErrorColor' onColorClass='formOkColor' value='$isFunctionalString' id='classroomIsFunctional'></form-toggle><br>";
-        echo "<p>Poznámka:</p><form-input do-change-check='$exists' type='textarea' id='classroomNote' original-value='$note' value='$note' placeholder='$note'></form-input>";
+        echo "<form-input label='Název učebny:' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<br>";
+        echo "<form-input label='Počet míst k sezení:' do-change-check='$exists' type='number' id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
+        echo "<br><form-toggle labelBefore='Je učebna aktivní: ' offColorClass='formErrorColor' onColorClass='formOkColor' value='$isFunctionalString' id='isFunctional'></form-toggle><br>";
+        echo "<form-input label='Poznámka:' do-change-check='$exists' type='textarea' id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button id='classroomBtnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";

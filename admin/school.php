@@ -69,10 +69,9 @@ if (isset($_POST["action"])) {
 
         //Print HTML
         echo "<h1>Informace o škole: $name → $address</h1>";
-        echo "<p>Název:</p>";
-        echo "<form-input style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolName' value='$name' original-value='$name' placeholder='$name'></form-input>";
-        echo "<p>Adresa:</p>";
-        echo "<form-input style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolAddress' value='$address' original-value='$address' placeholder='$address'></form-input>";
+        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolName' value='$name' original-value='$name' placeholder='$name'></form-input>";
+        echo "<br>";
+        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolAddress' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button id='schoolBtnSave' class='formButton formOkColor'>Uložit změny</button>";

@@ -10,9 +10,12 @@ const urlSearchParams = new URLSearchParams(window.location.search);
     //Get elements
     const isNew = ((_a = document.getElementById("classroomBtnSave")) === null || _a === void 0 ? void 0 : _a.getAttribute("exists")) == "false";
     const changes = [];
-    const nameElement = document.getElementById("classroomName");
-    const placesToSitElement = document.getElementById("classroomPlacesToSit");
-    const isActiveElement = document.getElementById("classroomIsActive");
+    const nameElement = document.getElementById("name");
+    const placesToSitElement = document.getElementById("placesToSit");
+    const isFunctionalElement = document.getElementById("isFunctional");
+    const noteElement = document.getElementById("note");
+    //Process elements
+    await nameElement.validate();
     for (const inputElementOriginal of document.getElementsByClassName("classroomValidate")) {
         const inputElement = inputElementOriginal;
         const [changed, isValid] = await inputElement.validate();

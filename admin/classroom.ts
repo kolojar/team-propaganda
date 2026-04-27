@@ -10,9 +10,13 @@ document.getElementById("classroomBtnSave")?.addEventListener("click", async () 
     //Get elements
     const isNew = document.getElementById("classroomBtnSave")?.getAttribute("exists") == "false"
     const changes = []
-    const nameElement = document.getElementById("classroomName") as HTMLFormInputElement
-    const placesToSitElement = document.getElementById("classroomPlacesToSit") as HTMLFormInputElement
-    const isActiveElement = document.getElementById("classroomIsActive") as HTMLFormToggleElement
+    const nameElement = document.getElementById("name") as HTMLFormInputElement
+    const placesToSitElement = document.getElementById("placesToSit") as HTMLFormInputElement
+    const isFunctionalElement = document.getElementById("isFunctional") as HTMLFormToggleElement
+    const noteElement = document.getElementById("note") as HTMLFormInputElement
+
+    //Process elements
+     await nameElement.validate()
     for (const inputElementOriginal of document.getElementsByClassName("classroomValidate")) {
         const inputElement = inputElementOriginal as HTMLFormInputElement | HTMLFormToggleElement
         const [changed, isValid] = await inputElement.validate()
