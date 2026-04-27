@@ -92,6 +92,6 @@ require "../assets/config.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./attendants.js'></script>
+<script type='module' src='./sharedScripts.js'></script>
 
 </html>

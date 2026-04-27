@@ -6,6 +6,6 @@
     "include": [
         "./formWebScripts/js/*.ts",
         "./formWebScripts/js/*.d.ts",
-        "./*.ts"
-, "admin/attendant.ts", "admin/attendants.ts", "admin/classroom.ts", "admin/school.ts"        ]
+        "./*.ts",
+        "./*/*.ts"]
 }

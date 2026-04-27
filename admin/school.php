@@ -69,13 +69,13 @@ if (isset($_POST["action"])) {
 
         //Print HTML
         echo "<h1>Informace o škole: $name → $address</h1>";
-        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolName' value='$name' original-value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
         echo "<br>";
-        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='schoolAddress' value='$address' original-value='$address' placeholder='$address'></form-input>";
+        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='schoolBtnSave' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='schoolBtnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
+        echo "<button id='btnSave' class='formButton formOkColor'>Uložit změny</button>";
+        echo "<button id='btnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
         echo "<a href='./schools.php'><button class='formButton formInfoColor'>Zpět na seznam škol</button></a>";
         echo "</div>";
         echo "</div>";

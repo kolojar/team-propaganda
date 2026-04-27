@@ -2,25 +2,25 @@
 session_start();
 require "../assets/config.php";
 
-class propertyWithoutPrefix
-{
-    public bool $hasPrefix;
-    public string $propertyName;
-}
-
-
-function trimPropertyPrefix($key, $prefix): propertyWithoutPrefix
-{
-    $result = new propertyWithoutPrefix();
-    //Check is is prefix
-    if (strpos($key, $prefix) === 0) {
-        //Remove prefix
-        $key = substr($key, strlen($prefix));
-        $result->hasPrefix = true;
-    }
-    $result->propertyName = $key;
-    return $result;
-}
+//class propertyWithoutPrefix
+//{
+//    public bool $hasPrefix;
+//    public string $propertyName;
+//}
+//
+//
+//function trimPropertyPrefix($key, $prefix): propertyWithoutPrefix
+//{
+//    $result = new propertyWithoutPrefix();
+//    //Check is is prefix
+//    if (strpos($key, $prefix) === 0) {
+//        //Remove prefix
+//        $key = substr($key, strlen($prefix));
+//        $result->hasPrefix = true;
+//    }
+//    $result->propertyName = $key;
+//    return $result;
+//}
 
 //Check if these parameters are present
 if (!isset($_POST["action"]) || !isset($_POST["table"])) {
