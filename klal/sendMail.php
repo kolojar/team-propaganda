@@ -9,7 +9,11 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
     if (isset($_POST["datetime"])) {
-        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
+        if (isset($_POST["global"])) {
+            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
+        } else {
+            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal) VALUES (?, ?, ?, 1)");
+        }
         $stmt->bind_param("sss", $_POST["subject"], $_POST["message"], $_POST["datetime"]);
     } else {
         $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message) VALUES (?, ?)");
@@ -72,7 +76,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 ?>
             </table>
         </fieldset>
-        <input type="checkbox" id="checkall" name="checkall" onchange="checkallChange()">
+        <input type="checkbox" id="checkall" name="checkall">
         <label for="checkall">Vybrat všechny</label><br>
         <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
         <label for="subject">Předmět</label>
@@ -96,7 +100,14 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         <input type="submit">
     </form>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
+    <script type="module">
+        import {
+            SendPOSTDataToServerAsync
+        } from "../formWebScripts/js/serverComunication.js";
+        import {
+            SendToast
+        } from "../formWebScripts/js/formScript.js";
+
         let selectedTemplate = "none";
 
         document.getElementById("now").addEventListener("change", () => {
@@ -112,50 +123,62 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         document.getElementById("templates").addEventListener("change", (e) => {
             let template = document.getElementById("templates").value;
             if (!confirm("Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
-                templates.value = selectedTemplate;
+                template = selectedTemplate;
                 //document.getElementById(selectedTemplate).selected = true;
                 selectedTemplate = template;
                 return;
             }
             if (template == "none") {
-                message.value = "";
+                document.getElementById("message").value = "";
             } else {
-                $.get("./templates/" + template, function(data) {
-                    message.value = data;
-                });
+                var request = new XMLHttpRequest();
+                request.open('GET', "./templates/" + template, true);
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                        document.getElementById("message").value = request.responseText;
+                    } else {
+                        SendToast("Odpověď serveru", request.responseText, "error")
+                    }
+                };
+                request.onerror = function() {
+                    SendToast("Odpověď serveru", "connection error", "error")
+                };
+                request.send();
             }
         })
 
-        document.getElementsByName("users").addEventListener("change", () => {
-            checkall.indeterminate = true;
-            let same = true;
-            let sameCheck;
-            for (check of document.getElementsByName("users")) {
-                if (sameCheck == null || sameCheck == undefined) {
-                    sameCheck = check.checked;
+        for (let user of document.getElementsByName("users")) {
+            user.addEventListener("change", () => {
+                document.getElementById("checkall").indeterminate = true;
+                let same = true;
+                let sameCheck;
+                for (let check of document.getElementsByName("users")) {
+                    if (sameCheck == null || sameCheck == undefined) {
+                        sameCheck = check.checked;
+                    }
+                    if (check.checked != sameCheck) {
+                        same = false;
+                        break;
+                    }
                 }
-                if (check.checked != sameCheck) {
-                    same = false;
-                    break;
+                if (same) {
+                    document.getElementById("checkall").indeterminate = false;
+                    document.getElementById("checkall").checked = sameCheck;
                 }
-            }
-            if (same) {
-                checkall.indeterminate = false;
-                checkall.checked = sameCheck;
-            }
-        })
-
-        function checkallChange() {
-            for (let check of document.getElementsByName("users")) {
-                check.checked = checkall.checked;
-            }
+            })
         }
+
+        document.getElementById("checkall").addEventListener("change", () => {
+            for (let check of document.getElementsByName("users")) {
+                check.checked = document.getElementById("checkall").checked;
+            }
+        })
 
         document.getElementById("form").addEventListener('submit', (e) => {
             sendToPHP(e)
         })
 
-        function sendToPHP(e) {
+        async function sendToPHP(e) {
             e.preventDefault();
             let userIds = [];
             for (user of document.getElementsByName("users")) {
@@ -163,35 +186,26 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     userIds.push(user.value);
                 }
             }
-            if (userIds.length == 0) {
+            if (userIds.length == 0 && !document.getElementById("global").checked) {
                 alert("Nebyl vybrán žádný příjemce.")
                 return;
             }
-            let data = {
-                //datetime: (now.checked) ? "now" : date.value + " " + hour.value,
-                subject: subject.value,
-                message: message.value,
-                userIds: userIds
+
+            const data = new FormData();
+            data.append("subject", document.getElementById("subject").value)
+            data.append("useIds", userIds)
+            data.append("message", document.getElementById("message").value)
+            if (!document.getElementById("now").checked) {
+                data.append("datetime", date.value + " " + hour.value)
+            }
+            if (document.getElementById("global").checked) {
+                data.append("global", true)
             }
 
-            if (!now.checked) {
-                data.datetime = date.value + " " + hour.value;
-            }
-            console.log(data);
+            const [ok, res] = await SendPOSTDataToServerAsync("./sendMail.php", data);
 
-            $.ajax({
-                url: './sendMail.php',
-                method: "POST",
-                data: data,
-                success: function(response) {
-                    console.log('Odpověď serveru:', response);
-                    alert("Data úpěšně odeslána.")
-                },
-                error: function(err) {
-                    console.error(err);
-                    alert('Došlo k chybě při odesílání dat.');
-                }
-            });
+            if (ok) SendToast("Odpověď serveru:", res, "ok")
+            else SendToast("Odpověď serveru", res, "error")
 
         }
     </script>
