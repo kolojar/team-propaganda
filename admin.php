@@ -27,9 +27,13 @@ function GetUserName(int $id): string
     <link rel="stylesheet" href="./formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="./assets/style.css">
 </head>
+
 <body>
-    <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>test</h1>
+    <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;"
+        class="formInfoColor">
+        <h1>Akce: <?php
+        echo $_SESSION["adminSubEventId"]
+            ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="?"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -37,8 +41,10 @@ function GetUserName(int $id): string
                 <a href="?view=classrooms"><button class="formButton formOkColor">Učebny</button></a>
                 <a href="?view=schools"><button class="formButton formOkColor">Školy</button></a>
                 <a href="?view=messages"><button class="formButton formOkColor">Zprávy</button></a>
+                <a href="?view=payments"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
+                <a href="?view=changeEvent"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>
@@ -76,7 +82,7 @@ function GetUserName(int $id): string
                 $schoolGet->bind_result($schoolId, $schoolName, $schoolAddress);
                 $schoolGet->fetch();
 
-                $highlightSchoolClass  = "";
+                $highlightSchoolClass = "";
                 if (isset($_GET["school"]) && $_GET["school"] = $schoolId) {
                     $highlightSchoolClass = "trHighlight";
                 }
@@ -130,15 +136,54 @@ function GetUserName(int $id): string
                         <td>$note</td>
                     </tr>";
             }
+            echo "</table>";
+
+            //Add buttons
+            echo "<a href='?view=classroom&newClassroom=1'><button class='formButton formWarnColor'>Vytvořit učebnu</button></a>";
+        } else if ($_GET["view"] == "classroom") {
+            //Get info of classroom    
+            $id=$_GET["classroom"];
+            $name = "";
+            $placesToSit = "";
+            $isFunctional = 1;
+            $isFunctionalString = $isFunctional == 1 ? "true" : "false";
+            $note = "";
+            $exists = "true";
+            if (isset($_GET["newClassroom"])) {
+                echo "<h1>Vytvořit novou učebnu</h1>";
+                $exists = "false";
+            } else {
+                $stmt = $conn->prepare("SELECT name, placesToSit, isFunctional, note FROM `classrooms` WHERE id_classrooms = ?;");
+                $stmt->bind_param("s", $id);
+                $stmt->execute();
+                $stmt->store_result();
+                $stmt->bind_result($name, $placesToSit, $isFunctional, $note);
+                echo "<h1>Informace o učebně: </h1>";
+            }
+
+            //Create HTML
+            echo "<p>Číslo učebny:</p><form-input class='classroomValidate' do-change-check='$exists' type='text' id='classroomNumber' original-value='$id' value='$id' placeholder='$id'></form-input>";
+            echo "<p>Název učebny:</p><form-input class='classroomValidate' do-change-check='$exists' type='text' id='classroomName' original-value='$name' value='$name' placeholder='$name'></form-input>";
+            echo "<p>Počet míst k sezení:</p><form-input class='classroomValidate' do-change-check='$exists' type='number' id='classroomPlacesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
+            echo "<br><form-toggle labelBefore='Je učebna aktivní: ' offColorClass='formErrorColor' onColorClass='formOkColor' value='$isFunctionalString'></form-toggle><br>";
+            echo "<p>Poznámka:</p><form-input class='classroomValidate' do-change-check='$exists' type='textarea' id='classroomNote' original-value='$note' value='$note' placeholder='$note'></form-input>";
+            echo "<div class='formButtonBoxHolder'>";
+            echo "<div class='formButtonBox'>";
+            echo "<button id='classroomBtnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
+            echo "<button id='classroomBtnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
+            echo "<a href='?view=classrooms'><button class='formButton formInfoColor'>Zpět na seznam učeben</button></a>";
+            echo "</div>";
+            echo "</div>";
+            echo "<script type='module' src='./adminClassroom.js'></script>";
         } else if ($_GET["view"] == "messages") {
             ?>
-                    <h1>Zprávy</h1>
+                        <h1>Zprávy</h1>
             <?php
         } else if ($_GET["view"] == "directMessages") {
             ?>
-                        <h1>Přímé zprávy s [NAME]</h1>
-                        <h2>Poslat zprávu</h2>
-                        <h2>Historie zpráv</h2>
+                            <h1>Přímé zprávy s [NAME]</h1>
+                            <h2>Poslat zprávu</h2>
+                            <h2>Historie zpráv</h2>
             <?php
         } else if ($_GET["view"] == "attendant") {
             //Get attendant info
@@ -205,7 +250,7 @@ function GetUserName(int $id): string
 
         } else {
             ?>
-                                <h1>Hlavní menu</h1>
+                                            <h1>Hlavní menu</h1>
             <?php
         }
         ?>

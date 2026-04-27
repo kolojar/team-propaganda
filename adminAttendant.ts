@@ -5,38 +5,6 @@ import { SendPOSTDataToServerAsync } from "./formWebScripts/js/serverComunicatio
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
 
-async function deleteUser(userId: string, name: string) {
-    await dialogManager.OpenConfirm("Smazání uživatele", "Opravdu chcete odebrat uživatele: " + name + "?", true, true)
-}
-
-//Make User delete buttons work
-//for (const button of document.getElementsByClassName("deleteUserButton")) {
-//    (button as HTMLButtonElement).addEventListener("click", async () => {
-//        await deleteUser(button.getAttribute("userId") as string, button.getAttribute("userName") as string)
-//    })
-//}
-
-//Make Parent of user clickable
-for (const button of document.getElementsByClassName("parentOfUserCell")) {
-    (button as HTMLButtonElement).addEventListener("click", async () => {
-        console.log(await dialogManager.OpenSelect<Number>("Vyberte akci", "Co chcete provést?", 0, new Map<string, Number>([["Napsat", 1], ["Zobrazit komunikaci", 2]])))
-    })
-}
-
-//Make attendantValidate validable
-//for (const inputElement of document.getElementsByClassName("attendantValidate")) {
-//    const input = inputElement as HTMLFormInputElement
-//    input.validationFunction = (value) => {
-//        if (value == undefined || value.trim().length == 0) {
-//            //Value empty
-//            return false
-//        } else {
-//            //Value OK
-//            return true
-//        }
-//    }
-//}
-
 //Make attendant save button work
 document.getElementById("attendantBtnSave")?.addEventListener("click", async function () {
     //Check attendantValidate for changes
@@ -110,7 +78,7 @@ document.getElementById("attendantBtnCancel")?.addEventListener("click", async f
     }
 })
 
-//Make attendant change school button work
+//Make attendant change school field work
 const attendantSchool = document.getElementById("attendantSchool") as HTMLFormInputElement
 attendantSchool.validationFunction = async (value: string) => {
     const timestamp = new Date()
