@@ -9,7 +9,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
     if (isset($_POST["datetime"])) {
-        if (isset($_POST["global"])) {
+        if (!isset($_POST["global"])) {
             $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
         } else {
             $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal) VALUES (?, ?, ?, 1)");
@@ -51,12 +51,18 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
 <html>
 <style>
+    html {
+        margin: 8px;
+    }
+
     * {
         user-select: none;
     }
 </style>
 
 <head>
+    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
+
 </head>
 
 <body>
@@ -181,25 +187,32 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         async function sendToPHP(e) {
             e.preventDefault();
             let userIds = [];
-            for (user of document.getElementsByName("users")) {
+            for (let user of document.getElementsByName("users")) {
                 if (user.checked) {
                     userIds.push(user.value);
                 }
             }
             if (userIds.length == 0 && !document.getElementById("global").checked) {
-                alert("Nebyl vybrán žádný příjemce.")
+                SendToast("Chyba", "Nebyl vybrán žádný příjemce.", "error")
                 return;
+            }
+            if (document.getElementById("global").checked && document.getElementById("now").checked) {
+                SendToast("Chyba", "Globální zprávu nelze odeslat ihned", "error");
+                return
             }
 
             const data = new FormData();
             data.append("subject", document.getElementById("subject").value)
-            data.append("useIds", userIds)
             data.append("message", document.getElementById("message").value)
             if (!document.getElementById("now").checked) {
                 data.append("datetime", date.value + " " + hour.value)
             }
             if (document.getElementById("global").checked) {
                 data.append("global", true)
+                data.append("userIds", "")
+
+            } else {
+                data.append("useIds", userIds)
             }
 
             const [ok, res] = await SendPOSTDataToServerAsync("./sendMail.php", data);
