@@ -58,7 +58,7 @@ require "../assets/config.php";
                 echo "<tr class='clickHighlightRow'>
                         <td>
                             <a href='./classroom.php?classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor deleteClassroomButton' classroomId=$id classroomName='$name'>Odstranit</button>
+                            <button class='formButton formErrorColor btnTableDelete' classroom=$id classroomName='$name'>Odstranit</button>
                         </td>
                         <td>$name</td>
                         <td>$placesToSit</td>
@@ -75,5 +75,5 @@ require "../assets/config.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-
+<script type="module" src="./classrooms.js"></script>
 </html>

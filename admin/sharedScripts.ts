@@ -1,8 +1,8 @@
-import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+import { FormDialog, FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
-export function setupButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string) {
+export function setupSaveCancelButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string) {
     //Setup validation
     for (const inputElementOriginal of document.getElementsByClassName(className)) {
         if (inputElementOriginal instanceof HTMLFormInputElement) {
@@ -61,7 +61,7 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
             for (const inputElementOriginal of document.getElementsByClassName(className)) {
                 const inputElement = inputElementOriginal as HTMLFormInputElement | HTMLFormToggleElement
                 if (inputElement instanceof HTMLFormToggleElement) {
-                      data.append(inputElement.id, inputElement.getValue() ? "1" : "0");
+                    data.append(inputElement.id, inputElement.getValue() ? "1" : "0");
                 } else {
                     data.append(inputElement.id, inputElement.getValue());
                 }
@@ -121,7 +121,7 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
     })
 }
 
-//Make Row of user highlightable
+//Make Row of table highlightable
 for (const row of document.getElementsByClassName("clickHighlightRow")) {
     (row as HTMLTableRowElement).addEventListener("click", () => {
         if (row.classList.contains("trHighlight")) {
@@ -133,4 +133,37 @@ for (const row of document.getElementsByClassName("clickHighlightRow")) {
             row.classList.add("trHighlight")
         }
     })
+}
+
+export function setupTableDeleteButtons(dialogManager: FormDialogManager, postURL: string, idAttributeName: string) {
+    //Get buttons
+    for (const button of document.getElementsByClassName("btnTableDelete")) {
+        button.addEventListener("click", async () => {
+            //Ask for confirm
+            if (! await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?", true, true)) {
+                return
+            }
+
+            //Create FormData
+            const progress = dialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false, true, true)
+            const formData = new FormData()
+            formData.set("action", "delete")
+            formData.set("id", button.getAttribute(idAttributeName) as string)
+
+            //Send request
+            const [ok, _] = await SendPOSTDataToServerAsync(postURL, formData)
+            if (!ok) {
+                SendToast("Mazání dat", "Nelze smazat data", "error")
+                progress.CloseDialog()
+                await dialogManager.OpenAlert("Mazání dat", "Data nemohla být smazána, opakujte akci později.", true, true)
+                return
+            }
+
+            //All OK
+            SendToast("Mazání dat", "Data odstraněna.", "ok")
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000)
+        })
+    }
 }

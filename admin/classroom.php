@@ -42,7 +42,28 @@ if (isset($_POST["action"])) {
             echo "Entry could not be created.";
             die();
         }
-    } else {
+    } else if ($_POST["action"] == "delete")  {
+        //Check if values set
+        if(!isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Delete
+        $stmt = $conn->prepare("DELETE FROM classrooms WHERE id_classrooms=?");
+        $stmt->bind_param("i",$_POST["id"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry deleted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be deleted.";
+            die();
+        }
+    }
+    else {
         http_response_code(400);
         echo "Invalid usage of function - invalid action";
         die();

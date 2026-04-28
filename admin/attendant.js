@@ -1,9 +1,9 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
-import { setupButtons } from "./sharedScripts.js";
+import { setupSaveCancelButtons } from "./sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-setupButtons(dialogManager, "attendantValidate", "./attendants.php", "./attendant.php", urlSearchParams.get("user"));
+setupSaveCancelButtons(dialogManager, "attendantValidate", "./attendants.php", "./attendant.php", urlSearchParams.get("user"));
 //Make attendant change school field work
 const attendantSchool = document.getElementById("school");
 attendantSchool.validationFunction = async (value) => {

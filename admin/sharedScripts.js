@@ -1,6 +1,6 @@
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
-export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
+export function setupSaveCancelButtons(dialogManager, className, cancelURL, postURL, id) {
     var _a, _b, _c, _d;
     //Setup validation
     for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -114,7 +114,7 @@ export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
         }
     });
 }
-//Make Row of user highlightable
+//Make Row of table highlightable
 for (const row of document.getElementsByClassName("clickHighlightRow")) {
     row.addEventListener("click", () => {
         if (row.classList.contains("trHighlight")) {
@@ -127,5 +127,34 @@ for (const row of document.getElementsByClassName("clickHighlightRow")) {
             row.classList.add("trHighlight");
         }
     });
+}
+export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName) {
+    //Get buttons
+    for (const button of document.getElementsByClassName("btnTableDelete")) {
+        button.addEventListener("click", async () => {
+            //Ask for confirm
+            if (!await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete řádek odstranit?", true, true)) {
+                return;
+            }
+            //Create FormData
+            const progress = dialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false, true, true);
+            const formData = new FormData();
+            formData.set("action", "delete");
+            formData.set("id", button.getAttribute(idAttributeName));
+            //Send request
+            const [ok, _] = await SendPOSTDataToServerAsync(postURL, formData);
+            if (!ok) {
+                SendToast("Mazání dat", "Nelze smazat data", "error");
+                progress.CloseDialog();
+                await dialogManager.OpenAlert("Mazání dat", "Data nemohla být smazána, opakujte akci později.", true, true);
+                return;
+            }
+            //All OK
+            SendToast("Mazání dat", "Data odstraněna.", "ok");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+    }
 }
 //# sourceMappingURL=sharedScripts.js.map
