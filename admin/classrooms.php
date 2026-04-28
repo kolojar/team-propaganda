@@ -39,7 +39,6 @@ require "../assets/config.php";
         <table class='styledTable styledTableAuto'>
             <tr>
                 <th>Akce</th>
-                <th>Číslo učebny</th>
                 <th>Název učebny</th>
                 <th>Počet míst k sezení</th>
                 <th>Je aktivní</th>
@@ -55,15 +54,15 @@ require "../assets/config.php";
             for ($i = 0; $i < $stmt->num_rows; $i++) {
                 $stmt->bind_result($id, $name, $placesToSit, $isFunctional, $note);
                 $stmt->fetch();
+                $isFunctionalString = $isFunctional == 1 ? "Ano" : "Ne";
                 echo "<tr class='clickHighlightRow'>
                         <td>
-                            <a href='?view=classroom&classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <a href='./classroom.php?classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor deleteClassroomButton' classroomId=$id classroomName='$name'>Odstranit</button>
                         </td>
-                        <td>$id</td>
                         <td>$name</td>
                         <td>$placesToSit</td>
-                        <td>$isFunctional</td>
+                        <td>$isFunctionalString</td>
                         <td>$note</td>
                     </tr>";
             }
@@ -75,6 +74,6 @@ require "../assets/config.php";
 
     </footer>
 </body>
-<script type="module" src="./formWebScripts/js/formScript.js"></script>
+<script type="module" src="../formWebScripts/js/formScript.js"></script>
 
 </html>

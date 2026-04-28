@@ -4,7 +4,7 @@ require "../assets/config.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["email"]) || !isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["email"]) || !isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["school"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
@@ -12,7 +12,7 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
-        $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["school_id"], $_POST["id"]);
+        $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -22,6 +22,10 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
+    } else {
+        http_response_code(400);
+        echo "Invalid usage of function - missing action parameter";
+        die();
     }
 }
 ?>
@@ -80,7 +84,7 @@ if (isset($_POST["action"])) {
         echo "<form-input label='Křestní jméno:' class='attendantValidate' do-change-check='true' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
         echo "<br>";
         echo "<form-input label='Přijmení:' class='attendantValidate' do-change-check='true' type='text' id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
-echo "<br>";       
+        echo "<br>";
         echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         echo "<p>Zákonný zástupce: <b><?php echo '?' ?></b></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";

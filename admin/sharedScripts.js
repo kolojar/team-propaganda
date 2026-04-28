@@ -1,4 +1,4 @@
-import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
+import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
     var _a, _b, _c, _d;
@@ -54,7 +54,12 @@ export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
             }
             for (const inputElementOriginal of document.getElementsByClassName(className)) {
                 const inputElement = inputElementOriginal;
-                data.append(inputElement.id, inputElement.getValue());
+                if (inputElement instanceof HTMLFormToggleElement) {
+                    data.append(inputElement.id, inputElement.getValue() ? "1" : "0");
+                }
+                else {
+                    data.append(inputElement.id, inputElement.getValue());
+                }
             }
             //Send to server
             const [ok, _] = await SendPOSTDataToServerAsync(postURL, data);
@@ -73,6 +78,8 @@ export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
             }
             else {
                 SendToast("Ukládání dat", "Změny nemohly být uloženy.", "error");
+                progress.CloseDialog();
+                await dialogManager.OpenAlert("Ukládání dat", "Změny nemohly být uloženy, opakujte akci později.", true, true);
             }
         }
     });

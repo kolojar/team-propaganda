@@ -5,7 +5,7 @@ import { setupButtons } from "./sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-setupButtons(dialogManager,"attendantValidate","./attendants.php","./attendant.php",urlSearchParams.get("attendant") as string)
+setupButtons(dialogManager,"attendantValidate","./attendants.php","./attendant.php",urlSearchParams.get("user") as string)
 
 //Make attendant change school field work
 const attendantSchool = document.getElementById("school") as HTMLFormInputElement

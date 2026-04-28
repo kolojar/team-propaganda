@@ -60,7 +60,11 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
             }
             for (const inputElementOriginal of document.getElementsByClassName(className)) {
                 const inputElement = inputElementOriginal as HTMLFormInputElement | HTMLFormToggleElement
-                data.append(inputElement.id, inputElement.getValue());
+                if (inputElement instanceof HTMLFormToggleElement) {
+                      data.append(inputElement.id, inputElement.getValue() ? "1" : "0");
+                } else {
+                    data.append(inputElement.id, inputElement.getValue());
+                }
             }
 
             //Send to server
@@ -78,6 +82,8 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
                 }, 1000)
             } else {
                 SendToast("Ukládání dat", "Změny nemohly být uloženy.", "error")
+                progress.CloseDialog()
+                await dialogManager.OpenAlert("Ukládání dat", "Změny nemohly být uloženy, opakujte akci později.", true, true)
             }
         }
     })
