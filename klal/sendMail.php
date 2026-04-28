@@ -105,7 +105,6 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
         <input type="submit">
     </form>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script type="module">
         import {
             SendPOSTDataToServerAsync
