@@ -16,10 +16,10 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
 
     //Check if exists
     let exists = true;
-    if( document.getElementById("btnSave")?.hasAttribute("exists")) {
-        exists =  document.getElementById("btnSave")?.getAttribute("exists") == "true"
+    if (document.getElementById("btnSave")?.hasAttribute("exists")) {
+        exists = document.getElementById("btnSave")?.getAttribute("exists") == "true"
     }
-    
+
     //Make save button work
     document.getElementById("btnSave")?.addEventListener("click", async () => {
         //Get elements
@@ -37,7 +37,7 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
             if (!exists) {
                 changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
             } else if (changed) {
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValue() : inputElement.getOriginalValue()  ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue()  ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValue() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
             }
         }
 
@@ -50,10 +50,10 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
         //Wait for confirm
         if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
             const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
-            
+
             //Create FormData
             const data = new FormData()
-            data.append("action", exists ?  "update" : "insert")
+            data.append("action", exists ? "update" : "insert")
             //data.append("table", table)
             if (exists) {
                 data.append("id", id)
@@ -70,7 +70,11 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
                 SendToast("Ukládání dat", "Změny uloženy.", "ok")
                 //progress.SetMessage(0,"Změny uloženy")
                 setTimeout(() => {
-                    window.location.reload()
+                    if (!exists) {
+                        window.location.href = cancelURL
+                    } else {
+                        window.location.reload()
+                    }
                 }, 1000)
             } else {
                 SendToast("Ukládání dat", "Změny nemohly být uloženy.", "error")
@@ -89,7 +93,7 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
             console.log(changed, isValid);
             if (changed) {
                 foundChange = true;
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValue() : inputElement.getOriginalValue()  ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue()  ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValue() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
             }
             //changes.push("• " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue()));
         }
@@ -97,14 +101,14 @@ export function setupButtons(dialogManager: FormDialogManager, className: string
         //Wait for confirm
         if (!exists) {
             if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete zrušit vytváření?", true, true)) {
-                window.location.replace(cancelURL)
+                window.location.href = cancelURL
             }
             return
         }
         if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
             window.location.reload()
         }
-        if(!foundChange) {
+        if (!foundChange) {
             SendToast("Nelze smazat změny!", "Žádné změny nebyly provedeny.", "ok")
             return
         }

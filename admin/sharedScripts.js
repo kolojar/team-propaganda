@@ -63,7 +63,12 @@ export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
                 SendToast("Ukládání dat", "Změny uloženy.", "ok");
                 //progress.SetMessage(0,"Změny uloženy")
                 setTimeout(() => {
-                    window.location.reload();
+                    if (!exists) {
+                        window.location.href = cancelURL;
+                    }
+                    else {
+                        window.location.reload();
+                    }
                 }, 1000);
             }
             else {
@@ -89,7 +94,7 @@ export function setupButtons(dialogManager, className, cancelURL, postURL, id) {
         //Wait for confirm
         if (!exists) {
             if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete zrušit vytváření?", true, true)) {
-                window.location.replace(cancelURL);
+                window.location.href = cancelURL;
             }
             return;
         }

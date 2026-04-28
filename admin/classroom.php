@@ -1,6 +1,49 @@
 <?php
 session_start();
 require "../assets/config.php";
+if (isset($_POST["action"])) {
+    if ($_POST["action"] == "update") {
+        //Check if values set
+        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"])|| !isset($_POST["note"]) || !isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Update
+        $stmt = $conn->prepare("UPDATE classrooms SET name=?, placesToSit=?,isFunctional=?, note=? WHERE id_classrooms=?");
+        $stmt->bind_param("siisi", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"], $_POST["id"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry updated.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be updated.";
+            die();
+        }
+    } else if ($_POST["action"] == "insert") {
+        //Check if values set
+        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"])|| !isset($_POST["note"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Insert
+        $stmt = $conn->prepare("INSERT INTO classrooms(name,placesToSit,isFunctional,note) VALUES (name=?, placesToSit=?,isFunctional=?, note=?)");
+        $stmt->bind_param("siis", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry created.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be created.";
+            die();
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
