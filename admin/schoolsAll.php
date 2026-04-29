@@ -16,7 +16,7 @@ require "../assets/config.php";
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
-<body>
+<body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
         <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
         <div class="formButtonBoxHolder">
@@ -36,10 +36,18 @@ require "../assets/config.php";
     </header>
     <main>
         <h1>Seznam všech škol</h1>
-        <button id="btnPageNext" class="formButton formInfoColor"><<</button>
-        <form-input label="Číslo stránky: " type="number" id="pageNumber"></form-input>
-        <button id="btnPageNext" class="formButton formInfoColor">>></button>
-        <form-input label="Počet položek na stránku: " type="number" id="itemsPerPage"></form-input>
+        <a href="./school.php?newSchool=1"><button class="formButton formWarnColor">Přidat novou školu</button></a><br>
+        <?php
+        //$itemsPerPage = isset($_GET["itemsPerPage"]) ? $_GET["itemsPerPage"] : 10;
+        //$page = isset($_GET["page"]) ? $_GET["page"] * $itemsPerPage : 0;
+        //echo "<form-input label='Číslo stránky:' type='number' id='pageNumber' value='$page'></form-input>";
+        //echo "<form-input label='Počet položek na stránku:' type='number' id='itemsPerPage' value='$itemsPerPage'></form-input>";
+        //echo "<br>";
+        //echo "<span>Posun stránek: </span>";
+        //echo "<button id='btnPagePrev' class='formButton formInfoColor' " . (isset($_GET["page"]) ? ($_GET["page"] == 0 ? "disabled" : "") : "disabled") . ">⬅</button>";
+        //echo "<button id='btnPageNext' class='formButton formInfoColor'>➡</button>";
+        //echo "<button id='btnPageShow' class='formButton formInfoColor'>Zobrazit</button>";
+        ?>
         <i>Poznámka: Nekteré školy není možné smazat, jelikož mají nahlášené zájemce.</i>
         <table class='styledTable styledTableAuto'>
             <tr>
@@ -50,8 +58,8 @@ require "../assets/config.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users), GROUP_CONCAT(users.id_users) FROM users RIGHT JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools LIMIT ?,?;");
-            $stmt->bind_param("ii",isset($_GET["page"]) ? )
+            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users), GROUP_CONCAT(users.id_users) FROM users RIGHT JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools;");
+            //$stmt->bind_param("ii", $page, $itemsPerPage);
             $stmt->execute();
             $stmt->store_result();
 
@@ -60,9 +68,9 @@ require "../assets/config.php";
                 $stmt->bind_result($id, $name, $address, $count, $users);
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
-                        <td>
-                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
-                if($count > 0) {
+                        <td style='text-align: center'>
+                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a> ";
+                if ($count > 0) {
                     echo "<a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>";
                 } else {
                     echo "<button class='formButton formErrorColor btnTableDelete' school=$id>Odstranit</button>";
@@ -75,14 +83,11 @@ require "../assets/config.php";
             }
             ?>
         </table>
-        <h1>Seznam všech škol</h1>
-        <a href="./school.php?newSchool=1"><button class="formButton formWarnColor">Přidat novou školu</button></a>
-        <a href="./schoolsAll.php"><button class="formButton formOkColor">Zobrazit všechny školy</button></a>
     </main>
     <footer>
 
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-
+<script type="module" src="./schoolsAll.js"></script>
 </html>

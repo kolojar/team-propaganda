@@ -22,6 +22,50 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
+    } else if ($_POST["action"] == "insert") {
+        //Check if values set
+        if (!isset($_POST["name"]) || !isset($_POST["address"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Update
+        $stmt = $conn->prepare("INSERT INTO schools(name,address) VALUES (?, ?)");
+        $stmt->bind_param("ss", $_POST["name"], $_POST["address"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry updated.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be updated.";
+            die();
+        }
+    } else if ($_POST["action"] == "delete") {
+        //Check if values set
+        if (!isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Delete
+        $stmt = $conn->prepare("DELETE FROM schools WHERE id_schools=?");
+        $stmt->bind_param("i", $_POST["id"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry deleted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be deleted.";
+            die();
+        }
+    } else {
+        http_response_code(400);
+        echo "Invalid usage of function - invalid action";
+        die();
     }
 }
 ?>
@@ -39,7 +83,7 @@ if (isset($_POST["action"])) {
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
-<body>
+<body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
         <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
         <div class="formButtonBoxHolder">
@@ -77,9 +121,9 @@ if (isset($_POST["action"])) {
         }
 
         //Print HTML
-        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='$exists' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
         echo "<br>";
-        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
+        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='$exists' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";

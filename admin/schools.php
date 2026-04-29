@@ -16,7 +16,7 @@ require "../assets/config.php";
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
-<body>
+<body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
         <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
         <div class="formButtonBoxHolder">
@@ -73,6 +73,6 @@ require "../assets/config.php";
 
     </footer>
 </body>
-<script type="module" src="./formWebScripts/js/formScript.js"></script>
+<script type="module" src="../formWebScripts/js/formScript.js"></script>
 
 </html>

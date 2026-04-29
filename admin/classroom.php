@@ -84,7 +84,7 @@ if (isset($_POST["action"])) {
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
-<body>
+<body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
         <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
         <div class="formButtonBoxHolder">
