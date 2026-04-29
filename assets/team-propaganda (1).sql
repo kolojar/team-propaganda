@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Pon 27. dub 2026, 04:38
+-- Vytvořeno: Stř 29. dub 2026, 16:48
 -- Verze serveru: 12.2.2-MariaDB
 -- Verze PHP: 8.5.5
 
@@ -27,13 +27,21 @@ SET time_zone = "+00:00";
 -- Struktura tabulky `classrooms`
 --
 
+DROP TABLE IF EXISTS `classrooms`;
 CREATE TABLE `classrooms` (
-  `id_classrooms` varchar(16) NOT NULL,
+  `id_classrooms` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `placesToSit` int(11) NOT NULL,
   `isFunctional` tinyint(1) NOT NULL DEFAULT 1,
   `note` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Vypisuji data pro tabulku `classrooms`
+--
+
+INSERT INTO `classrooms` (`id_classrooms`, `name`, `placesToSit`, `isFunctional`, `note`) VALUES
+(1, 'U16', 32, 1, '-');
 
 -- --------------------------------------------------------
 
@@ -41,6 +49,7 @@ CREATE TABLE `classrooms` (
 -- Struktura tabulky `email_send`
 --
 
+DROP TABLE IF EXISTS `email_send`;
 CREATE TABLE `email_send` (
   `id_email_send` int(10) UNSIGNED NOT NULL,
   `subject` varchar(255) NOT NULL,
@@ -54,6 +63,7 @@ CREATE TABLE `email_send` (
 -- Struktura tabulky `email_send_user`
 --
 
+DROP TABLE IF EXISTS `email_send_user`;
 CREATE TABLE `email_send_user` (
   `id_users` int(10) UNSIGNED NOT NULL,
   `id_email_send` int(10) UNSIGNED NOT NULL
@@ -65,6 +75,7 @@ CREATE TABLE `email_send_user` (
 -- Struktura tabulky `events`
 --
 
+DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
   `id_events` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -85,11 +96,12 @@ CREATE TABLE `events` (
 -- Struktura tabulky `registered_students`
 --
 
+DROP TABLE IF EXISTS `registered_students`;
 CREATE TABLE `registered_students` (
-  `id_users` int(11) NOT NULL,
-  `id_events` int(11) NOT NULL,
+  `id_users` int(11) UNSIGNED NOT NULL,
+  `id_events` int(11) UNSIGNED NOT NULL,
   `paid` tinyint(1) NOT NULL DEFAULT 0,
-  `id_classrooms` varchar(16) NOT NULL
+  `id_classrooms` int(11) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -98,6 +110,7 @@ CREATE TABLE `registered_students` (
 -- Struktura tabulky `schools`
 --
 
+DROP TABLE IF EXISTS `schools`;
 CREATE TABLE `schools` (
   `id_schools` int(16) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -4468,6 +4481,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 -- Struktura tabulky `students_attendance`
 --
 
+DROP TABLE IF EXISTS `students_attendance`;
 CREATE TABLE `students_attendance` (
   `id_subevents` int(11) NOT NULL,
   `id_users` int(11) NOT NULL,
@@ -4480,6 +4494,7 @@ CREATE TABLE `students_attendance` (
 -- Struktura tabulky `subevents`
 --
 
+DROP TABLE IF EXISTS `subevents`;
 CREATE TABLE `subevents` (
   `id_subevents` int(11) NOT NULL,
   `id_events` int(11) NOT NULL,
@@ -4494,6 +4509,7 @@ CREATE TABLE `subevents` (
 -- Struktura tabulky `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id_users` int(16) UNSIGNED NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -4507,11 +4523,18 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_users`, `email`, `name`, `surname`, `id_schools`) VALUES
-(1, 'novakovi@seznam.cz', 'Jan', 'Novák', 2246);
+(1, 'novakovi@seznam.cz', 'Petr', 'Novák', 2246),
+(3, 'petr@centrum.cz', 'Petr', 'Petrov', 1871);
 
 --
 -- Indexy pro exportované tabulky
 --
+
+--
+-- Indexy pro tabulku `classrooms`
+--
+ALTER TABLE `classrooms`
+  ADD PRIMARY KEY (`id_classrooms`);
 
 --
 -- Indexy pro tabulku `email_send`
@@ -4537,8 +4560,7 @@ ALTER TABLE `events`
 -- Indexy pro tabulku `registered_students`
 --
 ALTER TABLE `registered_students`
-  ADD PRIMARY KEY (`id_users`,`id_events`),
-  ADD KEY `classroom` (`id_classrooms`);
+  ADD PRIMARY KEY (`id_users`,`id_events`);
 
 --
 -- Indexy pro tabulku `schools`
@@ -4573,6 +4595,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT pro tabulku `classrooms`
+--
+ALTER TABLE `classrooms`
+  MODIFY `id_classrooms` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT pro tabulku `email_send`
 --
 ALTER TABLE `email_send`
@@ -4600,7 +4628,7 @@ ALTER TABLE `subevents`
 -- AUTO_INCREMENT pro tabulku `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Omezení pro exportované tabulky
@@ -4612,6 +4640,14 @@ ALTER TABLE `users`
 ALTER TABLE `email_send_user`
   ADD CONSTRAINT `id_email_send` FOREIGN KEY (`id_email_send`) REFERENCES `email_send` (`id_email_send`),
   ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`);
+
+--
+-- Omezení pro tabulku `registered_students`
+--
+ALTER TABLE `registered_students`
+  ADD CONSTRAINT `classrooms` FOREIGN KEY (`id_classrooms`) REFERENCES `classrooms` (`id_classrooms`),
+  ADD CONSTRAINT `events` FOREIGN KEY (`id_events`) REFERENCES `events` (`id_events`),
+  ADD CONSTRAINT `users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`);
 
 --
 -- Omezení pro tabulku `users`
