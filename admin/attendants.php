@@ -18,7 +18,7 @@ require "../assets/config.php";
 
 <body>
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
+        <h1>Akce: <?php echo $_SESSION["adminSubEventId"]; ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -47,8 +47,16 @@ require "../assets/config.php";
                 <th>Základní škola</th>
             </tr>
             <?php
+            ////Get highlighted schools
+            //$highlightSchools = [];
+            //if(isset($_GET['schools'])) {
+            //    $highlightSchools = explode(',',$_GET["schools"]);
+            //}
+
             //Request users
-            $stmt = $conn->prepare("SELECT id_users, name,surname, email  password FROM users");
+            $stmt = $conn->prepare(
+                "SELECT id_users, name,surname, email  password FROM users",
+            );
             $stmt->execute();
             $stmt->store_result();
 
@@ -58,7 +66,9 @@ require "../assets/config.php";
                 $stmt->fetch();
 
                 //Get school info
-                $schoolGet = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address FROM users JOIN schools ON users.id_schools = schools.id_schools WHERE users.id_users = ? LIMIT 1");
+                $schoolGet = $conn->prepare(
+                    "SELECT schools.id_schools, schools.name, schools.address FROM users JOIN schools ON users.id_schools = schools.id_schools WHERE users.id_users = ? LIMIT 1",
+                );
                 $schoolGet->bind_param("i", $id);
                 $schoolGet->execute();
                 $schoolGet->store_result();
@@ -66,7 +76,7 @@ require "../assets/config.php";
                 $schoolGet->fetch();
 
                 $highlightSchoolClass = "";
-                if (isset($_GET["school"]) && $_GET["school"] = $schoolId) {
+                if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                     $highlightSchoolClass = "trHighlight";
                 }
 
@@ -85,6 +95,7 @@ require "../assets/config.php";
                     </tr>";
             }
             ?>
+            <h1></h1>
         </table>
     </main>
     <footer>

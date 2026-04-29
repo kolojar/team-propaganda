@@ -35,7 +35,12 @@ require "../assets/config.php";
         </div>
     </header>
     <main>
-        <h1>Školy, které mají nahlášené zájemce</h1>
+        <h1>Seznam všech škol</h1>
+        <button id="btnPageNext" class="formButton formInfoColor"><<</button>
+        <form-input label="Číslo stránky: " type="number" id="pageNumber"></form-input>
+        <button id="btnPageNext" class="formButton formInfoColor">>></button>
+        <form-input label="Počet položek na stránku: " type="number" id="itemsPerPage"></form-input>
+        <i>Poznámka: Nekteré školy není možné smazat, jelikož mají nahlášené zájemce.</i>
         <table class='styledTable styledTableAuto'>
             <tr>
                 <th>Akce</th>
@@ -45,7 +50,8 @@ require "../assets/config.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users),  GROUP_CONCAT(users.id_users) FROM users JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools;");
+            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users), GROUP_CONCAT(users.id_users) FROM users RIGHT JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools LIMIT ?,?;");
+            $stmt->bind_param("ii",isset($_GET["page"]) ? )
             $stmt->execute();
             $stmt->store_result();
 
@@ -55,9 +61,13 @@ require "../assets/config.php";
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
                         <td>
-                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>
-                        </td>
+                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
+                if($count > 0) {
+                    echo "<a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>";
+                } else {
+                    echo "<button class='formButton formErrorColor btnTableDelete' school=$id>Odstranit</button>";
+                }
+                echo "</td>
                         <td>$count</td>
                         <td>$name</td>
                         <td>$address</td>
@@ -73,6 +83,6 @@ require "../assets/config.php";
 
     </footer>
 </body>
-<script type="module" src="./formWebScripts/js/formScript.js"></script>
+<script type="module" src="../formWebScripts/js/formScript.js"></script>
 
 </html>

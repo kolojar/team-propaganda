@@ -59,23 +59,31 @@ if (isset($_POST["action"])) {
     </header>
     <main>
         <?php
-        //Get school info
-        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
-        $stmt->bind_param("i", $_GET["school"]);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($name, $address);
-        $stmt->fetch();
+        $name = "";
+        $address = "";
+        $exists = "true";
+        if (isset($_GET["newSchool"])) {
+            echo "<h1>Vytvořit novou školu</h1>";
+            $exists = "false";
+        } else {
+            //Get school info
+            $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
+            $stmt->bind_param("i", $_GET["school"]);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($name, $address);
+            $stmt->fetch();
+            echo "<h1>Informace o škole: $name → $address</h1>";
+        }
 
         //Print HTML
-        echo "<h1>Informace o škole: $name → $address</h1>";
         echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
         echo "<br>";
         echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='true' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
+        echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
+        echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
         echo "<a href='./schools.php'><button class='formButton formInfoColor'>Zpět na seznam škol</button></a>";
         echo "</div>";
         echo "</div>";

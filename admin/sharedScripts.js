@@ -133,7 +133,7 @@ export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName)
     for (const button of document.getElementsByClassName("btnTableDelete")) {
         button.addEventListener("click", async () => {
             //Ask for confirm
-            if (!await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete řádek odstranit?", true, true)) {
+            if (!await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?", true, true)) {
                 return;
             }
             //Create FormData
