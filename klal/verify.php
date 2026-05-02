@@ -42,7 +42,7 @@ if (isset($_POST["login"])) {
         $_SESSION["signup"] = null;
         exit;
     }
-} else if ($_SESSION["login"] || $_SESSION["signup"]) { //trying to go around
+} else if (!$_SESSION["login"] && !$_SESSION["signup"]) { //trying to go around
     header('Location: ./loginForm.html');
     exit;
 }
