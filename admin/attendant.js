@@ -9,11 +9,9 @@ const attendantSchool = document.getElementById("school");
 attendantSchool.validationFunction = async (value) => {
     const timestamp = new Date();
     const data = new FormData(undefined, null);
-    data.set("action", "getSchools");
-    data.set("table", "");
     console.log(attendantSchool.getValue());
     data.set("query", attendantSchool.getValueRaw());
-    const [ok, msg] = await SendPOSTDataToServerAsync("./adminFunctions.php", data);
+    const [ok, msg] = await SendPOSTDataToServerAsync("./schoolSearch.php", data);
     const options = new Map();
     for (const school of JSON.parse(msg)) {
         console.log(school);

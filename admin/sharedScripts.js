@@ -132,6 +132,9 @@ export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName)
     //Get buttons
     for (const button of document.getElementsByClassName("btnTableDelete")) {
         button.addEventListener("click", async () => {
+            if (!button.hasAttribute(idAttributeName)) {
+                return;
+            }
             //Ask for confirm
             if (!await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?", true, true)) {
                 return;

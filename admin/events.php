@@ -1,6 +1,34 @@
 <?php
 session_start();
 require "../assets/config.php";
+require "./adminFunctions.php";
+
+if (isset($_GET["action"])) {
+    if ($_GET["action"] == "clearEvent") {
+        setEventId("");
+        setSubeventId("");
+        header("Location: ./events.php");
+        die();
+    } else if ($_GET["action"] == "clearSubevent") {
+        setSubeventId("");
+        header("Location: ./events.php");
+        die();
+    } else {
+        http_response_code(400);
+        echo "Invalid usage of function - invalid action";
+        die();
+    }
+}
+if (isset($_GET["selectEvent"])) {
+    setEventId($_GET["selectEvent"]);
+    header("Location: ./events.php");
+    die();
+}
+if (isset($_GET["selectSubevent"])) {
+    setSubeventId($_GET["selectSubevent"]);
+    header("Location: ./events.php");
+    die();
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +46,7 @@ require "../assets/config.php";
 
 <body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
+        <h1>Akce: <?php echo setupTitlebarAction($conn) ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -29,7 +57,7 @@ require "../assets/config.php";
                 <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
-                <a href="./changeEvent.php"><button class="formButton formWarnColor">Změnit událost</button></a>
+                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>
@@ -67,9 +95,36 @@ require "../assets/config.php";
             echo "<th>Datum</th>";
             echo "<th>Čas zahájení</th>";
             echo "<th>Čas ukončení</th>";
-            echo "<th>Počet přihlášených</th>";
             echo "</tr>";
+
+            //Request subevents
+            $stmt = $conn->prepare("SELECT id_subevents, date, start_time, end_time FROM subevents WHERE id_events=?;");
+            $stmt->bind_param("i", $eventId);
+            $stmt->execute();
+            $stmt->store_result();
+
+            //List all subevents in table
+            for ($i = 0; $i < $stmt->num_rows; $i++) {
+                $stmt->bind_result($id, $date, $startTime, $endTime);
+                $stmt->fetch();
+                echo "<tr class='clickHighlightRow'>
+                        <td>
+                            <a href='./events.php?selectSubevent=$id'><button class='formButton formInfoColor'>Otevřít podpohled</button></a>
+                            <a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>
+                        </td>
+                        <td>$date</td>
+                        <td>$startTime</td>
+                        <td>$endTime</td>
+                    </tr>";
+            }
             echo "</table>";
+            echo "<div class='formButtonBoxHolder'>";
+            echo "<div class='formButtonBox'>";
+            echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button class='formButton formWarnColor'>Vytvořit podudálost</button></a>";
+            echo "<a href='./events.php?action=clearSubevent'><button class='formButton formErrorColor'>Zavřít podpohled</button></a>";
+            echo "</div>";
+            echo "</div>";
         }
         echo "<h1>Dostupné události</h1>";
         echo "<table class='styledTable styledTableAuto'>";
@@ -79,37 +134,46 @@ require "../assets/config.php";
         echo "<th>Druh</th>";
         echo "<th>Je aktivní</th>";
         echo "<th>Je registrace aktivní</th>";
+        echo "<th>Počet přihlášených</th>";
         echo "</tr>";
 
-        //Request classrooms
+        //Request events
         $stmt = $conn->prepare("SELECT id_events, name, type, active_since, active_until, registration_open, registration_close FROM events;");
         $stmt->execute();
         $stmt->store_result();
 
-        //List all classrooms in table
+        //List all events in table
         for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $name,$type, $activeSince, $activeUntil, $registrationOpen, $registrationClose);
+            $stmt->bind_result($id, $name, $type, $endTime, $activeUntil, $registrationOpen, $registrationClose);
             $stmt->fetch();
             echo "<tr class='clickHighlightRow'>
                         <td>
-                            <a href='./classroom.php?classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' classroom=$id classroomName='$name'>Odstranit</button>
+                            <a href='./events.php?selectEvent=$id'><button class='formButton formInfoColor'>Otevřít pohled</button></a>
+                            <a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>
                         </td>
                         <td>$name</td>
                         <td>$type</td>
+                        <td>?</td>
                         <td>?</td>
                         <td>?</td>
                     </tr>";
         }
         ?>
         </table>
-        <a href='./event.php?newEvent=1'><button class='formButton formWarnColor'>Vytvořit událost</button></a>
+        <div class='formButtonBoxHolder'>
+            <div class='formButtonBox'>
+                <a href='./event.php?newEvent=1'><button class='formButton formWarnColor'>Vytvořit událost</button></a>
+                <a href='./events.php?action=clearEvent'><button class='formButton formErrorColor'>Zavřít pohled</button></a>
+            </div>
+        </div>
+
     </main>
     <footer>
 
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type="module" src="./classrooms.js"></script>
+<script type="module" src="./events.js"></script>
 
 </html>

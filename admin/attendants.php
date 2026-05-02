@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../assets/config.php";
+require "./adminFunctions.php";
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +19,7 @@ require "../assets/config.php";
 
 <body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo $_SESSION["adminSubEventId"]; ?></h1>
+        <h1>Akce: <?php echo setupTitlebarAction($conn); ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -29,7 +30,7 @@ require "../assets/config.php";
                 <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
-                <a href="./changeEvent.php"><button class="formButton formWarnColor">Změnit událost</button></a>
+                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>

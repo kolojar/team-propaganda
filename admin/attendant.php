@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "../assets/config.php";
+require "./adminFunctions.php";
+
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
@@ -45,7 +47,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
+        <h1>Akce: <?php echo setupTitlebarAction($conn, false,true) ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -56,7 +58,7 @@ if (isset($_POST["action"])) {
                 <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
-                <a href="./changeEvent.php"><button class="formButton formWarnColor">Změnit událost</button></a>
+                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>

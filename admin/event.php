@@ -1,18 +1,20 @@
 <?php
 session_start();
 require "../assets/config.php";
+require "./adminFunctions.php";
+
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"]) || !isset($_POST["note"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE classrooms SET name=?, placesToSit=?,isFunctional=?, note=? WHERE id_classrooms=?");
-        $stmt->bind_param("siisi", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE events SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=? WHERE id_events=?");
+        $stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -24,15 +26,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "insert") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"]) || !isset($_POST["note"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO classrooms(name,placesToSit,isFunctional,note) VALUES (?, ?,?, ?)");
-        $stmt->bind_param("siis", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"]);
+        $stmt = $conn->prepare("INSERT INTO events(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start) VALUES (?,?,?,?,?,?,?,?,?,?)");
+        $stmt->bind_param("sssssssiis", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry created.";
@@ -42,17 +44,17 @@ if (isset($_POST["action"])) {
             echo "Entry could not be created.";
             die();
         }
-    } else if ($_POST["action"] == "delete")  {
+    } else if ($_POST["action"] == "delete") {
         //Check if values set
-        if(!isset($_POST["id"])) {
+        if (!isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Delete
-        $stmt = $conn->prepare("DELETE FROM classrooms WHERE id_classrooms=?");
-        $stmt->bind_param("i",$_POST["id"]);
+        $stmt = $conn->prepare("DELETE FROM events WHERE id_events=?");
+        $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry deleted.";
@@ -62,8 +64,7 @@ if (isset($_POST["action"])) {
             echo "Entry could not be deleted.";
             die();
         }
-    }
-    else {
+    } else {
         http_response_code(400);
         echo "Invalid usage of function - invalid action";
         die();
@@ -86,7 +87,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo $_SESSION["adminSubEventId"] ?></h1>
+        <h1>Akce: <?php echo setupTitlebarAction($conn,false,true) ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -97,7 +98,7 @@ if (isset($_POST["action"])) {
                 <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
-                <a href="./changeEvent.php"><button class="formButton formWarnColor">Změnit událost</button></a>
+                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>
@@ -110,16 +111,17 @@ if (isset($_POST["action"])) {
             <option value="denFirem" label="Den firem"></option>
         </datalist>
         <?php
+        const JS_TIME_FORMAT = 'Y-m-d\\TH:i';
         $name = "";
         $type = "";
-        $description = "";
-        $activeSince = new DateTime()->format("Y-m-d");
-        $activeUntil = null;
-        $registrationOpen = null;
-        $registrationClose = null;
+        $description = "-";
+        $activeSinceDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
+        $activeUntilDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
+        $registrationOpenDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
+        $registrationCloseDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
         $repeatInterval = 0;
         $repeatCount = 0;
-        $repeatStart = null;
+        $repeatStartDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
         $exists = "true";
         if (isset($_GET["newEvent"])) {
             echo "<h1>Vytvořit novou událost</h1>";
@@ -129,37 +131,43 @@ if (isset($_POST["action"])) {
             $stmt->bind_param("i", $_GET["event"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name,$type,$description,$activeSince,$activeUntil,$registrationOpen,$registrationClose,$repeatInterval, $repeatCount, $repeatStart);
+            $stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB);
             $stmt->fetch();
             echo "<h1>Informace o události: $name</h1>";
         }
+        $activeSince = DateTime::createFromFormat('Y-m-d H:i:s', $activeSinceDB)->format(JS_TIME_FORMAT);
+        $activeUntil = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format(JS_TIME_FORMAT);
+        $registrationOpen = DateTime::createFromFormat('Y-m-d H:i:s', $registrationOpenDB)->format(JS_TIME_FORMAT);
+        $registrationClose = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format(JS_TIME_FORMAT);
+        $repeatStart = DateTime::createFromFormat('Y-m-d H:i:s', $repeatStartDB)->format(JS_TIME_FORMAT);
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
-
+        
         //Create HTML
         echo "<form-input label='Název události:' class='eventValidate' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
         echo "<br>";
-        echo "<form-input label='Typ události:' class='eventValidate' do-change-check='$exists' type='select' id='type' original-value='$type' value='$type' placeholder='$type' list='typeTypes'></form-input>";
+        echo "<form-input label='Typ události:' is-case-sensitive-list='false' class='eventValidate' do-change-check='$exists' type='select' id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
         echo "<br>";
         echo "<form-input label='Popis události:' class='eventValidate' do-change-check='$exists' type='textarea' id='description' original-value='$description' value='$description' placeholder='$description'></form-input>";
         echo "<br>";
-        echo "<form-input label='Událost aktivní od:' class='eventValidate' do-change-check='$exists' type='date' id='active_since' original-value='$activeSince' value='$activeSince' placeholder='$activeSince'></form-input>";
+        echo "<form-input label='Událost aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='active_since' original-value='$activeSince' value='$activeSince'></form-input>";
         echo "<br>";
-        echo "<form-input label='Událost aktivní do:' class='eventValidate' do-change-check='$exists' type='date' id='active_until' original-value='$activeUntil' value='$activeUntil' placeholder='$activeUntil'></form-input>";
+        echo "<form-input label='Událost aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='active_until' original-value='$activeUntil' value='$activeUntil'></form-input>";
         echo "<br>";
-        echo "<form-input label='Registrace aktivní od:' class='eventValidate' do-change-check='$exists' type='date' id='registration_open' original-value='$registrationOpen' value='$registrationOpen' placeholder='$registrationOpen'></form-input>";
+        echo "<form-input label='Registrace aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='registration_open' original-value='$registrationOpen' value='$registrationOpen'></form-input>";
         echo "<br>";
-        echo "<form-input label='Registrace aktivní do:' class='eventValidate' do-change-check='$exists' type='date' id='registration_close' original-value='$registrationClose' value='$registrationClose' placeholder='$registrationClose'></form-input>";
+        echo "<form-input label='Registrace aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='registration_close' original-value='$registrationClose' value='$registrationClose'></form-input>";
         echo "<br>";
-        echo "<form-input label='Název události:' class='eventValidate' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input min=0 label='Počet konání akce:' class='eventValidate' do-change-check='$exists' type='number' id='repeat_count' original-value='$repeatCount' value='$repeatCount' placeholder='$repeatCount'></form-input>";
         echo "<br>";
-        echo "<form-input label='Počet míst k sezení:' class='eventValidate' do-change-check='$exists' type='number' id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<br><form-toggle labelBefore='Je učebna aktivní: ' class='eventValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' id='isFunctional'></form-toggle><br>";
-        echo "<form-input label='Poznámka:' class='eventValidate' do-change-check='$exists' type='textarea' id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
+        echo "<form-input min=0 label='Rozestup automatického opakování akce ve dnech (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='number' id='repeat_interval' original-value='$repeatInterval' value='$repeatInterval' placeholder='$repeatInterval'></form-input>";
+        echo "<br>";
+        echo "<form-input label='První den podakce (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='datetime-local' id='repeat_start' original-value='$repeatStart' value='$repeatStart'></form-input>";
+        echo "<br>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
         echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./classrooms.php'><button class='formButton formInfoColor'>Zpět na seznam učeben</button></a>";
+        echo "<a href='./events.php'><button class='formButton formInfoColor'>Zpět na seznam události</button></a>";
         echo "</div>";
         echo "</div>";
         ?>
@@ -169,6 +177,6 @@ if (isset($_POST["action"])) {
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./classroom.js'></script>
+<script type='module' src='./event.js'></script>
 
 </html>
