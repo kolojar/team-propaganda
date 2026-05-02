@@ -1,7 +1,7 @@
 <?php
 session_start();
 require "../assets/config.php";
-setupTitlebarAction($conn, false,true);
+require "./adminFunctions.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
