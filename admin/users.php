@@ -10,7 +10,7 @@ require "./adminFunctions.php";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zájemci</title>
+    <title>Uživatelé</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
@@ -18,8 +18,8 @@ require "./adminFunctions.php";
 </head>
 
 <body class="pageHolder">
-    <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo setupTitlebarAction($conn); ?></h1>
+    <header>
+        <h1 style="color: white">Akce: <?php echo setupTitlebarAction($conn,false,true); ?></h1>
         <div class="formButtonBoxHolder">
             <div class="formButtonBox formJustifyLeft">
                 <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
@@ -30,22 +30,21 @@ require "./adminFunctions.php";
                 <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
             </div>
             <div class="formButtonBox formJustifyRight">
+                <a href="./users.php"><button class="formButton formInfoColor">Správa uživatelů</button></a>
                 <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
                 <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
             </div>
         </div>
     </header>
     <main>
-        <h1>Zájemci</h1>
+        <h1>Uživatelé</h1>
         <table class='styledTable styledTableAuto'>
             <tr>
                 <th>Akce</th>
                 <th>Jméno a přijmení</th>
-                <th>Zákonný zástupce</th>
-                <th>Email zákonného zástupce</th>
-                <th>Zaplaceno</th>
-                <th>Učebna</th>
-                <th>Základní škola</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Naposledy přihlášen</th>
             </tr>
             <?php
             ////Get highlighted schools
@@ -53,52 +52,30 @@ require "./adminFunctions.php";
             //if(isset($_GET['schools'])) {
             //    $highlightSchools = explode(',',$_GET["schools"]);
             //}
-
+            
             //Request users
             $stmt = $conn->prepare(
-                "SELECT id_attendants, name,surname, id_parent, id_schools FROM attendants",
+                "SELECT id_users, name,surname, email,role,lastLogin FROM users",
             );
             $stmt->execute();
             $stmt->store_result();
 
             //List all users in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $name, $surname, $parentId, $schoolId);
+                $stmt->bind_result($id, $name, $surname, $email, $role, $lastLogin);
                 $stmt->fetch();
-
-                //Get school info
-                $schoolGet = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
-                $schoolGet->bind_param("i", $schoolId);
-                $schoolGet->execute();
-                $schoolGet->store_result();
-                $schoolGet->bind_result($schoolName, $schoolAddress);
-                $schoolGet->fetch();
-
-                //Get parent info
-                $parentGet = $conn->prepare("SELECT name, surname, email FROM users WHERE id_users = ? LIMIT 1");
-                $parentGet->bind_param("i", $parentId);
-                $parentGet->execute();
-                $parentGet->store_result();
-                $parentGet->bind_result($parentName, $parentSurname, $parentEmail);
-                $parentGet->fetch();
-
-                $highlightSchoolClass = "";
-                if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                    $highlightSchoolClass = "trHighlight";
-                }
+                $lastLoginFormat =  DateTime::createFromFormat('Y-m-d H:i:s', $lastLogin)->format("d. m. Y H:i:s");
 
                 //Put in table
-                echo "<tr class='clickHighlightRow $highlightSchoolClass'>
+                echo "<tr class='clickHighlightRow'>
                         <td>
-                            <a href='./attendant.php?attendant=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor deleteUserButton' userId=$id userName='$name $surname'>Odstranit</button>
+                            <a href='./user.php?user=$id'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <button class='formButton formErrorColor deleteUserButton' userId=$id>Odstranit</button>
                         </td>
                         <td>$name $surname</td>
-                        <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
-                        <td>NE</td>
-                        <td>?</td>
-                        <td>$schoolName → $schoolAddress</td>
+                        <td><a href='mailto:$email'>$email</td>
+                        <td>$role</td>
+                        <td>$lastLoginFormat</td>
                     </tr>";
             }
             ?>

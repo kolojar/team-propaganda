@@ -1,4 +1,17 @@
 <?php
+$accessLevels = array(
+    "admin.php" => array("admin", "accountant"),
+    "attendant.php" => array("admin", "accountant"),
+    "attendants.php" => array("admin", "accountant"),
+    "school.php" => array("admin"),
+    "schools.php" => array("admin"),
+    "schoolsAll.php" => array("admin"),
+    "classroom.php" => array("admin"),
+    "classrooms.php" => array("admin"),
+    "event.php" => array("admin"),
+    "events.php" => array("admin", "accountant"),
+);
+
 function setEventId($id): void
 {
     setcookie("adminEventId", $id, time() + 60 * 60 * 24 * 30);
@@ -6,6 +19,22 @@ function setEventId($id): void
 function setSubeventId($id): void
 {
     setcookie("adminSubeventId", $id, time() + 60 * 60 * 24 * 30);
+}
+
+class titlebarSetupResult
+{
+    public readonly bool $allowView;
+    public readonly bool $allowEdit;
+
+    public function __construtor($allowView, $allowEdit)
+    {
+        $this->$allowView = $allowView;
+        $this->$allowEdit = $allowEdit;
+    }
+}
+
+function setupTitlebar($conn, $forceSubEvent = false, $allowNone = false) : titlebarSetupResult {
+        setupTitlebarAction($conn,$forceSubEvent,$allowNone);
 }
 function setupTitlebarAction($conn, $forceSubEvent = false, $allowNone = false): string
 {
