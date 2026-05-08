@@ -22,10 +22,8 @@ require "./adminFunctions.php";
         <?php setupTitlebar($conn,"admin.php") ?>
     </header>
     <main>
-        <h1>Hlavní menu</h1>
-        <?php
-        
-        ?>
+        <h1>Přístup odepřen</h1>
+        <a href="./admin.php"><button class="formButton formInfoColor">Zpět na hlavní stránku</button></a>
     </main>
     <footer>
 

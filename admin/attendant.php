@@ -47,21 +47,9 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <h1>Akce: <?php echo setupTitlebarAction($conn, false,true) ?></h1>
-        <div class="formButtonBoxHolder">
-            <div class="formButtonBox formJustifyLeft">
-                <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
-                <a href="./attendants.php"><button class="formButton formOkColor">Zájemci</button></a>
-                <a href="./classrooms.php"><button class="formButton formOkColor">Učebny</button></a>
-                <a href="./schools.php"><button class="formButton formOkColor">Školy</button></a>
-                <a href="./messages.php"><button class="formButton formOkColor">Zprávy</button></a>
-                <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
-            </div>
-            <div class="formButtonBox formJustifyRight">
-                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
-                <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
-            </div>
-        </div>
+        <?php
+        setupTitlebar($conn, "attendant.php")
+            ?>
     </header>
     <main>
         <?php
@@ -70,7 +58,7 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("i", $_GET["attendant"]);
         $stmt->execute();
         $stmt->store_result();
-        $stmt->bind_result($name, $surname,$idSchool, $idParent);
+        $stmt->bind_result($name, $surname, $idSchool, $idParent);
         $stmt->fetch();
 
         //Get attendant's school info
@@ -83,7 +71,7 @@ if (isset($_POST["action"])) {
 
         //Get attendant's parent info
         $stmt = $conn->prepare("SELECT name,surname,email FROM users WHERE id_users = ? LIMIT 1");
-        $stmt->bind_param("i",  $idParent);
+        $stmt->bind_param("i", $idParent);
         $stmt->execute();
         $stmt->store_result();
         $stmt->bind_result($parentName, $parentSurname, $parentEmail);

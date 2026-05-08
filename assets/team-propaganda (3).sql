@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Stř 06. kvě 2026, 03:32
+-- Vytvořeno: Pát 08. kvě 2026, 06:15
 -- Verze serveru: 12.2.2-MariaDB
 -- Verze PHP: 8.5.5
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Databáze: `team-propaganda`
 --
+CREATE DATABASE IF NOT EXISTS `team-propaganda` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `team-propaganda`;
 
 -- --------------------------------------------------------
 
@@ -27,7 +29,6 @@ SET time_zone = "+00:00";
 -- Struktura tabulky `attendants`
 --
 
-DROP TABLE IF EXISTS `attendants`;
 CREATE TABLE `attendants` (
   `id_attendants` int(10) UNSIGNED NOT NULL,
   `id_parent` int(10) UNSIGNED NOT NULL,
@@ -49,7 +50,6 @@ INSERT INTO `attendants` (`id_attendants`, `id_parent`, `id_schools`, `name`, `s
 -- Struktura tabulky `attendants_presence`
 --
 
-DROP TABLE IF EXISTS `attendants_presence`;
 CREATE TABLE `attendants_presence` (
   `id_subevents` int(11) UNSIGNED NOT NULL,
   `id_attendants` int(11) UNSIGNED NOT NULL,
@@ -62,7 +62,6 @@ CREATE TABLE `attendants_presence` (
 -- Struktura tabulky `classrooms`
 --
 
-DROP TABLE IF EXISTS `classrooms`;
 CREATE TABLE `classrooms` (
   `id_classrooms` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -84,7 +83,6 @@ INSERT INTO `classrooms` (`id_classrooms`, `name`, `placesToSit`, `isFunctional`
 -- Struktura tabulky `email_send`
 --
 
-DROP TABLE IF EXISTS `email_send`;
 CREATE TABLE `email_send` (
   `id_email_send` int(10) UNSIGNED NOT NULL,
   `subject` varchar(255) NOT NULL,
@@ -98,7 +96,6 @@ CREATE TABLE `email_send` (
 -- Struktura tabulky `email_send_user`
 --
 
-DROP TABLE IF EXISTS `email_send_user`;
 CREATE TABLE `email_send_user` (
   `id_users` int(10) UNSIGNED NOT NULL,
   `id_email_send` int(10) UNSIGNED NOT NULL
@@ -110,7 +107,6 @@ CREATE TABLE `email_send_user` (
 -- Struktura tabulky `events`
 --
 
-DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
   `id_events` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -138,7 +134,6 @@ INSERT INTO `events` (`id_events`, `name`, `type`, `description`, `active_since`
 -- Struktura tabulky `registered_attendants`
 --
 
-DROP TABLE IF EXISTS `registered_attendants`;
 CREATE TABLE `registered_attendants` (
   `id_attendants` int(11) UNSIGNED NOT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
@@ -152,7 +147,6 @@ CREATE TABLE `registered_attendants` (
 -- Struktura tabulky `schools`
 --
 
-DROP TABLE IF EXISTS `schools`;
 CREATE TABLE `schools` (
   `id_schools` int(16) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -4523,7 +4517,6 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 -- Struktura tabulky `subevents`
 --
 
-DROP TABLE IF EXISTS `subevents`;
 CREATE TABLE `subevents` (
   `id_subevents` int(11) UNSIGNED NOT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
@@ -4546,7 +4539,6 @@ INSERT INTO `subevents` (`id_subevents`, `id_events`, `date`, `start_time`, `end
 -- Struktura tabulky `users`
 --
 
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id_users` int(16) UNSIGNED NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -4562,7 +4554,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id_users`, `email`, `name`, `surname`, `role`, `lastLogin`) VALUES
 (1, 'novakovi@seznam.cz', 'Petr', 'Novák', 'user', '2026-05-04 04:51:59'),
-(3, 'petr@centrum.cz', 'Petr', 'Petrov', 'user', '2026-05-04 04:51:59');
+(3, 'petr@centrum.cz', 'Petr', 'Petrov', 'user', '2026-05-04 04:51:59'),
+(4, 'ADMIN', 'ADMIN', 'ADMIN', 'accountant', '2026-05-06 15:02:00');
 
 --
 -- Indexy pro exportované tabulky
@@ -4682,7 +4675,7 @@ ALTER TABLE `subevents`
 -- AUTO_INCREMENT pro tabulku `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Omezení pro exportované tabulky

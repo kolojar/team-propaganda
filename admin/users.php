@@ -19,22 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <h1 style="color: white">Akce: <?php echo setupTitlebarAction($conn,false,true); ?></h1>
-        <div class="formButtonBoxHolder">
-            <div class="formButtonBox formJustifyLeft">
-                <a href="./admin.php"><button class="formButton formOkColor">Hlavní menu</button></a>
-                <a href="./attendants.php"><button class="formButton formOkColor">Zájemci</button></a>
-                <a href="./classrooms.php"><button class="formButton formOkColor">Učebny</button></a>
-                <a href="./schools.php"><button class="formButton formOkColor">Školy</button></a>
-                <a href="./messages.php"><button class="formButton formOkColor">Zprávy</button></a>
-                <a href="./payments.php"><button class="formButton formOkColor">Platby</button></a>
-            </div>
-            <div class="formButtonBox formJustifyRight">
-                <a href="./users.php"><button class="formButton formInfoColor">Správa uživatelů</button></a>
-                <a href="./events.php"><button class="formButton formWarnColor">Změnit událost</button></a>
-                <a href="./logout.php"><button class="formButton formErrorColor">Odhlásit se</button></a>
-            </div>
-        </div>
+        <?php setupTitlebar($conn,"users.php") ?>
     </header>
     <main>
         <h1>Uživatelé</h1>
