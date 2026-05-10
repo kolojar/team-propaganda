@@ -1,8 +1,9 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+import { SendToast } from "../formWebScripts/js/formScript.js";
 import { setupSaveCancelButtons } from "./sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-setupSaveCancelButtons(dialogManager, "eventValidate", "./events.php", "./event.php", urlSearchParams.get("event"));
+setupSaveCancelButtons(dialogManager, "eventValidate", "./events.php", "./event.php", urlSearchParams.get("event"), onSaveFunc);
 //Setup minimums and maximums
 const activeSince = document.getElementById("active_since");
 const activeUntil = document.getElementById("active_until");
@@ -23,4 +24,16 @@ activeUntil.addEventListener("validation-done", () => {
 registrationOpen.addEventListener("validation-done", () => {
     registrationClose.setMinimum(registrationOpen.getValue());
 });
+async function onSaveFunc() {
+    const price = document.getElementById("price");
+    const [changed, _] = await price.validate();
+    if (changed) {
+        const currentTime = new Date();
+        if (new Date(activeSince.getValue()) <= currentTime && currentTime <= new Date(activeUntil.getValue())) {
+            SendToast("Nelze uložit změny!", "Nelze upravit cenu, pokud je událost aktivní.", "error");
+            return Promise.resolve(false);
+        }
+    }
+    return Promise.resolve(true);
+}
 //# sourceMappingURL=event.js.map

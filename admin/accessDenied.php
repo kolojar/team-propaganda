@@ -18,8 +18,8 @@ require "./adminFunctions.php";
 </head>
 
 <body class="pageHolder">
-    <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
-        <?php setupTitlebar($conn,"admin.php") ?>
+    <header>
+        <?php setupTitlebar($conn,"accessDenied.php") ?>
     </header>
     <main>
         <h1>Přístup odepřen</h1>

@@ -1,56 +1,58 @@
 <?php
+class accessLevel
+{
+    public readonly bool $needsEvent;
+    public readonly bool $needsSubEvent;
+    public readonly array $accessGroups;
+    public readonly bool $hasTitlebarButton;
+    public readonly bool $hasTitlebarButtonLeft;
+    public readonly string $titlebarButtonText;
+    public readonly string $titlebarButtonColorClass;
+    public function __construct(array $accessGroup, bool $needsEvent = true, bool $needsSubEvent = false, bool $hasTitlebarButton = false, bool $hasTitlebarButtonLeft = true, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
+    {
+        $this->needsEvent = $needsEvent;
+        $this->needsSubEvent = $needsSubEvent;
+        $this->accessGroups = $accessGroup;
+        $this->hasTitlebarButton = $hasTitlebarButton;
+        $this->hasTitlebarButtonLeft = $hasTitlebarButtonLeft;
+        $this->titlebarButtonText = $titlebarButtonText;
+        $this->titlebarButtonColorClass = $titlebarButtonColorClass;
+    }
+}
+
 $accessLevels = array(
-    "admin.php" => array("admin", "accountant"),
-    "attendant.php" => array("admin", "accountant"),
-    "attendants.php" => array("admin", "accountant"),
-    "school.php" => array("admin"),
-    "schools.php" => array("admin"),
-    "schoolsAll.php" => array("admin"),
-    "classroom.php" => array("admin"),
-    "classrooms.php" => array("admin"),
-    "event.php" => array("admin"),
-    "events.php" => array("admin", "accountant"),
-    "accessDenied.php" => array("user", "accountant", "admin")
+    "admin.php" => new accessLevel(array("admin", "accountant"), false, false, true, true, "Hlavní menu"),
+    "attendant.php" => new accessLevel(array("admin")),
+    "attendants.php" => new accessLevel(array("admin", "accountant"), true, false, true, true, "Zájemci"),
+    "school.php" => new accessLevel(array("admin")),
+    "schools.php" => new accessLevel(array("admin"), true, false, true, true, "Školy"),
+    "schoolsAll.php" => new accessLevel(array("admin")),
+    "classroom.php" => new accessLevel(array("admin"), false),
+    "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
+    "payments.php" => new accessLevel(array("admin","accountant"), true, false, true, true, "Platby"),
+    "event.php" => new accessLevel(array("admin"), false),
+    "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
+    "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost","formWarnColor"),
+    "logout.php" => new accessLevel(array("*"), false, false, true, false, "Odhlásit se", "formErrorColor"),
+    "accessDenied.php" => new accessLevel(array("*"), false)
 );
 
-$eventLevels = array(
-    "accessDenied.php" => new eventLevel(false, false),
-    "admin.php" => new eventLevel(false, false),
-    "attendant.php" => new eventLevel(false),
-    "attendants.php" => new eventLevel(false),
-    "school.php" => new eventLevel(false),
-    "schools.php" => new eventLevel(false),
-    "schoolsAll.php" => new eventLevel(false),
-    "classroom.php" => new eventLevel(false, false),
-    "classrooms.php" => new eventLevel(false, false),
-    "event.php" => new eventLevel(false, false),
-    "events.php" => new eventLevel(false, false),
-);
-
-$leftTitlebarButtons = array(
-    new titlebarButton("admin.php", "Hlavní menu"),
-    new titlebarButton("attendants.php", "Zájemci"),
-    new titlebarButton("classrooms.php", "Učebny"),
-    new titlebarButton("schools.php", "Školy"),
-);
-
-$rightTitlebarButtons = array(
-    new titlebarButton("users.php", "Správa uživatelů", "formInfoColor"),
-    new titlebarButton("events.php", "Změnit událost", "formWarnColor"),
-    new titlebarButton("logout.php", "Odhlásit se", "formErrorColor"),
-);
+function logToConsole(string $log)
+{
+    file_put_contents("php://stdout", $log . "\n");
+}
 
 function checkAccess(string $file, string $level): bool
 {
     global $accessLevels;
-    $levels = $accessLevels[$file];
+    $levels = $accessLevels[$file]->accessGroups;
     if (isset($levels)) {
-        return in_array($level, $levels, true);
+        return in_array($level, $levels, true) || in_array("*", $levels, true);
     }
     return false;
 }
 
-function getUserRole(mysqli $conn, int $id): string
+function getUserRole(mysqli $conn, int $id): string|null
 {
     $stmt = $conn->prepare("SELECT role FROM users WHERE id_users=? LIMIT 1;");
     $stmt->bind_param("i", $id);
@@ -60,17 +62,6 @@ function getUserRole(mysqli $conn, int $id): string
     $stmt->fetch();
     return $role;
 }
-class eventLevel
-{
-    public readonly bool $needsEvent;
-    public readonly bool $needsSubEvent;
-    public function __construct($needsSubEvent = true, $needsEvent = true)
-    {
-        $this->needsEvent = $needsEvent;
-        $this->needsSubEvent = $needsSubEvent;
-    }
-}
-
 function setEventId($id): void
 {
     setcookie("adminEventId", $id, time() + 60 * 60 * 24 * 30);
@@ -96,28 +87,13 @@ class titlebarSetupResult
     }
 }
 
-class titlebarButton
-{
-    public readonly string $file;
-    public readonly string $text;
-    public readonly string $colorClass;
-    public function __construct(string $file, string $text, string $colorClass = "formOkColor")
-    {
-        $this->file = $file;
-        $this->text = $text;
-        $this->colorClass = $colorClass;
-    }
-}
-
 function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
 {
     //DEBUG
     $_SESSION["userId"] = 4;
 
     //Get global variables + user role
-    global $eventLevels;
-    global $leftTitlebarButtons;
-    global $rightTitlebarButtons;
+    global $accessLevels;
     $role = getUserRole($conn, $_SESSION["userId"]);
 
     //Check access level
@@ -129,38 +105,40 @@ function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
     }
 
     //Prepare HTML
-    $result = setupTitlebarAction($conn, $eventLevels[$page]);
+    $result = setupTitlebarAction($conn, $accessLevels[$page]);
     $result->role = $role;
     echo '<h1> Akce: ' . $result->message . '</h1>';
     echo "<div class='formButtonBoxHolder'>";
 
-    //Generate buttons on left
-    echo "<div class='formButtonBox formJustifyLeft'>";
-    foreach ($leftTitlebarButtons as $key1 => $value) {
-        $file = $value->file;
-        if (checkAccess($file, $role)) {
-            $text = $value->text;
-            $colorClass = $value->colorClass;
-            echo "<a href='$file'><button class='formButton $colorClass'>$text</button></a>";
+    //Generate buttons
+    $buttonsLeftHtml = "";
+    $buttonsRightHtml = "";
+    foreach ($accessLevels as $key => $value) {
+        if ($value->hasTitlebarButton) {
+            if (checkAccess($key, $role)) {
+                $text = $value->titlebarButtonText;
+                $colorClass = $value->titlebarButtonColorClass;
+                $line = "<a href='$key'><button class='formButton $colorClass'>$text</button></a>";
+                if($value->hasTitlebarButtonLeft) {
+                    $buttonsLeftHtml .= $line;
+                } else {
+                    $buttonsRightHtml .= $line;
+                }
+            }
         }
     }
-    echo "</div>";
 
-    //Generate buttons on right
+    //Generate buttons HTML
+    echo "<div class='formButtonBox formJustifyLeft'>";
+    echo $buttonsLeftHtml;
+    echo "</div>";
     echo "<div class='formButtonBox formJustifyRight'>";
-    foreach ($rightTitlebarButtons as $key2 => $value) {
-        $file = $value->file;
-        if (checkAccess($file, $role)) {
-            $text = $value->text;
-            $colorClass = $value->colorClass;
-            echo "<a href='$file'><button class='formButton $colorClass'>$text</button></a>";
-        }
-    }
+    echo $buttonsRightHtml;
     echo "</div>";
     echo "</div>";
     return $result;
 }
-function setupTitlebarAction(mysqli $conn, eventLevel $eventLevel): titlebarSetupResult
+function setupTitlebarAction(mysqli $conn, accessLevel $accessLevel): titlebarSetupResult
 {
     //Check if already redirected due to noEventId
     if (isset($_GET["noEventId"])) {
@@ -169,7 +147,7 @@ function setupTitlebarAction(mysqli $conn, eventLevel $eventLevel): titlebarSetu
 
     //Check if event cookie exist and refresh it
     if (!isset($_COOKIE["adminEventId"])) {
-        if ($eventLevel->needsEvent) {
+        if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
             return new titlebarSetupResult("NENÍ", false);
         }
@@ -186,7 +164,7 @@ function setupTitlebarAction(mysqli $conn, eventLevel $eventLevel): titlebarSetu
     $stmt->store_result();
     $stmt->bind_result($name);
     if (!$stmt->fetch() || $name == "") {
-        if ($eventLevel->needsEvent) {
+        if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
             return new titlebarSetupResult("NENÍ", false);
         }
@@ -202,7 +180,7 @@ function setupTitlebarAction(mysqli $conn, eventLevel $eventLevel): titlebarSetu
 
     //Check if event subcookie exist and refresh it
     if (!isset($_COOKIE["adminSubeventId"])) {
-        if ($eventLevel->needsSubEvent) {
+        if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
             return new titlebarSetupResult($name, false);
         }
@@ -218,7 +196,7 @@ function setupTitlebarAction(mysqli $conn, eventLevel $eventLevel): titlebarSetu
     $stmt->store_result();
     $stmt->bind_result($date);
     if (!$stmt->fetch() || $date == "") {
-        if ($eventLevel->needsSubEvent) {
+        if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
             return new titlebarSetupResult($name, false);
         }

@@ -10,7 +10,7 @@ require "./adminFunctions.php";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zájemci</title>
+    <title>Platby</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
@@ -19,18 +19,18 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "attendants.php") ?>
+        <?php setupTitlebar($conn,"payments.php") ?>
     </header>
     <main>
-        <h1>Registrovaní a zaplacení zájemci</h1>
+        <h1>Platby</h1>
         <table class='styledTable styledTableAuto'>
             <tr>
                 <th>Akce</th>
                 <th>Jméno a přijmení</th>
+                <th>Variabilní symbol</th>
                 <th>Zákonný zástupce</th>
                 <th>Email zákonného zástupce</th>
-                <th>Učebna</th>
-                <th>Základní škola</th>
+                <th>Zaplaceno</th>
             </tr>
             <?php
             ////Get highlighted schools
@@ -38,25 +38,18 @@ require "./adminFunctions.php";
             //if(isset($_GET['schools'])) {
             //    $highlightSchools = explode(',',$_GET["schools"]);
             //}
-            
-            //Request paid attendants
-            $stmt = $conn->prepare("SELECT id_attendants, id_classrooms, paid, variable_symbol FROM attendants WHERE id_events=? AND paid IS NOT NULL;");
-            $stmt->bind_param("i", $_COOKIE["adminEventId"]);
+
+            //Request users
+            $stmt = $conn->prepare(
+                "SELECT id_attendants, name,surname, id_parent, id_schools FROM attendants",
+            );
             $stmt->execute();
             $stmt->store_result();
 
-            //List all attendants in table
+            //List all users in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($idAttendant, $idClassroom, $paid, $variableSymbol);
+                $stmt->bind_result($id, $name, $surname, $parentId, $schoolId);
                 $stmt->fetch();
-
-                //Get attendant info
-                $attendantGet = $conn->prepare("SELECT name,surname, id_parent, id_schools FROM attendants WHERE id_attendants = ? LIMIT 1");
-                $attendantGet->bind_param("i", $idAttendant);
-                $attendantGet->execute();
-                $attendantGet->store_result();
-                $attendantGet->bind_result($name, $surname, $parentId, $schoolId);
-                $attendantGet->fetch();
 
                 //Get school info
                 $schoolGet = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");

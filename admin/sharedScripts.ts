@@ -2,7 +2,7 @@ import { FormDialog, FormDialogManager } from "../formWebScripts/js/formDialogSc
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
-export function setupSaveCancelButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string) {
+export function setupSaveCancelButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string, onSaveFunc: null | (() => Promise<boolean>) = null) {
     //Setup validation
     for (const inputElementOriginal of document.getElementsByClassName(className)) {
         if (inputElementOriginal instanceof HTMLFormInputElement) {
@@ -45,6 +45,13 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
         if (changes.length == 0) {
             SendToast("Nelze uložit změny!", "Žádné změny nebyly provedeny.", "ok")
             return
+        }
+
+        //Run save function
+        if (onSaveFunc != null) {
+            if(!(await onSaveFunc())) {
+                return
+            }
         }
 
         //Wait for confirm

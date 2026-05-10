@@ -1,10 +1,10 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
-import { HTMLFormInputElement } from "../formWebScripts/js/formScript.js";
+import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { setupSaveCancelButtons } from "./sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-setupSaveCancelButtons(dialogManager, "eventValidate", "./events.php", "./event.php", urlSearchParams.get("event") as string)
+setupSaveCancelButtons(dialogManager, "eventValidate", "./events.php", "./event.php", urlSearchParams.get("event") as string,onSaveFunc)
 
 //Setup minimums and maximums
 const activeSince = (document.getElementById("active_since") as HTMLFormInputElement)
@@ -27,3 +27,16 @@ activeUntil.addEventListener("validation-done", () => {
 registrationOpen.addEventListener("validation-done", () => {
     registrationClose.setMinimum(registrationOpen.getValue())
 })
+
+async function onSaveFunc(): Promise<boolean> {
+    const price = document.getElementById("price") as HTMLFormInputElement;
+    const [changed, _] = await price.validate();
+    if(changed) {
+        const currentTime = new Date()       
+        if(new Date(activeSince.getValue()) <= currentTime && currentTime <= new Date(activeUntil.getValue())) {
+            SendToast("Nelze uložit změny!", "Nelze upravit cenu, pokud je událost aktivní.","error")
+            return Promise.resolve(false)
+        }
+    }
+    return Promise.resolve(true)
+}

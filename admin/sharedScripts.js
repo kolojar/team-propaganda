@@ -1,6 +1,6 @@
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
-export function setupSaveCancelButtons(dialogManager, className, cancelURL, postURL, id) {
+export function setupSaveCancelButtons(dialogManager, className, cancelURL, postURL, id, onSaveFunc = null) {
     var _a, _b, _c, _d;
     //Setup validation
     for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -41,6 +41,12 @@ export function setupSaveCancelButtons(dialogManager, className, cancelURL, post
         if (changes.length == 0) {
             SendToast("Nelze uložit změny!", "Žádné změny nebyly provedeny.", "ok");
             return;
+        }
+        //Run save function
+        if (onSaveFunc != null) {
+            if (!(await onSaveFunc())) {
+                return;
+            }
         }
         //Wait for confirm
         if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {

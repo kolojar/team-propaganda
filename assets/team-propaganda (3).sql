@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Pát 08. kvě 2026, 06:15
+-- Vytvořeno: Ned 10. kvě 2026, 17:26
 -- Verze serveru: 12.2.2-MariaDB
--- Verze PHP: 8.5.5
+-- Verze PHP: 8.5.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -29,14 +29,23 @@ USE `team-propaganda`;
 -- Struktura tabulky `attendants`
 --
 
-CREATE TABLE `attendants` (
-  `id_attendants` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `attendants`;
+CREATE TABLE IF NOT EXISTS `attendants` (
+  `id_attendants` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_parent` int(10) UNSIGNED NOT NULL,
   `id_schools` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `surname` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `surname` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_attendants`),
+  KEY `parents` (`id_parent`),
+  KEY `schools` (`id_schools`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `attendants`
+--
+
+TRUNCATE TABLE `attendants`;
 --
 -- Vypisuji data pro tabulku `attendants`
 --
@@ -50,26 +59,41 @@ INSERT INTO `attendants` (`id_attendants`, `id_parent`, `id_schools`, `name`, `s
 -- Struktura tabulky `attendants_presence`
 --
 
-CREATE TABLE `attendants_presence` (
+DROP TABLE IF EXISTS `attendants_presence`;
+CREATE TABLE IF NOT EXISTS `attendants_presence` (
   `id_subevents` int(11) UNSIGNED NOT NULL,
   `id_attendants` int(11) UNSIGNED NOT NULL,
-  `present` tinyint(1) NOT NULL DEFAULT 1
+  `present` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_subevents`,`id_attendants`),
+  KEY `attendant` (`id_attendants`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `attendants_presence`
+--
+
+TRUNCATE TABLE `attendants_presence`;
 -- --------------------------------------------------------
 
 --
 -- Struktura tabulky `classrooms`
 --
 
-CREATE TABLE `classrooms` (
-  `id_classrooms` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `classrooms`;
+CREATE TABLE IF NOT EXISTS `classrooms` (
+  `id_classrooms` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `placesToSit` int(11) NOT NULL,
   `isFunctional` tinyint(1) NOT NULL DEFAULT 1,
-  `note` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `note` text NOT NULL,
+  PRIMARY KEY (`id_classrooms`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `classrooms`
+--
+
+TRUNCATE TABLE `classrooms`;
 --
 -- Vypisuji data pro tabulku `classrooms`
 --
@@ -83,32 +107,49 @@ INSERT INTO `classrooms` (`id_classrooms`, `name`, `placesToSit`, `isFunctional`
 -- Struktura tabulky `email_send`
 --
 
-CREATE TABLE `email_send` (
-  `id_email_send` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `email_send`;
+CREATE TABLE IF NOT EXISTS `email_send` (
+  `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `subject` varchar(255) NOT NULL,
   `message` varchar(255) NOT NULL,
-  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  PRIMARY KEY (`id_email_send`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `email_send`
+--
+
+TRUNCATE TABLE `email_send`;
 -- --------------------------------------------------------
 
 --
 -- Struktura tabulky `email_send_user`
 --
 
-CREATE TABLE `email_send_user` (
+DROP TABLE IF EXISTS `email_send_user`;
+CREATE TABLE IF NOT EXISTS `email_send_user` (
   `id_users` int(10) UNSIGNED NOT NULL,
-  `id_email_send` int(10) UNSIGNED NOT NULL
+  `id_email_send` int(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_users`,`id_email_send`),
+  KEY `id_email_send` (`id_email_send`),
+  KEY `id_users` (`id_users`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `email_send_user`
+--
+
+TRUNCATE TABLE `email_send_user`;
 -- --------------------------------------------------------
 
 --
 -- Struktura tabulky `events`
 --
 
-CREATE TABLE `events` (
-  `id_events` int(10) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `events`;
+CREATE TABLE IF NOT EXISTS `events` (
+  `id_events` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `type` enum('kurzy','prijimacky','dod','denFirem') NOT NULL,
   `description` text NOT NULL,
@@ -118,15 +159,22 @@ CREATE TABLE `events` (
   `registration_close` datetime NOT NULL DEFAULT current_timestamp(),
   `repeat_interval` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `repeat_count` int(10) UNSIGNED NOT NULL DEFAULT 0,
-  `repeat_start` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `repeat_start` datetime NOT NULL DEFAULT current_timestamp(),
+  `price` int(11) NOT NULL,
+  PRIMARY KEY (`id_events`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `events`
+--
+
+TRUNCATE TABLE `events`;
 --
 -- Vypisuji data pro tabulku `events`
 --
 
-INSERT INTO `events` (`id_events`, `name`, `type`, `description`, `active_since`, `active_until`, `registration_open`, `registration_close`, `repeat_interval`, `repeat_count`, `repeat_start`) VALUES
-(3, 'Test', 'dod', '-', '2026-05-02 19:49:00', '2026-05-02 19:49:00', '2026-05-02 19:49:00', '2026-05-02 19:49:00', 0, 0, '2026-05-02 19:49:00');
+INSERT INTO `events` (`id_events`, `name`, `type`, `description`, `active_since`, `active_until`, `registration_open`, `registration_close`, `repeat_interval`, `repeat_count`, `repeat_start`, `price`) VALUES
+(3, 'Test', 'dod', '-', '2026-05-12 19:49:00', '2026-05-16 19:49:00', '2026-05-12 19:49:00', '2026-05-13 19:49:00', 0, 0, '2026-05-02 19:49:00', 106);
 
 -- --------------------------------------------------------
 
@@ -134,12 +182,30 @@ INSERT INTO `events` (`id_events`, `name`, `type`, `description`, `active_since`
 -- Struktura tabulky `registered_attendants`
 --
 
-CREATE TABLE `registered_attendants` (
+DROP TABLE IF EXISTS `registered_attendants`;
+CREATE TABLE IF NOT EXISTS `registered_attendants` (
   `id_attendants` int(11) UNSIGNED NOT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
-  `paid` tinyint(1) NOT NULL DEFAULT 0,
-  `id_classrooms` int(11) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `id_classrooms` int(11) UNSIGNED NOT NULL,
+  `paid` datetime DEFAULT NULL,
+  `variable_symbol` bigint(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id_attendants`,`id_events`),
+  UNIQUE KEY `variable_symbol` (`variable_symbol`),
+  KEY `classroom` (`id_classrooms`),
+  KEY `event` (`id_events`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Vyprázdnit tabulku před vkládáním `registered_attendants`
+--
+
+TRUNCATE TABLE `registered_attendants`;
+--
+-- Vypisuji data pro tabulku `registered_attendants`
+--
+
+INSERT INTO `registered_attendants` (`id_attendants`, `id_events`, `id_classrooms`, `paid`, `variable_symbol`) VALUES
+(1, 3, 1, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -147,12 +213,19 @@ CREATE TABLE `registered_attendants` (
 -- Struktura tabulky `schools`
 --
 
-CREATE TABLE `schools` (
-  `id_schools` int(16) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `schools`;
+CREATE TABLE IF NOT EXISTS `schools` (
+  `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `address` varchar(255) NOT NULL,
+  PRIMARY KEY (`id_schools`)
+) ENGINE=InnoDB AUTO_INCREMENT=4346 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `schools`
+--
+
+TRUNCATE TABLE `schools`;
 --
 -- Vypisuji data pro tabulku `schools`
 --
@@ -4517,14 +4590,22 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 -- Struktura tabulky `subevents`
 --
 
-CREATE TABLE `subevents` (
-  `id_subevents` int(11) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `subevents`;
+CREATE TABLE IF NOT EXISTS `subevents` (
+  `id_subevents` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `id_events` int(11) UNSIGNED NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp(),
   `start_time` time NOT NULL DEFAULT current_timestamp(),
-  `end_time` time NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `end_time` time NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_subevents`),
+  KEY `events` (`id_events`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `subevents`
+--
+
+TRUNCATE TABLE `subevents`;
 --
 -- Vypisuji data pro tabulku `subevents`
 --
@@ -4539,15 +4620,22 @@ INSERT INTO `subevents` (`id_subevents`, `id_events`, `date`, `start_time`, `end
 -- Struktura tabulky `users`
 --
 
-CREATE TABLE `users` (
-  `id_users` int(16) UNSIGNED NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `surname` varchar(255) NOT NULL,
   `role` enum('user','admin','accountant') NOT NULL DEFAULT 'user',
-  `lastLogin` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `lastLogin` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_users`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Vyprázdnit tabulku před vkládáním `users`
+--
+
+TRUNCATE TABLE `users`;
 --
 -- Vypisuji data pro tabulku `users`
 --
@@ -4555,127 +4643,17 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id_users`, `email`, `name`, `surname`, `role`, `lastLogin`) VALUES
 (1, 'novakovi@seznam.cz', 'Petr', 'Novák', 'user', '2026-05-04 04:51:59'),
 (3, 'petr@centrum.cz', 'Petr', 'Petrov', 'user', '2026-05-04 04:51:59'),
-(4, 'ADMIN', 'ADMIN', 'ADMIN', 'accountant', '2026-05-06 15:02:00');
+(4, 'ADMIN', 'ADMIN', 'ADMIN', 'admin', '2026-05-09 10:43:26');
 
 --
 -- Indexy pro exportované tabulky
 --
 
 --
--- Indexy pro tabulku `attendants`
---
-ALTER TABLE `attendants`
-  ADD PRIMARY KEY (`id_attendants`),
-  ADD KEY `parents` (`id_parent`),
-  ADD KEY `schools` (`id_schools`);
-
---
--- Indexy pro tabulku `attendants_presence`
---
-ALTER TABLE `attendants_presence`
-  ADD PRIMARY KEY (`id_subevents`,`id_attendants`),
-  ADD KEY `attendant` (`id_attendants`);
-
---
--- Indexy pro tabulku `classrooms`
---
-ALTER TABLE `classrooms`
-  ADD PRIMARY KEY (`id_classrooms`);
-
---
--- Indexy pro tabulku `email_send`
---
-ALTER TABLE `email_send`
-  ADD PRIMARY KEY (`id_email_send`);
-
---
--- Indexy pro tabulku `email_send_user`
---
-ALTER TABLE `email_send_user`
-  ADD PRIMARY KEY (`id_users`,`id_email_send`),
-  ADD KEY `id_email_send` (`id_email_send`),
-  ADD KEY `id_users` (`id_users`);
-
---
--- Indexy pro tabulku `events`
---
-ALTER TABLE `events`
-  ADD PRIMARY KEY (`id_events`);
-
---
--- Indexy pro tabulku `registered_attendants`
---
-ALTER TABLE `registered_attendants`
-  ADD PRIMARY KEY (`id_attendants`,`id_events`),
-  ADD KEY `classroom` (`id_classrooms`),
-  ADD KEY `event` (`id_events`);
-
---
 -- Indexy pro tabulku `schools`
 --
-ALTER TABLE `schools`
-  ADD PRIMARY KEY (`id_schools`);
 ALTER TABLE `schools` ADD FULLTEXT KEY `name` (`name`);
 ALTER TABLE `schools` ADD FULLTEXT KEY `address` (`address`);
-
---
--- Indexy pro tabulku `subevents`
---
-ALTER TABLE `subevents`
-  ADD PRIMARY KEY (`id_subevents`),
-  ADD KEY `events` (`id_events`);
-
---
--- Indexy pro tabulku `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id_users`);
-
---
--- AUTO_INCREMENT pro tabulky
---
-
---
--- AUTO_INCREMENT pro tabulku `attendants`
---
-ALTER TABLE `attendants`
-  MODIFY `id_attendants` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT pro tabulku `classrooms`
---
-ALTER TABLE `classrooms`
-  MODIFY `id_classrooms` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT pro tabulku `email_send`
---
-ALTER TABLE `email_send`
-  MODIFY `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT pro tabulku `events`
---
-ALTER TABLE `events`
-  MODIFY `id_events` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT pro tabulku `schools`
---
-ALTER TABLE `schools`
-  MODIFY `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4346;
-
---
--- AUTO_INCREMENT pro tabulku `subevents`
---
-ALTER TABLE `subevents`
-  MODIFY `id_subevents` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT pro tabulku `users`
---
-ALTER TABLE `users`
-  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Omezení pro exportované tabulky

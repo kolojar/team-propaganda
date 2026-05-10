@@ -6,15 +6,15 @@ require "./adminFunctions.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["price"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE events SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=? WHERE id_events=?");
-        $stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE events SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=?,price=? WHERE id_events=?");
+        $stmt->bind_param("sssssssiisii", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"],$_POST["price"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -26,15 +26,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "insert") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["price"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO events(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start) VALUES (?,?,?,?,?,?,?,?,?,?)");
-        $stmt->bind_param("sssssssiis", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"]);
+        $stmt = $conn->prepare("INSERT INTO events(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start,price) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["price"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry created.";
@@ -86,7 +86,7 @@ if (isset($_POST["action"])) {
 </head>
 
 <body class="pageHolder">
-    <header style="padding-left: 4px; padding-right: 4px; margin-top: 0px; padding-top: 1px; padding-bottom: 0px;" class="formInfoColor">
+    <header>
         <?php setupTitlebar($conn,"event.php") ?>
     </header>
     <main>
@@ -108,16 +108,17 @@ if (isset($_POST["action"])) {
         $repeatInterval = 0;
         $repeatCount = 0;
         $repeatStartDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
+        $price = 0;
         $exists = "true";
         if (isset($_GET["newEvent"])) {
             echo "<h1>Vytvořit novou událost</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start FROM events WHERE id_events = ?;");
+            $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start, price FROM events WHERE id_events = ?;");
             $stmt->bind_param("i", $_GET["event"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB);
+            $stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB, $price);
             $stmt->fetch();
             echo "<h1>Informace o události: $name</h1>";
         }
@@ -134,6 +135,8 @@ if (isset($_POST["action"])) {
         echo "<form-input label='Typ události:' is-case-sensitive-list='false' class='eventValidate' do-change-check='$exists' type='select' id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
         echo "<br>";
         echo "<form-input label='Popis události:' class='eventValidate' do-change-check='$exists' type='textarea' id='description' original-value='$description' value='$description' placeholder='$description'></form-input>";
+        echo "<br>";
+        echo "<form-input label='Cena události:' class='eventValidate' do-change-check='$exists' type='number' min=0 id='price' original-value='$price' value='$price' placeholder='$price'></form-input>";
         echo "<br>";
         echo "<form-input label='Událost aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='active_since' original-value='$activeSince' value='$activeSince'></form-input>";
         echo "<br>";
