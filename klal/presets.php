@@ -55,7 +55,6 @@ if (isset($_POST["template"], $_POST["name"], $_POST["message"])) {
     <script>
         console.log("html")
     </script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script type="module">
         import {
             SendPOSTDataToServerAsync

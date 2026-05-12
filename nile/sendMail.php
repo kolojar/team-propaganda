@@ -9,7 +9,11 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
     if (isset($_POST["datetime"])) {
-        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
+        if (!isset($_POST["global"])) {
+            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
+        } else {
+            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal) VALUES (?, ?, ?, 1)");
+        }
         $stmt->bind_param("sss", $_POST["subject"], $_POST["message"], $_POST["datetime"]);
     } else {
         $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message) VALUES (?, ?)");
@@ -47,37 +51,46 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
 <html>
 <style>
+    html {
+        margin: 8px;
+    }
+
     * {
         user-select: none;
     }
 </style>
 
 <head>
+    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
+
 </head>
 
 <body>
     <form id="form">
-        <table id="users">
-            <tr>
-                <th>×</th>
-                <th>Jméno</th>
-                <th>E-mail</th>
-            </tr>
-            <?php
-            $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 1;");
-            while ($row = $res->fetch_object()) {
-                echo "<tr><td><input type='checkbox' name='users' onchange='userChange()' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
-            }
-            ?>
-        </table>
-        <input type="checkbox" id=checkall name="checkall" onchange="checkallChange()">
+        <fieldset id="users">
+            <table>
+                <tr>
+                    <th>×</th>
+                    <th>Jméno</th>
+                    <th>E-mail</th>
+                </tr>
+                <?php
+                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0;");
+                while ($row = $res->fetch_object()) {
+                    echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
+                }
+                ?>
+            </table>
+        </fieldset>
+        <input type="checkbox" id="checkall" name="checkall">
         <label for="checkall">Vybrat všechny</label><br>
+        <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
         <label for="subject">Předmět</label>
         <input type="text" id="subject" name="subject" required><br>
         <label for="message">Zpráva</label><br>
         <textarea name="message" id="message" required></textarea><br>
         <label for="templates">Předvolby</label>
-        <select id="templates" onchange="templateChange(this.value)">
+        <select id="templates">
             <option value="none" id="option-none">nový</option>
             <?php
             $files = array_diff(scandir("./templates/"), array('.', '..'));
@@ -86,106 +99,125 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
             ?>
         </select><br>
-        <input type="checkbox" checked id="now" name="now" onchange="nowChange()">
+        <input type="checkbox" checked id="now" name="now">
         <label for="now">Odeslat ihned</label><br>
         <input type="date" id="date" name="date" disabled>
         <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
         <input type="submit">
     </form>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
+    <script type="module">
+        import {
+            SendPOSTDataToServerAsync
+        } from "../formWebScripts/js/serverComunication.js";
+        import {
+            SendToast
+        } from "../formWebScripts/js/formScript.js";
+
         let selectedTemplate = "none";
 
-        function nowChange() {
-            date.disabled = (date.disabled == true) ? false : true;
-            hour.disabled = (hour.disabled == true) ? false : true;
-        }
+        document.getElementById("now").addEventListener("change", () => {
+            document.getElementById("date").disabled = (document.getElementById("date").disabled == true) ? false : true;
+            document.getElementById("hour").disabled = (document.getElementById("hour").disabled == true) ? false : true;
+        });
 
-        function templateChange(template) {
+        document.getElementById("global").addEventListener("change", () => {
+            document.getElementById("checkall").disabled = (document.getElementById("checkall").disabled == true) ? false : true;
+            document.getElementById("users").disabled = (document.getElementById("users").disabled == true) ? false : true;
+        })
+
+        document.getElementById("templates").addEventListener("change", (e) => {
+            let template = document.getElementById("templates").value;
             if (!confirm("Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
-                templates.value = selectedTemplate;
+                template = selectedTemplate;
                 //document.getElementById(selectedTemplate).selected = true;
                 selectedTemplate = template;
                 return;
             }
             if (template == "none") {
-                message.value = "";
+                document.getElementById("message").value = "";
             } else {
-                $.get("./templates/" + template, function(data) {
-                    message.value = data;
-                });
+                var request = new XMLHttpRequest();
+                request.open('GET', "./templates/" + template, true);
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                        document.getElementById("message").value = request.responseText;
+                    } else {
+                        SendToast("Odpověď serveru", request.responseText, "error")
+                    }
+                };
+                request.onerror = function() {
+                    SendToast("Odpověď serveru", "connection error", "error")
+                };
+                request.send();
             }
+        })
+
+        for (let user of document.getElementsByName("users")) {
+            user.addEventListener("change", () => {
+                document.getElementById("checkall").indeterminate = true;
+                let same = true;
+                let sameCheck;
+                for (let check of document.getElementsByName("users")) {
+                    if (sameCheck == null || sameCheck == undefined) {
+                        sameCheck = check.checked;
+                    }
+                    if (check.checked != sameCheck) {
+                        same = false;
+                        break;
+                    }
+                }
+                if (same) {
+                    document.getElementById("checkall").indeterminate = false;
+                    document.getElementById("checkall").checked = sameCheck;
+                }
+            })
         }
 
-        function userChange() {
-            checkall.indeterminate = true;
-            let same = true;
-            let sameCheck;
-            for (check of document.getElementsByName("users")) {
-                if (sameCheck == null || sameCheck == undefined) {
-                    sameCheck = check.checked;
-                    //console.log(sameCheck)
-                }
-                if (check.checked != sameCheck) {
-                    same = false;
-                    break;
-                }
-            }
-            if (same) {
-                checkall.indeterminate = false;
-                checkall.checked = sameCheck;
-            }
-
-
-        }
-
-        function checkallChange() {
+        document.getElementById("checkall").addEventListener("change", () => {
             for (let check of document.getElementsByName("users")) {
-                check.checked = checkall.checked;
+                check.checked = document.getElementById("checkall").checked;
             }
-        }
+        })
 
-        form.addEventListener('submit', (e) => {
+        document.getElementById("form").addEventListener('submit', (e) => {
             sendToPHP(e)
         })
 
-        function sendToPHP(e) {
+        async function sendToPHP(e) {
             e.preventDefault();
             let userIds = [];
-            for (user of document.getElementsByName("users")) {
+            for (let user of document.getElementsByName("users")) {
                 if (user.checked) {
                     userIds.push(user.value);
                 }
             }
-            if (userIds.length == 0) {
-                alert("Nebyl vybrán žádný příjemce.")
+            if (userIds.length == 0 && !document.getElementById("global").checked) {
+                SendToast("Chyba", "Nebyl vybrán žádný příjemce.", "error")
                 return;
             }
-            let data = {
-                //datetime: (now.checked) ? "now" : date.value + " " + hour.value,
-                subject: subject.value,
-                message: message.value,
-                userIds: userIds
+            if (document.getElementById("global").checked && document.getElementById("now").checked) {
+                SendToast("Chyba", "Globální zprávu nelze odeslat ihned", "error");
+                return
             }
 
-            if (!now.checked) {
-                data.datetime = date.value + " " + hour.value;
+            const data = new FormData();
+            data.append("subject", document.getElementById("subject").value)
+            data.append("message", document.getElementById("message").value)
+            if (!document.getElementById("now").checked) {
+                data.append("datetime", date.value + " " + hour.value)
             }
-            console.log(data);
+            if (document.getElementById("global").checked) {
+                data.append("global", true)
+                data.append("userIds", "")
 
-            $.ajax({
-                url: './sendMail.php',
-                method: "POST",
-                data: data,
-                success: function(response) {
-                    console.log('Odpověď serveru:', response);
-                    alert("Data úpěšně odeslána.")
-                },
-                error: function(err) {
-                    console.error(err);
-                    alert('Došlo k chybě při odesílání dat.');
-                }
-            });
+            } else {
+                data.append("useIds", userIds)
+            }
+
+            const [ok, res] = await SendPOSTDataToServerAsync("./sendMail.php", data);
+
+            if (ok) SendToast("Odpověď serveru:", res, "ok")
+            else SendToast("Odpověď serveru", res, "error")
 
         }
     </script>

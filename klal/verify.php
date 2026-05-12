@@ -3,19 +3,46 @@ session_start();
 require "../assets/config.php";
 //user already logged in
 if (isset($_SESSION["userId"])) {
-    //header("Location: ./userPanel.html");
+    header("Location: ./user.php");
     exit();
 }
 //login
 if (isset($_POST["login"])) {
-    $_SESSION["email"] = $_POST["login"];
-    verify($_POST["login"]);
-} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"])) { //sign in
-    $_SESSION["email"] = $_POST["email"];
-    $_SESSION["name"] = $_POST["name"];
-    $_SESSION["surname"] = $_POST["surname"];
-    verify($_POST["email"]);
-} else { //trying to go around
+    if (isset($_POST["login"])) $_SESSION["login"] = $_POST["login"];
+    $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
+    $stmt->bind_param("s", $_SESSION["login"]);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $stmt->close();
+    if ($res->num_rows > 0) {
+        echo "vpoho";
+        verify($_SESSION["login"]);
+        exit;
+    } else {
+        echo "Email nenalezen.";
+        $_SESSION["login"] = null;
+        exit;
+    }
+} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"]) && isset($_POST["id_schools"])) { //sign in
+    if (isset($_POST["email"])) $_SESSION["signup"] = $_POST["email"];
+    if (isset($_POST["name"])) $_SESSION["name"] = $_POST["name"];
+    if (isset($_POST["surname"])) $_SESSION["surname"] = $_POST["surname"];
+    if (isset($_POST["id_schools"])) $_SESSION["id_schools"] = $_POST["id_schools"];
+    $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
+    $stmt->bind_param("s", $_SESSION["signup"]);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $stmt->close();
+    if ($res->num_rows = 0) {
+        echo "vpoho";
+        verify($_POST["email"]);
+        exit;
+    } else {
+        echo "Uživatel již přihlášen";
+        $_SESSION["signup"] = null;
+        exit;
+    }
+} else if (!$_SESSION["login"] && !$_SESSION["signup"]) { //trying to go around
     header('Location: ./loginForm.html');
     exit;
 }
@@ -28,7 +55,7 @@ function verify($email)
     $code = rand(10000, 99999);
     //echo $code;
     $_SESSION["verify"] = $code;
-    $message = str_replace("\$code", $code, file_get_contents("./templates/verifyEmail.html"));
+    $message = str_replace("\$code", $code, file_get_contents("./assets/verifyEmail.html"));
     sendMail($email, "Ověření Emailu", $message);
 }
 ?>
@@ -332,7 +359,7 @@ function verify($email)
                         btn.style.opacity = '1';
                         console.log("hell yeah")
                         setTimeout(() => {
-                            console.log("red") /*redirect*/
+                            window.location.href = "./user.php"
                         }, 2000)
                     } else {
                         btn.textContent = 'Verify Code';
