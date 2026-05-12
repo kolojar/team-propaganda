@@ -1,4 +1,6 @@
 <?php
+const STANDARD_CZECH_TIME_FORMAT_FULL = 'd. m. Y H:i:s';
+
 class accessLevel
 {
     public readonly bool $needsEvent;

@@ -141,3 +141,5 @@ wifi
 	- [ ] ? Feedback
 	- [ ] ? Mapka pro studenty
 	- [ ] ? Popis firem
+	
+- [ ] Kalendář událostí
