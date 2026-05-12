@@ -22,26 +22,29 @@
             SendToast
         } from "../formWebScripts/js/formScript.js";
 
+        let sent = false
         document.getElementById("form").addEventListener("submit", (e) => {sendToPHP(e)});
         async function sendToPHP(e) {
             e.preventDefault();
+            if (!sent) {
+                sent = true
+                const data = new FormData();
+                data.append("login", document.getElementById("email").value);
 
-            const data = new FormData();
-            data.append("login", document.getElementById("email").value);
+                const [ok, res] = await SendPOSTDataToServerAsync("./verify.php", data);
 
-            const [ok, res] = await SendPOSTDataToServerAsync("./verify.php", data);
-
-            if (ok) {
-                if (res == "vpoho") {
-                    window.location.href = "./verify.php";
+                if (ok) {
+                    if (res == "vpoho") {
+                        window.location.href = "./verify.php";
+                    }
+                    else {
+                        SendToast("Odpověď serveru", res, "error");
+                    }
                 }
-                else {
-                    SendToast("Odpověď serveru", res, "error");
-                }
+                else SendToast("Odpověď serveru", res, "error")
             }
-            else SendToast("Odpověď serveru", res, "error")
-
         }
+        document.getElementById("email").addEventListener("change", () => {sent = false})
     </script>
 </body>
 
