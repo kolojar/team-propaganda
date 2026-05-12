@@ -1,6 +1,6 @@
 <?php
 require "../assets/config.php";
-
+session_start();
 if (!isset($_SESSION["adminId"])) {
     //header("location: ../adminLogin.php")
 }
