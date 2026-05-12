@@ -50,7 +50,7 @@ require "../assets/config.php";
 </head>
 
 <body>
-    <img src="assets/img.png" width="100%" class="map">
+    <img id="map" src="assets/img.png" width="100%" class="map">
     <?php
     $sites = $conn->query("SELECT * FROM sites_teamPropaganda NATURAL RIGHT JOIN companies_teamPropaganda");
     while ($site = $sites->fetch_assoc()) {
@@ -63,10 +63,11 @@ require "../assets/config.php";
         } else {
             echo "site square";
         }
-        echo "' id='" . $site["id_sites"] . "' style='";
-        echo "top:" . $site["posX"] . "px; left:" . $site["posY"] . "px;";
-
-        echo "'>";
+        echo "' id='" . $site["id_sites"] . "' style='transform: translate(-50%, -50%);'";
+        if ($site["posX"] != 0 && $site["posY"] != 0) {
+            echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "'";
+        }
+        echo ">";
         if ($site["icon"] != null) {
             echo '<img class="icon" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
         }
@@ -83,6 +84,28 @@ require "../assets/config.php";
         import {
             SendToast
         } from "../formWebScripts/js/formScript.js";
+
+        function repositionPins() {
+            console.log("repos")
+            const map = document.getElementById("map");
+            const pins = document.getElementsByClassName("site");
+
+            const mapWidth = map.clientWidth;
+            const mapHeight = map.clientHeight;
+
+            for (let pin of pins) {
+                const pctX = pin.getAttribute("data-pct-x");
+                const pctY = pin.getAttribute("data-pct-y");
+
+                if (pctX && pctY && pctX != 0 && pctY != 0) {
+                    pin.style.left = ((pctY / 100) * mapWidth) + "px";
+                    pin.style.top = ((pctX / 100) * mapHeight) + "px";
+                }
+            }
+        }
+
+        repositionPins()
+        window.addEventListener('resize', repositionPins);
     </script>
 </body>
 

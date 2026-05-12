@@ -17,7 +17,7 @@ if (isset($_POST["sitePos"])) {
             $site["id" . $check["id_sites"]]["posY"] = null;
         }
         if ($site["id" . $check["id_sites"]]["posX"] != $check["posX"] || $site["id" . $check["id_sites"]]["posY"] != $check["posY"]) {
-            $stmt->bind_param("iii", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $check["id_sites"]);
+            $stmt->bind_param("ddi", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $check["id_sites"]);
             if (!$stmt->execute()) {
                 echo "error UPDATE";
                 exit;
@@ -64,6 +64,7 @@ if (isset($_POST["sitePos"])) {
         .map {
             position: absolute;
             z-index: -1;
+            margin: 0;
         }
 
         .icon {
@@ -84,10 +85,10 @@ if (isset($_POST["sitePos"])) {
 </head>
 
 <body>
-    <img id="map" src="assets/img.png" width="80%" class="map">
+    <img id="map" src="assets/img.png" style="width: 80%; height: auto; display: block;" class="map">
     <?php
     $sites = $conn->query("SELECT * FROM sites_teamPropaganda NATURAL RIGHT JOIN companies_teamPropaganda");
-    $offset = 7;
+    $offset = 15;
     while ($site = $sites->fetch_assoc()) {
         echo "<button class='";
         if ($site["isClass"] == null) {
@@ -95,27 +96,26 @@ if (isset($_POST["sitePos"])) {
         } else {
             echo "site square";
         }
-        echo "' id='" . $site["id_sites"] . "' style='";
-        if ($site["posX"] != null && $site["posY"] != null) {
-            echo "top:" . $site["posX"] * 0.8 . "px; left:" . $site["posY"] * 0.8 . "px;";
-        } else {
-            echo "top:" . $offset . "%; left: 88%;";
+        echo "' id='" . $site["id_sites"] . "'";
+
+        if ($site["posX"] != 0 && $site["posY"] != 0) {
+            echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "'";
         }
         if ($site["electricity"]) {
-            echo " background-color: #00FF00;";
+            echo "style=' background-color: #00FF00;";
         } else {
-            echo " background-color: #FF0000;";
+            echo "style=' background-color: #FF0000;";
         }
-        echo "'>";
+        echo "transform: translate(-50%, -50%);'>";
         if ($site["icon"] != null) {
             echo '<img class="icon" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
         }
         echo "</button>";
-        $offset += 5;
+        $offset += 10;
     }
-
-
     ?>
+
+
     <div class="formCenter" style="width:20%; height: 10%; float: right; margin-top: 2%;">
         <button id="save" class="formButton formOkColor">Uložit plánek</button>
     </div>
@@ -181,40 +181,66 @@ if (isset($_POST["sitePos"])) {
         }
 
         document.getElementById("save").addEventListener("click", async (e) => {
-
             let data = new FormData();
-            let siteList = {}
+            let siteList = {};
+            const map = document.getElementById("map");
+            const mapWidth = map.clientWidth;
+            const mapHeight = map.clientHeight;
             for (let site of document.getElementsByClassName("site")) {
-                let top = 0,
-                    left = 0;
-                if (site.style.top.includes("%") || site.style.left.includes("%")) {
-                    top = 0
-                    left = 0
-                    console.log("%")
-                } else if (Number(site.style.top.slice(0, -2)) != NaN && Number(site.style.left.slice(0, -2)) != NaN) {
-                    top = site.style.top.slice(0, -2);
-                    left = site.style.left.slice(0, -2);
-                    console.log("vpoho")
+
+                let relativeY = ((Number(site.style.left.slice(0, -2)) / mapWidth) * 100);
+                let relativeX = ((Number(site.style.top.slice(0, -2)) / mapHeight) * 100);
+                console.log(relativeX, relativeY, Number(site.style.top.slice(0, -2)))
+
+                if (relativeX < 0 || relativeX > 100 || relativeY < 0 || relativeY > 100) {
+                    relativeX = 0;
+                    relativeY = 0;
                 }
-                if (top > document.getElementById("map").height || left > document.getElementById("map").width) {
-                    top = 0;
-                    left = 0;
-                    console.log("0")
-                }
+
                 siteList["id" + site.id] = {
-                    posX: top / 0.8,
-                    posY: left / 0.8
-                }
+                    posX: relativeX,
+                    posY: relativeY
+                };
             }
-            console.log(siteList)
+            console.log(siteList["id1"], siteList["id2"])
             data.append("sitePos", JSON.stringify(siteList))
 
             let [ok, res] = await SendPOSTDataToServerAsync("./adminmap.php", data)
 
-            if (ok) SendToast("Odpověď serveru", res, "ok")
-            else SendToast("Odpověď serveru", res, "error")
+            if (ok) {
+                SendToast("Odpověď serveru", res, "ok");
+                window.location.reload()
+            } else SendToast("Odpověď serveru", res, "error")
 
         })
+
+
+        function repositionPins() {
+            console.log("repos")
+            const map = document.getElementById("map");
+            const pins = document.getElementsByClassName("site");
+
+            const mapWidth = map.clientWidth;
+            const mapHeight = map.clientHeight;
+            let offset = 15;
+
+            for (let pin of pins) {
+                const pctX = pin.getAttribute("data-pct-x");
+                const pctY = pin.getAttribute("data-pct-y");
+
+                if (pctX && pctY && pctX != 0 && pctY != 0) {
+                    pin.style.left = ((pctY / 100) * mapWidth) + "px";
+                    pin.style.top = ((pctX / 100) * mapHeight) + "px";
+                } else if (pctX == 0 || pctY == 0 || !pctX || !pctY) {
+                    pin.style.left = (0.895 * window.innerWidth) + "px";
+                    pin.style.top = offset + "%"
+                }
+                offset += 10
+            }
+        }
+
+        repositionPins();
+        window.addEventListener('resize', repositionPins);
     </script>
 </body>
 
