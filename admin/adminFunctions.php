@@ -31,7 +31,6 @@ $accessLevels = array(
     "schoolsAll.php" => new accessLevel(array("admin")),
     "classroom.php" => new accessLevel(array("admin"), false),
     "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
-    "payments.php" => new accessLevel(array("admin","accountant"), true, false, true, true, "Platby"),
     "event.php" => new accessLevel(array("admin"), false),
     "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
     "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost","formWarnColor"),

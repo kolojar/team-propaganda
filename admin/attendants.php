@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "attendants.php") ?>
+        <?php $result = setupTitlebar($conn, "attendants.php") ?>
     </header>
     <main>
         <?php
@@ -165,14 +165,15 @@ require "./adminFunctions.php";
         }
 
         //Request paid attendants
-        $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.variable_symbol,ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants AS ra JOIN attendants AS a ON ra.id_attendants = a.id_attendants JOIN users AS u ON a.id_parent = u.id_users JOIN schools AS s ON a.id_schools = s.id_schools JOIN classrooms AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
-        $stmt->bind_param("i", $_COOKIE["adminEventId"]);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $found = true;
-            //Echo header
-            echo "<h1>Registrovaní a zaplacení zájemci</h1>
+        if ($result->role == "admin") {
+            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.variable_symbol,ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants AS ra JOIN attendants AS a ON ra.id_attendants = a.id_attendants JOIN users AS u ON a.id_parent = u.id_users JOIN schools AS s ON a.id_schools = s.id_schools JOIN classrooms AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
+            $stmt->bind_param("i", $_COOKIE["adminEventId"]);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $found = true;
+                //Echo header
+                echo "<h1>Registrovaní a zaplacení zájemci</h1>
                   <table class='styledTable styledTableAuto'>
                       <tr>
                           <th>Akce</th>
@@ -186,22 +187,22 @@ require "./adminFunctions.php";
                           <th>Variabilní symbol platby</th>
                       </tr>";
 
-            //List all attendants in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($registered, $paid, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName);
-                $stmt->fetch();
-                $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                //List all attendants in table
+                for ($i = 0; $i < $stmt->num_rows; $i++) {
+                    $stmt->bind_result($registered, $paid, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName);
+                    $stmt->fetch();
+                    $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
+                    $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
 
-                //Highlight
-                $highlightSchoolClass = "";
-                if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                    $highlightSchoolClass = "trHighlight";
-                }
+                    //Highlight
+                    $highlightSchoolClass = "";
+                    if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
+                        $highlightSchoolClass = "trHighlight";
+                    }
 
-                //Put in table
-                echo "<tr class='clickHighlightRow $highlightSchoolClass'>
+                    //Put in table
+                    echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td>
                             <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
@@ -215,8 +216,9 @@ require "./adminFunctions.php";
                         <td>$paid</td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                     </tr>";
+                }
+                echo "</table>";
             }
-            echo "</table>";
         }
         ////Get highlighted schools
         //$highlightSchools = [];
@@ -261,10 +263,12 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td>
-                            <button variableSymbol=$variableSymbol class='formButton formOkColor btnTableAddPayment'>Zaplatit</button></a>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
-                        </td>
+                            <button variableSymbol=$variableSymbol class='formButton formOkColor btnTableAddPayment'>Zaplatit</button></a>";
+                if ($result->role == "admin") {
+                    echo "  <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
+                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>";
+                }
+                echo "  </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
@@ -278,13 +282,14 @@ require "./adminFunctions.php";
         }
 
         //Request rejected attendants
-        $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants ua LEFT JOIN attendants a ON ua.id_attendants = a.id_attendants LEFT JOIN users u ON a.id_parent = u.id_users LEFT JOIN events e ON ua.id_events = e.id_events WHERE ua.id_events = ? AND ua.refunded IS NOT NULL;");
-        $stmt->bind_param("i", $_COOKIE["adminEventId"]);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $found = true;
-            echo "<h1>Zájemci, kterým byly vráceny peníze (konečně odhlášení)</h1>
+        if ($result->role == "admin") {
+            $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants ua LEFT JOIN attendants a ON ua.id_attendants = a.id_attendants LEFT JOIN users u ON a.id_parent = u.id_users LEFT JOIN events e ON ua.id_events = e.id_events WHERE ua.id_events = ? AND ua.refunded IS NOT NULL;");
+            $stmt->bind_param("i", $_COOKIE["adminEventId"]);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $found = true;
+                echo "<h1>Zájemci, kterým byly vráceny peníze (konečně odhlášení)</h1>
                   <table class='styledTable styledTableAuto'>
                       <tr>
                           <th>Akce</th>
@@ -300,33 +305,33 @@ require "./adminFunctions.php";
                           <th>Důvod odhlášení</th>
                       </tr>";
 
-            //List all attendants in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($variableSymbol, $bankAccount, $registered, $paid, $unregistered, $reason, $attendantId, $refunded, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $eventPrice);
-                $stmt->fetch();
-                $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                $attendantFullName = $attendantName . " " . $attendantSurname;
-                if ($attendantId == null) {
-                    $attendantFullName = "Není k dispozici";
-                }
-                $parentFullName = $parentName . " " . $parentSurname;
-                if ($parentId == null) {
-                    $parentFullName = "Není k dispozici";
-                    $parentEmail = "Není k dispozici";
-                }
-                $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                $unregistered = new DateTime($unregistered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                $refunded = new DateTime($refunded)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                //List all attendants in table
+                for ($i = 0; $i < $stmt->num_rows; $i++) {
+                    $stmt->bind_result($variableSymbol, $bankAccount, $registered, $paid, $unregistered, $reason, $attendantId, $refunded, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $eventPrice);
+                    $stmt->fetch();
+                    $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
+                    $attendantFullName = $attendantName . " " . $attendantSurname;
+                    if ($attendantId == null) {
+                        $attendantFullName = "Není k dispozici";
+                    }
+                    $parentFullName = $parentName . " " . $parentSurname;
+                    if ($parentId == null) {
+                        $parentFullName = "Není k dispozici";
+                        $parentEmail = "Není k dispozici";
+                    }
+                    $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $unregistered = new DateTime($unregistered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $refunded = new DateTime($refunded)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
 
-                //Highlight
-                //$highlightSchoolClass = "";
-                //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                //    $highlightSchoolClass = "trHighlight";
-                //}
+                    //Highlight
+                    //$highlightSchoolClass = "";
+                    //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
+                    //    $highlightSchoolClass = "trHighlight";
+                    //}
         
-                //Put in table
-                echo "<tr class='clickHighlightRow'>
+                    //Put in table
+                    echo "<tr class='clickHighlightRow'>
                         <td>
                             <button class='formButton formErrorColor btnDeleteTotalTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice'>Odstranit</button>
                         </td>
@@ -341,8 +346,9 @@ require "./adminFunctions.php";
                         <td><a href='mailto:$parentEmail'>$parentEmail</td>
                         <td>$reason</td>
                     </tr>";
+                }
+                echo "</table>";
             }
-            echo "</table>";
         }
 
         if (!$found) {
