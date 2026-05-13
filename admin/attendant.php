@@ -24,16 +24,20 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
-    } else  if ($_POST["action"] == "addPayment") {
+    } else if ($_POST["action"] == "addPayment") {
         //Check if values set
-        if (!isset($_POST["paid"]) || !isset($_POST["bank_account"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["paid"]) || !isset($_POST["bank_account"]) || !isset($_POST["id"]) || !isset($_POST["unregistered"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE registered_attendants SET paid=?,bank_account=? WHERE variable_symbol=?;");
+        $table = "registered_attendants";
+        if ($_POST["unregistered"] == "1") {
+            $table = "unregistered_attendants";
+        }
+        $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,bank_account=? WHERE variable_symbol=?;");
         $stmt->bind_param("ssi", $_POST["paid"], $_POST["bank_account"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -44,7 +48,7 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
-    } else  if ($_POST["action"] == "removePayment") {
+    } else if ($_POST["action"] == "removePayment") {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);

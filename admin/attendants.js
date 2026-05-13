@@ -24,13 +24,15 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
         data.set("action", "addPayment");
         data.set("bank_account", bankAccount);
         data.set("paid", datePaid);
-        data.set("id", button.getAttribute("attendant"));
+        data.set("id", button.getAttribute("variableSymbol"));
+        data.set("unregistered", button.hasAttribute("unregistered") ? "1" : "0");
         const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", data);
         if (!ok) {
             progress.CloseDialog();
             SendToast("Zadat platbu", "Platbu se nepodařilo zadat!", "error");
             return;
         }
+        SendToast("Zadat platbu", "Platbu uložena!", "ok");
         setTimeout(() => {
             window.location.reload();
         }, 1000);
@@ -38,7 +40,7 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
 }
 for (const button of document.getElementsByClassName("btnRefundTable")) {
     button.addEventListener("click", () => {
-        dialogManager.ShowConfirm("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "\nVariabilní symbol: " + button.getAttribute("price") + " Kč", async (refund) => {
+        dialogManager.ShowConfirm("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "\nVariabilní symbol: " + button.getAttribute("variableSymbol") + "\nČástka: " + button.getAttribute("price") + " Kč", async (refund) => {
             if (!refund) {
                 SendToast("Vrátit platbu", "Vrácení platby bylo zrušeno.", "info");
                 return;
