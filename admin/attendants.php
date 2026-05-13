@@ -204,7 +204,7 @@ require "./adminFunctions.php";
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td>
                             <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' attendant=$id>Odstranit</button>
+                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
@@ -263,7 +263,7 @@ require "./adminFunctions.php";
                         <td>
                             <button variableSymbol=$variableSymbol class='formButton formOkColor btnTableAddPayment'>Zaplatit</button></a>
                             <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' attendant=$id>Odstranit</button>
+                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
@@ -277,7 +277,7 @@ require "./adminFunctions.php";
             echo "</table>";
         }
 
-        //Request waiting for refund attendants
+        //Request rejected attendants
         $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants ua LEFT JOIN attendants a ON ua.id_attendants = a.id_attendants LEFT JOIN users u ON a.id_parent = u.id_users LEFT JOIN events e ON ua.id_events = e.id_events WHERE ua.id_events = ? AND ua.refunded IS NOT NULL;");
         $stmt->bind_param("i", $_COOKIE["adminEventId"]);
         $stmt->execute();

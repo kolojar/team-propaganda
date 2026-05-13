@@ -24,7 +24,27 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
-    } else if ($_POST["action"] == "addPayment") {
+    }else if ($_POST["action"] == "delete") {
+        //Check if values set
+        if (!isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Update
+        $stmt = $conn->prepare("DELETE FROM unregistered_attendants WHERE variable_symbol=?");
+        $stmt->bind_param("i", $_POST["id"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry deleted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be deleted.";
+            die();
+        }
+    }  else if ($_POST["action"] == "addPayment") {
         //Check if values set
         if (!isset($_POST["paid"]) || !isset($_POST["bank_account"]) || !isset($_POST["id"]) || !isset($_POST["unregistered"])) {
             http_response_code(400);
@@ -66,6 +86,47 @@ if (isset($_POST["action"])) {
         } else {
             http_response_code(400);
             echo "Entry could not be updated.";
+            die();
+        }
+    } else if ($_POST["action"] == "unregister") {
+        //Check if values set
+        if (!isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Get SQL info
+        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants WHERE variable_symbol = ?");
+        $stmt->bind_param("i", $_POST["id"]);
+        if (!$stmt->execute()) {
+            http_response_code(400);
+            echo "Entry could not be SELECTed.";
+            die();
+        }
+        $stmt->store_result();
+        $stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid);
+        $stmt->fetch();
+
+        //Insert SQL entry
+        $stmt = $conn->prepare("INSERT INTO unregistered_attendants(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
+        $stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]);
+        if (!$stmt->execute()) {
+            http_response_code(400);
+            echo "Entry could not be INSERTed.";
+            die();
+        }
+
+        //Delete SQL entry
+        $stmt = $conn->prepare("DELETE FROM registered_attendants WHERE variable_symbol = ?");
+        $stmt->bind_param("i", $_POST["id"]);
+        if (!$stmt->execute()) {
+            http_response_code(400);
+            echo "Entry could not be DELETEd.";
+            die();
+        } else {
+            http_response_code(201);
+            echo "Entry moved.";
             die();
         }
     } else {
