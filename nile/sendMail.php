@@ -1,10 +1,9 @@
 <?php
 require "../assets/config.php";
 //if (!isset($_SESSION["userId"])) {
-//    header("login.php");
+//    header("Location: ./loginForm.html");
 //    exit();
 //}
-
 if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userIds"])) {
     //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
@@ -18,7 +17,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     } else {
         $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message) VALUES (?, ?)");
         $stmt->bind_param("ss", $_POST["subject"], $_POST["message"]);
-        foreach ($_POST["userIds"] as $uid) {
+        foreach (json_decode($_POST["userIds"]) as $uid) {
             $stmt2 = $conn->prepare("SELECT email FROM users_teamPropaganda WHERE id_users = ?");
             $stmt2->bind_param("i", $uid);
             if ($stmt2->execute()) echo "sent $uid\n";
@@ -30,7 +29,6 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             $message = $_POST["message"];
             $stmt2->bind_result($email);
             $stmt2->fetch();
-            echo "email $email\n";
             sendMail($email, $_POST["subject"], $message);
         }
         $sent = 1;
@@ -42,8 +40,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     $stmt->prepare("INSERT INTO email_send_user_teamPropaganda (id_users, id_email_send, sent) VALUES (?, ?, ?)");
     $stmt->bind_param("iii", $uid, $emailId, $sent);
     foreach ($_POST["userIds"] as $uid) {
-        if ($stmt->execute()) echo "uid in $uid\n";
-        else echo "nope $uid\n";
+        if (!$stmt->execute()) echo "nope $uid\n";
     }
     exit;
 }
@@ -75,7 +72,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     <th>E-mail</th>
                 </tr>
                 <?php
-                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0;");
+                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 1;");
                 while ($row = $res->fetch_object()) {
                     echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
                 }
@@ -101,7 +98,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         </select><br>
         <input type="checkbox" checked id="now" name="now">
         <label for="now">Odeslat ihned</label><br>
-        <input type="date" id="date" name="date" disabled>
+        <input type="date" id="date" name="date" disabled today>
         <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
         <input type="submit">
     </form>
@@ -204,14 +201,14 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             data.append("subject", document.getElementById("subject").value)
             data.append("message", document.getElementById("message").value)
             if (!document.getElementById("now").checked) {
-                data.append("datetime", date.value + " " + hour.value)
+                data.append("datetime", document.getElementById("date").value + " " + document.getElementById("hour").value)
             }
             if (document.getElementById("global").checked) {
                 data.append("global", true)
                 data.append("userIds", "")
 
             } else {
-                data.append("useIds", userIds)
+                data.append("userIds", JSON.stringify(userIds))
             }
 
             const [ok, res] = await SendPOSTDataToServerAsync("./sendMail.php", data);

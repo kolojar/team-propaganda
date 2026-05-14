@@ -54,6 +54,38 @@ CREATE TABLE `attendants_teamPropaganda` (
 -- --------------------------------------------------------
 
 --
+-- Struktura tabulky `sites_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `sites_teamPropaganda`;
+CREATE TABLE `sites_teamPropaganda` (
+  `id_sites` int(10) UNSIGNED NOT NULL,
+  `posX` float UNSIGNED DEFAULT NULL,
+  `posY` float UNSIGNED DEFAULT NULL,
+  `seats` int(10) UNSIGNED DEFAULT NULL,
+  `electricity` int(1) UNSIGNED DEFAULT NULL,
+  `isClass` int(1) UNSIGNED DEFAULT NULL,
+  `id_companies` int(10) UNSIGNED NOT NULL,
+  `id_presentations` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `presentations_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `presentations_teamPropaganda`;
+CREATE TABLE `presentations_teamPropaganda` (
+  `id_presentations` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `id_companies` int(10) UNSIGNED NOT NULL,
+  `description` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabulky `classrooms_teamPropaganda`
 --
 
@@ -4617,6 +4649,21 @@ ALTER TABLE `attendants_teamPropaganda`
   ADD KEY `schools` (`id_schools`);
 
 --
+-- Indexy pro tabulku `presentations_teamPropaganda`
+--
+ALTER TABLE `presentations_teamPropaganda`
+  ADD PRIMARY KEY (`id_presentations`),
+  ADD KEY `id_companies` (`id_companies`);
+
+--
+-- Indexy pro tabulku `sites_teamPropaganda`
+--
+ALTER TABLE `sites_teamPropaganda`
+  ADD PRIMARY KEY (`id_sites`),
+  ADD KEY `id_companies` (`id_companies`),
+  ADD KEY `id_presentations` (`id_presentations`);
+
+--
 -- Indexy pro tabulku `classrooms_teamPropaganda`
 --
 ALTER TABLE `classrooms_teamPropaganda`
@@ -4709,6 +4756,12 @@ ALTER TABLE `attendants_teamPropaganda`
   MODIFY `id_attendants` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pro tabulku `sites_teamPropaganda`
+--
+ALTER TABLE `sites_teamPropaganda`
+  MODIFY `id_sites` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pro tabulku `classrooms_teamPropaganda`
 --
 ALTER TABLE `classrooms_teamPropaganda`
@@ -4757,6 +4810,12 @@ ALTER TABLE `subevents_teamPropaganda`
   MODIFY `id_subevents` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pro tabulku `presentations_teamPropaganda`
+--
+ALTER TABLE `presentations_teamPropaganda`
+  MODIFY `id_presentations` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pro tabulku `users_teamPropaganda`
 --
 ALTER TABLE `users_teamPropaganda`
@@ -4792,6 +4851,19 @@ ALTER TABLE `companies_fields_teamPropaganda`
 --
 ALTER TABLE `companies_teamPropaganda`
   ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users_teamPropaganda` (`id_users`);
+
+--
+-- Omezení pro tabulku `sites_teamPropaganda`
+--
+ALTER TABLE `sites_teamPropaganda`
+  ADD CONSTRAINT `id_companies` FOREIGN KEY (`id_companies`) REFERENCES `companies_teamPropaganda` (`id_companies`),
+  ADD CONSTRAINT `id_presentations` FOREIGN KEY (`id_presentations`) REFERENCES `presentations_teamPropaganda` (`id_presentations`);
+
+--
+-- Omezení pro tabulku `presentations_teamPropaganda`
+--
+ALTER TABLE `presentations_teamPropaganda`
+  ADD CONSTRAINT `id_companies` FOREIGN KEY (`id_companies`) REFERENCES `companies_teamPropaganda` (`id_companies`);
 
 --
 -- Omezení pro tabulku `email_send_user_teamPropaganda`
