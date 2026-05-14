@@ -101,7 +101,7 @@ if (isset($_POST["action"])) {
             $eventId = $_GET["event"];
         } else {
             //Get subevent info
-            $stmt = $conn->prepare("SELECT id_events, date, start_time, end_time FROM subevents WHERE id_subevents = ?;");
+            $stmt = $conn->prepare("SELECT id_events, date, start_time, end_time FROM subevents_teamPropaganda WHERE id_subevents = ?;");
             $stmt->bind_param("i", $_GET["subevent"]);
             $stmt->execute();
             $stmt->store_result();
@@ -110,7 +110,7 @@ if (isset($_POST["action"])) {
 
         }
         //Get event info
-        $stmt2 = $conn->prepare("SELECT name,registration_close,active_until FROM events WHERE id_events = ?;");
+        $stmt2 = $conn->prepare("SELECT name,registration_close,active_until FROM events_teamPropaganda WHERE id_events = ?;");
         $stmt2->bind_param("i", $eventId);
         $stmt2->execute();
         $stmt2->store_result();

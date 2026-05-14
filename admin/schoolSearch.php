@@ -35,7 +35,7 @@ MATCH(schools.address) AGAINST(? IN NATURAL LANGUAGE MODE) * 2 +
 (LOWER(schools.name) LIKE CONCAT('%', ?, '%')) * 2 +
 (LOWER(schools.address) LIKE CONCAT('%', ?, '%'))
 ) AS score
-FROM schools
+FROM schools_teamPropaganda
 WHERE
 -- Do matching again for each entry for comparsion
 MATCH(schools.name) AGAINST(? IN NATURAL LANGUAGE MODE)

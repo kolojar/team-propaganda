@@ -42,7 +42,7 @@ require "./adminFunctions.php";
 
             //Request users
             $stmt = $conn->prepare(
-                "SELECT id_attendants, name,surname, id_parent, id_schools FROM attendants",
+                "SELECT id_attendants, name,surname, id_parent, id_schools FROM attendants_teamPropaganda",
             );
             $stmt->execute();
             $stmt->store_result();
@@ -53,7 +53,7 @@ require "./adminFunctions.php";
                 $stmt->fetch();
 
                 //Get school info
-                $schoolGet = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
+                $schoolGet = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
                 $schoolGet->bind_param("i", $schoolId);
                 $schoolGet->execute();
                 $schoolGet->store_result();
@@ -61,7 +61,7 @@ require "./adminFunctions.php";
                 $schoolGet->fetch();
 
                 //Get parent info
-                $parentGet = $conn->prepare("SELECT name, surname, email FROM users WHERE id_users = ? LIMIT 1");
+                $parentGet = $conn->prepare("SELECT name, surname, email FROM users_teamPropaganda WHERE id_users = ? LIMIT 1");
                 $parentGet->bind_param("i", $parentId);
                 $parentGet->execute();
                 $parentGet->store_result();
@@ -75,7 +75,7 @@ require "./adminFunctions.php";
 
                 //Put in table
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./attendant.php?attendant=$id'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor deleteUserButton' userId=$id userName='$name $surname'>Odstranit</button>
                         </td>

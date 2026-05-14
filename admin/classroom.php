@@ -101,7 +101,7 @@ if (isset($_POST["action"])) {
             echo "<h1>Vytvořit novou učebnu</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, placesToSit, isFunctional, note FROM `classrooms` WHERE id_classrooms = ?;");
+            $stmt = $conn->prepare("SELECT name, placesToSit, isFunctional, note FROM `classrooms_teamPropaganda` WHERE id_classrooms = ?;");
             $stmt->bind_param("i", $_GET["classroom"]);
             $stmt->execute();
             $stmt->store_result();

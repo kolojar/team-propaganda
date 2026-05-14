@@ -99,7 +99,7 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             //Get school info
-            $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
+            $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
             $stmt->bind_param("i", $_GET["school"]);
             $stmt->execute();
             $stmt->store_result();

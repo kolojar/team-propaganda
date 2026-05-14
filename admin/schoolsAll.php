@@ -45,7 +45,7 @@ require "./adminFunctions.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants a RIGHT JOIN schools s ON s.id_schools = a.id_attendants GROUP BY s.id_schools;");
+            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants_teamPropaganda a RIGHT JOIN schools_teamPropaganda s ON s.id_schools = a.id_attendants GROUP BY s.id_schools;");
             //$stmt->bind_param("ii", $page, $itemsPerPage);
             $stmt->execute();
             $stmt->store_result();
@@ -55,7 +55,7 @@ require "./adminFunctions.php";
                 $stmt->bind_result($id, $name, $address, $count, $users);
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
-                        <td style='text-align: center'>
+                        <td class='formButtonBoxTable'>
                             <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a> ";
                 if ($count > 0) {
                     echo "<a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>";

@@ -52,7 +52,7 @@ if (isset($_POST["action"])) {
     <main>
         <?php
         //Get attendant info
-        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants WHERE id_attendants=? LIMIT 1");
+        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants_teamPropaganda WHERE id_attendants=? LIMIT 1");
         $stmt->bind_param("i", $_GET["attendant"]);
         $stmt->execute();
         $stmt->store_result();
@@ -60,7 +60,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Get attendant's school info
-        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
         $stmt->bind_param("i", $idSchool);
         $stmt->execute();
         $stmt->store_result();
@@ -68,7 +68,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Get attendant's parent info
-        $stmt = $conn->prepare("SELECT name,surname,email FROM users WHERE id_users = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT name,surname,email FROM users_teamPropaganda WHERE id_users = ? LIMIT 1");
         $stmt->bind_param("i",  $idParent);
         $stmt->execute();
         $stmt->store_result();

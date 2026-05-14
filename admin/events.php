@@ -55,7 +55,7 @@ if (isset($_GET["selectSubevent"])) {
         if (isset($_COOKIE["adminEventId"])) {
             $eventId = $_COOKIE["adminEventId"];
         } else if (isset($_COOKIE["adminSubEventId"])) {
-            $stmtGetId = $conn->prepare("SELECT id_events FROM subevents WHERE id_subevents=? LIMIT 1;");
+            $stmtGetId = $conn->prepare("SELECT id_events FROM subevents_teamPropaganda WHERE id_subevents=? LIMIT 1;");
             $stmtGetId->bind_param("i", $_COOKIE["adminSubEventId"]);
             $stmtGetId->execute();
             $stmtGetId->store_result();
@@ -66,7 +66,7 @@ if (isset($_GET["selectSubevent"])) {
         //Get event name
         setcookie("adminEventId", $eventId);
         $eventName = "";
-        $stmtGetName = $conn->prepare("SELECT name FROM events WHERE id_events=? LIMIT 1;");
+        $stmtGetName = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=? LIMIT 1;");
         $stmtGetName->bind_param("i", $eventId);
         $stmtGetName->execute();
         $stmtGetName->store_result();
@@ -84,7 +84,7 @@ if (isset($_GET["selectSubevent"])) {
             echo "</tr>";
 
             //Request subevents
-            $stmt = $conn->prepare("SELECT id_subevents, date, start_time, end_time FROM subevents WHERE id_events=?;");
+            $stmt = $conn->prepare("SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE id_events=?;");
             $stmt->bind_param("i", $eventId);
             $stmt->execute();
             $stmt->store_result();
@@ -95,14 +95,12 @@ if (isset($_GET["selectSubevent"])) {
                 $stmt->fetch();
                 $date = DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
                 echo "<tr class='clickHighlightRow'>";
-                echo "<td>";
-                echo "<div class='formButtonBox'>";
+                echo "<td class='formButtonBoxTable'>";
                 echo "<a href='./events.php?selectSubevent=$id'><button class='formButton formInfoColor'>Otevřít podpohled</button></a>";
-                if($result->role == "admin") {
-                echo "<a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
-                echo "<button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>";
+                if ($result->role == "admin") {
+                    echo "<a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
+                    echo "<button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>";
                 }
-                echo "</div>";
                 echo "</td>";
                 echo "<td>$date</td>";
                 echo "<td>$startTime</td>";
@@ -131,7 +129,7 @@ if (isset($_GET["selectSubevent"])) {
         echo "</tr>";
 
         //Request events
-        $stmt = $conn->prepare("SELECT id_events, name, type, active_since, active_until, registration_open, registration_close FROM events;");
+        $stmt = $conn->prepare("SELECT id_events, name, type, active_since, active_until, registration_open, registration_close FROM events_teamPropaganda;");
         $stmt->execute();
         $stmt->store_result();
 
@@ -144,24 +142,22 @@ if (isset($_GET["selectSubevent"])) {
             $activeUntilDate = new DateTime($activeUntil);
             $isActive = "Ne";
             $isRegistrationActive = "Ne";
-            if($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
+            if ($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
                 $isActive = "Ano";
             }
             $registrationOpenDate = new DateTime($registrationOpen);
             $registrationCloseDate = new DateTime($registrationClose);
-            if($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
+            if ($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
                 $isRegistrationActive = "Ano";
             }
             echo "<tr class='clickHighlightRow'>";
-            echo "<td>";
-            echo "<div class='formButtonBox'>";
+            echo "<td class='formButtonBoxTable'>";
             echo "<a href='./events.php?selectEvent=$id'><button class='formButton formInfoColor'>Otevřít pohled</button></a>";
-            if($result->role == "admin") {
-            echo "<a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
-            echo "<button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>";
+            if ($result->role == "admin") {
+                echo "<a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
+                echo "<button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>";
             }
             echo "</td>";
-            echo "</div>";
             echo "<td>$name</td>";
             echo "<td>$type</td>";
             echo "<td>$isActive</td>";
