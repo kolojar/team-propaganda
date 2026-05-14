@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "./assets/config.php";
+require "../assets/config.php";
 ?>
 <h1>Školy</h1>
 <table class="styledTable">

@@ -26,11 +26,11 @@ team pro team na pomoc propagačním systémům pro školu
 	  - [ ] Platba OK
 	  - [ ] 14 dnů před akcí - co, kdy, kde jak
 	  - [ ] Pátek před akcí - místo učebny
-	  - [ ] Hromadná korespondence
+	  - [X] Hromadná korespondence
   - [ ] Jednoduchý poradce a informační koutek
   - [ ] Úprava odeslaných textů + fotky
   - [ ] Přikládání souborů / příloh
-  - [ ] Šablony pro E-Maily (texty)
+  - [X] Šablony pro E-Maily (texty)
   - [ ] Účet pro rodiče / dítě - ověření jako Matrix
   - [ ] Zablokovat duplikáty
   - [ ] ? Více rodičů k dítěti
@@ -56,7 +56,7 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Oslovování
 	  - Skloňování
 	  - Více jmen a přijmení
-  - [ ] V kolik hodin odešel E-Mail
+  - [X] V kolik hodin odešel E-Mail
   - [ ] Odhlášení
  	   - Jak
  	   - Kdy
@@ -71,15 +71,15 @@ team pro team na pomoc propagačním systémům pro školu
  - [ ] Generátor brožurek
 
 # prop
-zadávání učeben + úprava (admin)
+[X] zadávání učeben + úprava (admin)
 foto učebny pro vizuál
-účet pro uchazeče
+[X] účet pro uchazeče
 formulář
 - možnost posazení spolu
 - přijít osobně
 - nepřijde 2. sobotu
 auto email
-- úprava těchto emailů
+- [X] úprava těchto emailů
 - potvrzení vyplnění formuláře
 - potvrzení platby zaškrtnout v admin
 - připomenutí před zahájením (14 dní, den před)
@@ -89,13 +89,13 @@ auto email
 admin panel
 - úprava členů
 - vyhledávání
-- hromadná / jednotná korespondence
+- [X] hromadná / jednotná korespondence
 - úprava zasedání
 - detekce omylného přihlášení 2× {při odeslání formuláře}
 - vložit dokument se zobrazením
 - možnost side admin účtů
 - nebyl dostane materiály ?
-list škol
+- [X] list škol
 formulář na odhlášení
 plakátky k učebnám abecedně příjmení
 prezenčka
@@ -104,22 +104,22 @@ přidání materiálů k účtům
 - zobrazení
 
 # firm
-loga 
-popisky
+[X] loga 
+[X] popisky
 brožurka
 firmy i ve třídách přednášky
 rozvrh přednášek
-počet lidí
+[X] počet lidí
 počet stolů
 prezenčka v den (side admin)
 kávové stolky + rozvoz občerstvení
 seznam pomocníků (pomoc před a po + role)
 wifi
-	 - [ ] Jméno
-	 - [ ] Obory
+	 - [X] Jméno
+	 - [X] Obory
 	 - [ ] Co chtějí
-	 - [ ] Popis krátký
-	 - [ ] Popis dlouhý
+	 - [X] Popis krátký
+	 - [X] Popis dlouhý
  
 # Požadavky pana Nitčeho = Den Firem
  - [ ] Rozhraní pro firmy
@@ -132,9 +132,9 @@ wifi
  - [ ] Rozhraní pro admina
 	 - [ ] Defaultí seznam firem rozeslat těmto firmám obecný e-mail
 	 - [ ] Vložit firmy - info o nich 
-	 - [ ] Rozházení pomocí plánku školy po patrech (půdorys) pomocí třídících kritérií - Zaměření
-	 - [ ] Provázání učebny / stánku k pozicím a k firmám - lze víckrát
-	 - [ ] Výstupem bude mapka
+	 - [X] Rozházení pomocí plánku školy po patrech (půdorys) pomocí třídících kritérií - Zaměření
+	 - [X] Provázání učebny / stánku k pozicím a k firmám - lze víckrát
+	 - [X] Výstupem bude mapka
 	 - [ ] Znovu poslat E-Mail těsně před - automaticky poslat + rozmístění poslat E-Mailem
 	 - [ ] Databanku firem a výbírat, zda tento rok budou nebo ne
 - [ ] Rozhraní pro studenty

@@ -1,3 +1,64 @@
+<?php
+session_start();
+require "../assets/config.php";
+//user already logged in
+if (isset($_SESSION["userId"])) {
+    header("Location: ./user.php");
+    exit();
+}
+//login
+if (isset($_POST["login"])) {
+    if (isset($_POST["login"])) $_SESSION["login"] = $_POST["login"];
+    $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
+    $stmt->bind_param("s", $_SESSION["login"]);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $stmt->close();
+    if ($res->num_rows > 0) {
+        echo "vpoho";
+        verify($_SESSION["login"]);
+        exit;
+    } else {
+        echo "Email nenalezen.";
+        $_SESSION["login"] = null;
+        exit;
+    }
+} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"]) && isset($_POST["id_schools"])) { //sign in
+    if (isset($_POST["email"])) $_SESSION["signup"] = $_POST["email"];
+    if (isset($_POST["name"])) $_SESSION["name"] = $_POST["name"];
+    if (isset($_POST["surname"])) $_SESSION["surname"] = $_POST["surname"];
+    if (isset($_POST["id_schools"])) $_SESSION["id_schools"] = $_POST["id_schools"];
+    $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
+    $stmt->bind_param("s", $_SESSION["signup"]);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $stmt->close();
+    if ($res->num_rows = 0) {
+        echo "vpoho";
+        verify($_POST["email"]);
+        exit;
+    } else {
+        echo "Uživatel již přihlášen";
+        $_SESSION["signup"] = null;
+        exit;
+    }
+} else if (!$_SESSION["login"] && !$_SESSION["signup"]) { //trying to go around
+    header('Location: ./loginForm.html');
+    exit;
+}
+
+/**
+ * create verify code and call sendMail() with email prepared
+ */
+function verify($email)
+{
+    $code = rand(10000, 99999);
+    //echo $code;
+    $_SESSION["verify"] = $code;
+    $message = str_replace("\$code", $code, file_get_contents("./assets/verifyEmail.html"));
+    sendMail($email, "Ověření Emailu", $message);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -212,7 +273,7 @@
             <a href="#" class="resend-link">Resend Code</a>
         </div>
     </div>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         const fields = document.querySelectorAll('.otp-field');
 
@@ -230,6 +291,9 @@
             field.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && !field.value && index > 0) {
                     fields[index - 1].focus();
+                } else if (e.key === 'Enter' && index === 4) {
+                    e.preventDefault();
+                    submit(e)
                 }
             });
 
@@ -264,18 +328,53 @@
 
         // Simple form submission feedback
         document.getElementById('otp-form').addEventListener('submit', (e) => {
+            submit(e)
+        })
+
+        function submit(e) {
             e.preventDefault();
-            const btn = e.target.querySelector('.verify-btn');
+            const btn = document.querySelector('.verify-btn');
             btn.textContent = 'Verifying...';
             btn.style.opacity = '0.7';
-            btn.disabled = true;
+            //btn.disabled = true;
 
-            setTimeout(() => {
-                btn.textContent = 'Verified!';
-                btn.style.backgroundColor = '#10b981';
-                btn.style.opacity = '1';
-            }, 1000);
-        });
+            // Collect the full code
+            let verificationCode = "";
+            fields.forEach(field => {
+                verificationCode += field.value;
+            });
+
+            let data = {
+                code: Number(verificationCode)
+            };
+            $.ajax({
+                url: './codeVerify.php',
+                method: "POST",
+                data: data,
+                success: function(response) {
+                    console.log('Odpověď serveru:', response);
+                    if (response == "true") {
+                        btn.textContent = 'Verified!';
+                        btn.style.backgroundColor = '#10b981';
+                        btn.style.opacity = '1';
+                        console.log("hell yeah")
+                        setTimeout(() => {
+                            window.location.href = "./user.php"
+                        }, 2000)
+                    } else {
+                        btn.textContent = 'Verify Code';
+                        btn.style.backgroundColor = '#b91032';
+                        btn.style.opacity = '1';
+                        console.log("hell nah")
+                        // tell them
+                    }
+                },
+                error: function(err) {
+                    console.error(err);
+                    alert('Došlo k chybě při odesílání dat.');
+                }
+            });
+        };
     </script>
 </body>
 
