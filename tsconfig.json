@@ -5,6 +5,7 @@
     },
     "include": [
         "./formWebScripts/js/*.ts",
-        "./*.ts"
-        ]
+        "./formWebScripts/js/*.d.ts",
+        "./*.ts",
+        "./*/*.ts"]
 }

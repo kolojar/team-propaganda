@@ -2,4 +2,5 @@
     "emmet.includeLanguages": {
         "php": "html"
     },
+    "html.customData": ["formWebScripts/custom-elements.json"]
 }
