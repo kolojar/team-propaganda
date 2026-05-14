@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <title>loginform</title>
+    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
+
+</head>
+
+<body>
+    <form method="post" id="form">
+        <label for="login">E-mail:</label>
+        <input type="email" id="email" name="login" required><br>
+        <button type="submit">Odeslat</button>
+    </form>
+    <script type="module">
+        import {
+            SendPOSTDataToServerAsync
+        } from "../formWebScripts/js/serverComunication.js";
+        import {
+            SendToast
+        } from "../formWebScripts/js/formScript.js";
+
+        let sent = false
+        document.getElementById("form").addEventListener("submit", (e) => {sendToPHP(e)});
+        async function sendToPHP(e) {
+            e.preventDefault();
+            if (!sent) {
+                sent = true
+                const data = new FormData();
+                data.append("login", document.getElementById("email").value);
+
+                const [ok, res] = await SendPOSTDataToServerAsync("./verify.php", data);
+
+                if (ok) {
+                    if (res == "vpoho") {
+                        window.location.href = "./verify.php";
+                    }
+                    else {
+                        SendToast("Odpověď serveru", res, "error");
+                    }
+                }
+                else SendToast("Odpověď serveru", res, "error")
+            }
+        }
+        document.getElementById("email").addEventListener("change", () => {sent = false})
+    </script>
+</body>
+
+</html>

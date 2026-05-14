@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "./assets/config.php";
+require "../assets/config.php";
 ?>
 <h1>Školy</h1>
 <table class="styledTable">
@@ -14,7 +14,7 @@ require "./assets/config.php";
     </tr>
     <?php
     //Request users
-    $stmt = $conn->prepare("SELECT name, address  password FROM schools");
+    $stmt = $conn->prepare("SELECT name, address  password FROM schools_temaPropaganda");
     $stmt->execute();
     $stmt->store_result();
 
@@ -22,7 +22,7 @@ require "./assets/config.php";
     for ($i = 0; $i < $stmt->num_rows; $i++) {
         $stmt->bind_result($name, $address);
         $stmt->fetch();
-        ?>
+    ?>
         <tr>
             <td>
                 <button class="formButton formWarnColor">Upravit</button>
@@ -34,7 +34,7 @@ require "./assets/config.php";
             <td>NE</td>
             <td>?</td>
         </tr>
-        <?php
+    <?php
     }
     ?>
 </table>

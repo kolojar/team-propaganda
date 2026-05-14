@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Úte 07. dub 2026, 06:16
+-- Vytvořeno: Úte 28. dub 2026, 06:55
 -- Verze serveru: 12.2.2-MariaDB
--- Verze PHP: 8.5.4
+-- Verze PHP: 8.5.5
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,15 +24,44 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Struktura tabulky `companies_fields_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `companies_fields_teamPropaganda`;
+CREATE TABLE `companies_fields_teamPropaganda` (
+  `id_companies` int(11) UNSIGNED NOT NULL,
+  `id_fields` int(11) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `companies_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `companies_teamPropaganda`;
+CREATE TABLE `companies_teamPropaganda` (
+  `id_companies` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `icon` mediumblob DEFAULT NULL,
+  `short_info` varchar(255) DEFAULT NULL,
+  `long_info` varchar(255) DEFAULT NULL,
+  `id_users` int(11) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktura tabulky `email_send_teamPropaganda`
 --
 
-CREATE TABLE IF NOT EXISTS `email_send_teamPropaganda` (
-  `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `email_send_teamPropaganda`;
+CREATE TABLE `email_send_teamPropaganda` (
+  `id_email_send` int(10) UNSIGNED NOT NULL,
   `subject` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `send` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  PRIMARY KEY (`id_email_send`)
+  `isGlobal` int(3) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -41,14 +70,40 @@ CREATE TABLE IF NOT EXISTS `email_send_teamPropaganda` (
 -- Struktura tabulky `email_send_user_teamPropaganda`
 --
 
-CREATE TABLE IF NOT EXISTS `email_send_user_teamPropaganda` (
+DROP TABLE IF EXISTS `email_send_user_teamPropaganda`;
+CREATE TABLE `email_send_user_teamPropaganda` (
   `id_users` int(10) UNSIGNED NOT NULL,
   `id_email_send` int(10) UNSIGNED NOT NULL,
-  `sent` int(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id_users`,`id_email_send`),
-  KEY `id_email_send` (`id_email_send`),
-  KEY `id_users` (`id_users`)
+  `sent` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `fields_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `fields_teamPropaganda`;
+CREATE TABLE `fields_teamPropaganda` (
+  `id_fields` int(10) UNSIGNED NOT NULL,
+  `short` char(1) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `web_link` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Vypisuji data pro tabulku `fields_teamPropaganda`
+--
+
+INSERT INTO `fields_teamPropaganda` (`id_fields`, `short`, `name`, `web_link`) VALUES
+(1, 'M', 'Mechanik elektrotechnik', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/mechanik-elektrotechnik/'),
+(2, 'L', 'Elektrotechnika', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/elektrotechnika/'),
+(3, 'K', 'Elektromechanik pro zařízení a přístroje', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/elektromechanik-pro-zarizeni-a-pristroje/'),
+(4, 'R', 'Elektrikář', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/elektrikar/'),
+(5, 'V', 'Informační technologie', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/informacni-technologie/'),
+(6, 'T', 'Technické lyceum', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/technicke-obory/technicke-lyceum/'),
+(7, 'S', 'Sociální činnost – Sociálněsprávní činnost', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/socialni-a-ekonomicke-obory/socialnespravni-cinnost/'),
+(8, 'I', 'Ekonomika a podnikání', 'https://www.purkynka.cz/pro-uchazece/vyber-si-obor/socialni-a-ekonomicke-obory/ekonomika-podnikani/');
 
 -- --------------------------------------------------------
 
@@ -56,11 +111,11 @@ CREATE TABLE IF NOT EXISTS `email_send_user_teamPropaganda` (
 -- Struktura tabulky `schools_teamPropaganda`
 --
 
-CREATE TABLE IF NOT EXISTS `schools_teamPropaganda` (
-  `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `schools_teamPropaganda`;
+CREATE TABLE `schools_teamPropaganda` (
+  `id_schools` int(16) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  PRIMARY KEY (`id_schools`)
+  `address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -4419,19 +4474,118 @@ INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 -- Struktura tabulky `users_teamPropaganda`
 --
 
-CREATE TABLE IF NOT EXISTS `users_teamPropaganda` (
-  `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `users_teamPropaganda`;
+CREATE TABLE `users_teamPropaganda` (
+  `id_users` int(16) UNSIGNED NOT NULL,
   `email` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `surname` varchar(255) NOT NULL,
   `id_schools` int(16) UNSIGNED NOT NULL,
-  PRIMARY KEY (`id_users`),
-  KEY `school` (`id_schools`)
+  `isNILE` int(1) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Indexy pro exportované tabulky
+--
+
+--
+-- Indexy pro tabulku `companies_fields_teamPropaganda`
+--
+ALTER TABLE `companies_fields_teamPropaganda`
+  ADD PRIMARY KEY (`id_companies`,`id_fields`),
+  ADD KEY `id_fields` (`id_fields`);
+
+--
+-- Indexy pro tabulku `companies_teamPropaganda`
+--
+ALTER TABLE `companies_teamPropaganda`
+  ADD PRIMARY KEY (`id_companies`),
+  ADD KEY `id_users` (`id_users`);
+
+--
+-- Indexy pro tabulku `email_send_teamPropaganda`
+--
+ALTER TABLE `email_send_teamPropaganda`
+  ADD PRIMARY KEY (`id_email_send`);
+
+--
+-- Indexy pro tabulku `email_send_user_teamPropaganda`
+--
+ALTER TABLE `email_send_user_teamPropaganda`
+  ADD PRIMARY KEY (`id_users`,`id_email_send`),
+  ADD KEY `id_email_send` (`id_email_send`),
+  ADD KEY `id_users` (`id_users`);
+
+--
+-- Indexy pro tabulku `fields_teamPropaganda`
+--
+ALTER TABLE `fields_teamPropaganda`
+  ADD PRIMARY KEY (`id_fields`),
+  ADD UNIQUE KEY `short` (`short`);
+
+--
+-- Indexy pro tabulku `schools_teamPropaganda`
+--
+ALTER TABLE `schools_teamPropaganda`
+  ADD PRIMARY KEY (`id_schools`);
+
+--
+-- Indexy pro tabulku `users_teamPropaganda`
+--
+ALTER TABLE `users_teamPropaganda`
+  ADD PRIMARY KEY (`id_users`),
+  ADD KEY `school` (`id_schools`);
+
+--
+-- AUTO_INCREMENT pro tabulky
+--
+
+--
+-- AUTO_INCREMENT pro tabulku `companies_teamPropaganda`
+--
+ALTER TABLE `companies_teamPropaganda`
+  MODIFY `id_companies` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `email_send_teamPropaganda`
+--
+ALTER TABLE `email_send_teamPropaganda`
+  MODIFY `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `fields_teamPropaganda`
+--
+ALTER TABLE `fields_teamPropaganda`
+  MODIFY `id_fields` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `schools_teamPropaganda`
+--
+ALTER TABLE `schools_teamPropaganda`
+  MODIFY `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `users_teamPropaganda`
+--
+ALTER TABLE `users_teamPropaganda`
+  MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Omezení pro exportované tabulky
 --
+
+--
+-- Omezení pro tabulku `companies_fields_teamPropaganda`
+--
+ALTER TABLE `companies_fields_teamPropaganda`
+  ADD CONSTRAINT `id_companies` FOREIGN KEY (`id_companies`) REFERENCES `companies_teamPropaganda` (`id_companies`),
+  ADD CONSTRAINT `id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields_teamPropaganda` (`id_fields`);
+
+--
+-- Omezení pro tabulku `companies_teamPropaganda`
+--
+ALTER TABLE `companies_teamPropaganda`
+  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users_teamPropaganda` (`id_users`);
 
 --
 -- Omezení pro tabulku `email_send_user_teamPropaganda`
