@@ -46,7 +46,7 @@ if (isset($_GET["selectSubevent"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"events.php") ?>
+        <?php $result = setupTitlebar($conn, "events.php") ?>
     </header>
     <main>
         <?php
@@ -93,21 +93,28 @@ if (isset($_GET["selectSubevent"])) {
             for ($i = 0; $i < $stmt->num_rows; $i++) {
                 $stmt->bind_result($id, $date, $startTime, $endTime);
                 $stmt->fetch();
-                echo "<tr class='clickHighlightRow'>
-                        <td>
-                            <a href='./events.php?selectSubevent=$id'><button class='formButton formInfoColor'>Otevřít podpohled</button></a>
-                            <a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>
-                        </td>
-                        <td>$date</td>
-                        <td>$startTime</td>
-                        <td>$endTime</td>
-                    </tr>";
+                $date = DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                echo "<tr class='clickHighlightRow'>";
+                echo "<td>";
+                echo "<div class='formButtonBox'>";
+                echo "<a href='./events.php?selectSubevent=$id'><button class='formButton formInfoColor'>Otevřít podpohled</button></a>";
+                if($result->role == "admin") {
+                echo "<a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
+                echo "<button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>";
+                }
+                echo "</div>";
+                echo "</td>";
+                echo "<td>$date</td>";
+                echo "<td>$startTime</td>";
+                echo "<td>$endTime</td>";
+                echo "</tr>";
             }
             echo "</table>";
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
-            echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button class='formButton formWarnColor'>Vytvořit podudálost</button></a>";
+            if ($result->role == "admin") {
+                echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button class='formButton formWarnColor'>Vytvořit podudálost</button></a>";
+            }
             echo "<a href='./events.php?action=clearSubevent'><button class='formButton formErrorColor'>Zavřít podpohled</button></a>";
             echo "</div>";
             echo "</div>";
@@ -130,29 +137,48 @@ if (isset($_GET["selectSubevent"])) {
 
         //List all events in table
         for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $name, $type, $endTime, $activeUntil, $registrationOpen, $registrationClose);
+            $stmt->bind_result($id, $name, $type, $activeSince, $activeUntil, $registrationOpen, $registrationClose);
             $stmt->fetch();
-            echo "<tr class='clickHighlightRow'>
-                        <td>
-                            <a href='./events.php?selectEvent=$id'><button class='formButton formInfoColor'>Otevřít pohled</button></a>
-                            <a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>
-                        </td>
-                        <td>$name</td>
-                        <td>$type</td>
-                        <td>?</td>
-                        <td>?</td>
-                        <td>?</td>
-                    </tr>";
+            $currentDate = new DateTime();
+            $activeSinceDate = new DateTime($activeSince);
+            $activeUntilDate = new DateTime($activeUntil);
+            $isActive = "Ne";
+            $isRegistrationActive = "Ne";
+            if($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
+                $isActive = "Ano";
+            }
+            $registrationOpenDate = new DateTime($registrationOpen);
+            $registrationCloseDate = new DateTime($registrationClose);
+            if($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
+                $isRegistrationActive = "Ano";
+            }
+            echo "<tr class='clickHighlightRow'>";
+            echo "<td>";
+            echo "<div class='formButtonBox'>";
+            echo "<a href='./events.php?selectEvent=$id'><button class='formButton formInfoColor'>Otevřít pohled</button></a>";
+            if($result->role == "admin") {
+            echo "<a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
+            echo "<button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>";
+            }
+            echo "</td>";
+            echo "</div>";
+            echo "<td>$name</td>";
+            echo "<td>$type</td>";
+            echo "<td>$isActive</td>";
+            echo "<td>$isRegistrationActive</td>";
+            echo "<td>?</td>";
+            echo "</tr>";
         }
+        echo "</table>";
+        echo "<div class='formButtonBoxHolder'>";
+        echo "<div class='formButtonBox'>";
+        if ($result->role == "admin") {
+            echo "<a href='./event.php?newEvent=1'><button class='formButton formWarnColor'>Vytvořit událost</button></a>";
+        }
+        echo "<a href='./events.php?action=clearEvent'><button class='formButton formErrorColor'>Zavřít pohled</button></a>";
+        echo "</div>";
+        echo "</div>";
         ?>
-        </table>
-        <div class='formButtonBoxHolder'>
-            <div class='formButtonBox'>
-                <a href='./event.php?newEvent=1'><button class='formButton formWarnColor'>Vytvořit událost</button></a>
-                <a href='./events.php?action=clearEvent'><button class='formButton formErrorColor'>Zavřít pohled</button></a>
-            </div>
-        </div>
 
     </main>
     <footer>

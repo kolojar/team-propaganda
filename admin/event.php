@@ -97,7 +97,6 @@ if (isset($_POST["action"])) {
             <option value="denFirem" label="Den firem"></option>
         </datalist>
         <?php
-        const JS_TIME_FORMAT = 'Y-m-d\\TH:i';
         $name = "";
         $type = "";
         $description = "-";

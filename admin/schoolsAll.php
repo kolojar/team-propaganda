@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"schoolsAll.php") ?>
+        <?php setupTitlebar($conn, "schoolsAll.php") ?>
     </header>
     <main>
         <h1>Seznam všech škol</h1>
@@ -45,7 +45,7 @@ require "./adminFunctions.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users), GROUP_CONCAT(users.id_users) FROM users RIGHT JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools;");
+            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants a RIGHT JOIN schools s ON s.id_schools = a.id_attendants GROUP BY s.id_schools;");
             //$stmt->bind_param("ii", $page, $itemsPerPage);
             $stmt->execute();
             $stmt->store_result();
@@ -77,4 +77,5 @@ require "./adminFunctions.php";
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type="module" src="./schoolsAll.js"></script>
+
 </html>

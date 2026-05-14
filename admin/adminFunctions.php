@@ -1,5 +1,7 @@
 <?php
 const STANDARD_CZECH_TIME_FORMAT_FULL = 'd. m. Y H:i:s';
+const STANDARD_CZECH_DATE_FORMAT_FULL = 'd. m. Y';
+const JS_TIME_FORMAT = 'Y-m-d\\TH:i';
 
 class accessLevel
 {
@@ -25,15 +27,17 @@ class accessLevel
 $accessLevels = array(
     "admin.php" => new accessLevel(array("admin", "accountant"), false, false, true, true, "Hlavní menu"),
     "attendant.php" => new accessLevel(array("admin")),
-    "attendants.php" => new accessLevel(array("admin", "accountant"), true, false, true, true, "Zájemci"),
+    "attendants.php" => new accessLevel(array("admin"), true, false, true, true, "Zájemci"),
     "school.php" => new accessLevel(array("admin")),
     "schools.php" => new accessLevel(array("admin"), true, false, true, true, "Školy"),
     "schoolsAll.php" => new accessLevel(array("admin")),
     "classroom.php" => new accessLevel(array("admin"), false),
     "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
+    "payments.php" => new accessLevel(array("admin", "accountant"), true, false, true, true, "Platby"),
     "event.php" => new accessLevel(array("admin"), false),
+    "subevent.php" => new accessLevel(array("admin"), false),
     "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
-    "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost","formWarnColor"),
+    "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost", "formWarnColor"),
     "logout.php" => new accessLevel(array("*"), false, false, true, false, "Odhlásit se", "formErrorColor"),
     "accessDenied.php" => new accessLevel(array("*"), false)
 );
@@ -120,7 +124,7 @@ function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
                 $text = $value->titlebarButtonText;
                 $colorClass = $value->titlebarButtonColorClass;
                 $line = "<a href='$key'><button class='formButton $colorClass'>$text</button></a>";
-                if($value->hasTitlebarButtonLeft) {
+                if ($value->hasTitlebarButtonLeft) {
                     $buttonsLeftHtml .= $line;
                 } else {
                     $buttonsRightHtml .= $line;

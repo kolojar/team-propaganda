@@ -86,7 +86,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"subevent.php") ?>
+        <?php setupTitlebar($conn, "subevent.php") ?>
     </header>
     <main>
         <?php
@@ -108,23 +108,33 @@ if (isset($_POST["action"])) {
             $stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB);
             $stmt->fetch();
 
-            //Get event info
-            $stmt2 = $conn->prepare("SELECT name FROM events WHERE id_events = ?;");
-            $stmt2->bind_param("i", $eventId);
-            $stmt2->execute();
-            $stmt2->store_result();
-            $stmt2->bind_result($name);
-            $stmt2->fetch();
-            echo "<h1>Informace o události: $name → $dateDB </h1>";
         }
+        //Get event info
+        $stmt2 = $conn->prepare("SELECT name,registration_close,active_until FROM events WHERE id_events = ?;");
+        $stmt2->bind_param("i", $eventId);
+        $stmt2->execute();
+        $stmt2->store_result();
+        $stmt2->bind_result($name, $registrationCloseDB, $activeUntilDB);
+        $stmt2->fetch();
+        if (!isset($_GET["newSubevent"])) {
+            $dateFormated = new DateTime($dateDB)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+            echo "<h1>Informace o události: $name → $dateFormated </h1>";
+            echo "<i>Nedoporučuje se upravovat již proběhlé události, mohl by nastat chaos.</i><br><br>";
+        }
+
+        //Format dates
         $date = DateTime::createFromFormat('Y-m-d', $dateDB)->format("Y-m-d");
         $startTime = DateTime::createFromFormat('H:i:s', $startTimeDB)->format("H:i");
         $endTime = DateTime::createFromFormat('H:i:s', $endTimeDB)->format("H:i");
+        $registrationClose = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format("Y-m-d");
+        $registrationCloseTime = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format("H:i");
+        $activeUntil = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format("Y-m-d");
+        $activeUntilTime = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format("H:i");
         echo "<form-input label='K události:' style='display: none' type='hidden' class='subeventValidate' original-value='$eventId' id='id_events' value='$eventId'></form-input>";
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
         
         //Create HTML
-        echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' id='date' original-value='$date' value='$date'></form-input>";
+        echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
         echo "<br>";
         echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
         echo "<br>";

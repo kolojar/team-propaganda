@@ -16,8 +16,8 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Možnost přemístění celé učebny
   - [ ] ? Možnost propojení žáků jako kamarádů na přípravy + schválení
   - [ ] Platba - potvrzení v admin panelu + informace E-Mailem
-  - [ ] Platba musí mít variabilní symbol
-  - [ ] Platba musí jít vrátit + rušení účastníků
+  - [X] Platba musí mít variabilní symbol
+  - [X] Platba musí jít vrátit + rušení účastníků
   - [ ] Účetní admin panel + oznámení
   - [ ] Formulář / informace o oznámení
   - [ ] Uživatelský panel

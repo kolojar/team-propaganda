@@ -32,7 +32,8 @@ require "./adminFunctions.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,COUNT(users.id_users),  GROUP_CONCAT(users.id_users) FROM users JOIN schools ON users.id_schools = schools.id_schools GROUP BY schools.id_schools;");
+            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants a JOIN registered_attendants ra ON a.id_attendants = ra.id_attendants JOIN schools s ON s.id_schools = a.id_attendants WHERE ra.id_events = ?;");
+            $stmt->bind_param("i",$_COOKIE["adminEventId"]);
             $stmt->execute();
             $stmt->store_result();
 
