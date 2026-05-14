@@ -32,7 +32,7 @@ require "./adminFunctions.php";
         $found = false;
         //Request paid attendants
         if ($result->role == "admin") {
-            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants AS ra JOIN attendants AS a ON ra.id_attendants = a.id_attendants JOIN users AS u ON a.id_parent = u.id_users JOIN schools AS s ON a.id_schools = s.id_schools JOIN classrooms AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
+            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools JOIN classrooms_teamPropaganda AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
             $stmt->bind_param("i", $_COOKIE["adminEventId"]);
             $stmt->execute();
             $stmt->store_result();
@@ -67,7 +67,7 @@ require "./adminFunctions.php";
 
                     //Put in table
                     echo "<tr class='clickHighlightRow $highlightSchoolClass'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
@@ -90,7 +90,7 @@ require "./adminFunctions.php";
         //}
         
         //Request not paid attendants
-        $stmt = $conn->prepare("SELECT ra.registered,ra.variable_symbol, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants AS ra JOIN attendants AS a ON ra.id_attendants = a.id_attendants JOIN users AS u ON a.id_parent = u.id_users JOIN schools AS s ON a.id_schools = s.id_schools JOIN classrooms AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NULL AND ra.id_events = ?;");
+        $stmt = $conn->prepare("SELECT ra.registered,ra.variable_symbol, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools JOIN classrooms_teamPropaganda AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NULL AND ra.id_events = ?;");
         $stmt->bind_param("i", $_COOKIE["adminEventId"]);
         $stmt->execute();
         $stmt->store_result();
@@ -124,7 +124,7 @@ require "./adminFunctions.php";
 
                 //Put in table
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
@@ -141,7 +141,7 @@ require "./adminFunctions.php";
 
         //Request rejected attendants
         if ($result->role == "admin") {
-            $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants ua LEFT JOIN attendants a ON ua.id_attendants = a.id_attendants LEFT JOIN users u ON a.id_parent = u.id_users LEFT JOIN events e ON ua.id_events = e.id_events WHERE ua.id_events = ?");
+            $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE ua.id_events = ?");
             $stmt->bind_param("i", $_COOKIE["adminEventId"]);
             $stmt->execute();
             $stmt->store_result();
@@ -194,7 +194,7 @@ require "./adminFunctions.php";
         
                     //Put in table
                     echo "<tr class='clickHighlightRow'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <button class='formButton formErrorColor btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol'>Odstranit</button>
                         </td>
                         <td>$attendantFullName</td>

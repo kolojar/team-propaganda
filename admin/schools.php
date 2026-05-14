@@ -32,7 +32,7 @@ require "./adminFunctions.php";
             </tr>
             <?php
             //Request schools with student
-            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants a JOIN registered_attendants ra ON a.id_attendants = ra.id_attendants JOIN schools s ON s.id_schools = a.id_attendants WHERE ra.id_events = ?;");
+            $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_attendants WHERE ra.id_events = ?;");
             $stmt->bind_param("i",$_COOKIE["adminEventId"]);
             $stmt->execute();
             $stmt->store_result();
@@ -42,7 +42,7 @@ require "./adminFunctions.php";
                 $stmt->bind_result($id, $name, $address, $count, $users);
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a>
                             <a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>
                         </td>

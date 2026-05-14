@@ -33,7 +33,7 @@ require "./adminFunctions.php";
             </tr>
             <?php
             //Request classrooms
-            $stmt = $conn->prepare("SELECT id_classrooms, name,placesToSit, isFunctional,  note FROM classrooms");
+            $stmt = $conn->prepare("SELECT id_classrooms, name,placesToSit, isFunctional,  note FROM classrooms_teamPropaganda");
             $stmt->execute();
             $stmt->store_result();
 
@@ -43,7 +43,7 @@ require "./adminFunctions.php";
                 $stmt->fetch();
                 $isFunctionalString = $isFunctional == 1 ? "Ano" : "Ne";
                 echo "<tr class='clickHighlightRow'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./classroom.php?classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor btnTableDelete' classroom=$id classroomName='$name'>Odstranit</button>
                         </td>

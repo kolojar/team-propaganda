@@ -40,7 +40,7 @@ require "./adminFunctions.php";
             
             //Request users
             $stmt = $conn->prepare(
-                "SELECT id_users, name,surname, email,role,lastLogin FROM users",
+                "SELECT id_users, name,surname, email,role,lastLogin FROM users_teamPropaganda",
             );
             $stmt->execute();
             $stmt->store_result();
@@ -53,7 +53,7 @@ require "./adminFunctions.php";
 
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
-                        <td>
+                        <td class='formButtonBoxTable'>
                             <a href='./user.php?user=$id'><button class='formButton formWarnColor'>Upravit</button></a>
                             <button class='formButton formErrorColor deleteUserButton' userId=$id>Odstranit</button>
                         </td>

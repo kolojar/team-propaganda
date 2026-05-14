@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
+        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
         $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -33,7 +33,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("DELETE FROM unregistered_attendants WHERE variable_symbol=?");
+        $stmt = $conn->prepare("DELETE FROM unregistered_attendants_teamPropaganda WHERE variable_symbol=?");
         $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -53,9 +53,9 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $table = "registered_attendants";
+        $table = "registered_attendants_teamPropaganda";
         if ($_POST["unregistered"] == "1") {
-            $table = "unregistered_attendants";
+            $table = "unregistered_attendants_teamPropaganda";
         }
         $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,bank_account=? WHERE variable_symbol=?;");
         $stmt->bind_param("ssi", $_POST["paid"], $_POST["bank_account"], $_POST["id"]);
@@ -77,7 +77,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE unregistered_attendants SET refunded = CURRENT_TIMESTAMP() WHERE variable_symbol = ?;");
+        $stmt = $conn->prepare("UPDATE unregistered_attendants_teamPropaganda SET refunded = CURRENT_TIMESTAMP() WHERE variable_symbol = ?;");
         $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -97,7 +97,7 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
         $stmt->bind_param("i", $_POST["id"]);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -109,7 +109,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Insert SQL entry
-        $stmt = $conn->prepare("INSERT INTO unregistered_attendants(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
+        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
         $stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -118,7 +118,7 @@ if (isset($_POST["action"])) {
         }
 
         //Delete SQL entry
-        $stmt = $conn->prepare("DELETE FROM registered_attendants WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
         $stmt->bind_param("i", $_POST["id"]);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -159,7 +159,7 @@ if (isset($_POST["action"])) {
     <main>
         <?php
         //Get attendant info
-        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants WHERE id_attendants=? LIMIT 1");
+        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants_teamPropaganda WHERE id_attendants=? LIMIT 1");
         $stmt->bind_param("i", $_GET["attendant"]);
         $stmt->execute();
         $stmt->store_result();
@@ -167,7 +167,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Get attendant's school info
-        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools WHERE schools.id_schools = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
         $stmt->bind_param("i", $idSchool);
         $stmt->execute();
         $stmt->store_result();
@@ -175,7 +175,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Get attendant's parent info
-        $stmt = $conn->prepare("SELECT name,surname,email FROM users WHERE id_users = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT name,surname,email FROM users_teamPropaganda WHERE id_users = ? LIMIT 1");
         $stmt->bind_param("i", $idParent);
         $stmt->execute();
         $stmt->store_result();

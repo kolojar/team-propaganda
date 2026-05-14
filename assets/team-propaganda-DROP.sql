@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Počítač: localhost
--- Vytvořeno: Čtv 14. kvě 2026, 07:39
+-- Vytvořeno: Čtv 14. kvě 2026, 13:56
 -- Verze serveru: 12.2.2-MariaDB
 -- Verze PHP: 8.5.6
 
@@ -26,11 +26,24 @@ USE `team-propaganda`;
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `attendants`
+-- Struktura tabulky `attendants_presence_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `attendants`;
-CREATE TABLE `attendants` (
+DROP TABLE IF EXISTS `attendants_presence_teamPropaganda`;
+CREATE TABLE `attendants_presence_teamPropaganda` (
+  `id_subevents` int(11) UNSIGNED NOT NULL,
+  `id_attendants` int(11) UNSIGNED NOT NULL,
+  `present` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `attendants_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `attendants_teamPropaganda`;
+CREATE TABLE `attendants_teamPropaganda` (
   `id_attendants` int(10) UNSIGNED NOT NULL,
   `id_parent` int(10) UNSIGNED NOT NULL,
   `id_schools` int(10) UNSIGNED NOT NULL,
@@ -41,24 +54,11 @@ CREATE TABLE `attendants` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `attendants_presence`
+-- Struktura tabulky `classrooms_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `attendants_presence`;
-CREATE TABLE `attendants_presence` (
-  `id_subevents` int(11) UNSIGNED NOT NULL,
-  `id_attendants` int(11) UNSIGNED NOT NULL,
-  `present` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Struktura tabulky `classrooms`
---
-
-DROP TABLE IF EXISTS `classrooms`;
-CREATE TABLE `classrooms` (
+DROP TABLE IF EXISTS `classrooms_teamPropaganda`;
+CREATE TABLE `classrooms_teamPropaganda` (
   `id_classrooms` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `placesToSit` int(11) NOT NULL,
@@ -69,37 +69,67 @@ CREATE TABLE `classrooms` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `email_send`
+-- Struktura tabulky `companies_fields_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `email_send`;
-CREATE TABLE `email_send` (
+DROP TABLE IF EXISTS `companies_fields_teamPropaganda`;
+CREATE TABLE `companies_fields_teamPropaganda` (
+  `id_companies` int(11) UNSIGNED NOT NULL,
+  `id_fields` int(11) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `companies_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `companies_teamPropaganda`;
+CREATE TABLE `companies_teamPropaganda` (
+  `id_companies` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `icon` mediumblob DEFAULT NULL,
+  `short_info` varchar(255) DEFAULT NULL,
+  `long_info` varchar(255) DEFAULT NULL,
+  `id_users` int(11) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `email_send_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `email_send_teamPropaganda`;
+CREATE TABLE `email_send_teamPropaganda` (
   `id_email_send` int(10) UNSIGNED NOT NULL,
   `subject` varchar(255) NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+  `message` text NOT NULL,
+  `send` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `isGlobal` int(3) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `email_send_user`
+-- Struktura tabulky `email_send_user_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `email_send_user`;
-CREATE TABLE `email_send_user` (
+DROP TABLE IF EXISTS `email_send_user_teamPropaganda`;
+CREATE TABLE `email_send_user_teamPropaganda` (
   `id_users` int(10) UNSIGNED NOT NULL,
-  `id_email_send` int(10) UNSIGNED NOT NULL
+  `id_email_send` int(10) UNSIGNED NOT NULL,
+  `sent` int(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `events`
+-- Struktura tabulky `events_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `events`;
-CREATE TABLE `events` (
+DROP TABLE IF EXISTS `events_teamPropaganda`;
+CREATE TABLE `events_teamPropaganda` (
   `id_events` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `type` enum('kurzy','prijimacky','dod','denFirem') NOT NULL,
@@ -117,11 +147,25 @@ CREATE TABLE `events` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `registered_attendants`
+-- Struktura tabulky `fields_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `registered_attendants`;
-CREATE TABLE `registered_attendants` (
+DROP TABLE IF EXISTS `fields_teamPropaganda`;
+CREATE TABLE `fields_teamPropaganda` (
+  `id_fields` int(10) UNSIGNED NOT NULL,
+  `short` char(1) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `web_link` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabulky `registered_attendants_teamPropaganda`
+--
+
+DROP TABLE IF EXISTS `registered_attendants_teamPropaganda`;
+CREATE TABLE `registered_attendants_teamPropaganda` (
   `variable_symbol` bigint(10) UNSIGNED NOT NULL,
   `id_attendants` int(11) UNSIGNED NOT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
@@ -134,21 +178,21 @@ CREATE TABLE `registered_attendants` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `schools`
+-- Struktura tabulky `schools_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `schools`;
-CREATE TABLE `schools` (
+DROP TABLE IF EXISTS `schools_teamPropaganda`;
+CREATE TABLE `schools_teamPropaganda` (
   `id_schools` int(16) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Vypisuji data pro tabulku `schools`
+-- Vypisuji data pro tabulku `schools_teamPropaganda`
 --
 
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (1, 'Modrý klíč - základní škola speciální a mateřská škola speciální, o.p.s.', 'Smolkova 567 , Praha 142 00'),
 (2, 'ARCHA základní škola a mateřská škola při Církvi československé husitské', '74 , Petroupim 256 01'),
 (3, 'Mateřská škola a základní škola Sluníčko - Montessori, s.r.o.', 'Šrámkova 432 , Brno 638 00'),
@@ -611,9 +655,9 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (460, 'Základní škola a Mateřská škola Červený vrch, Praha 6, Alžírská 26', 'Alžírská 680 , Praha 160 00'),
 (461, 'Základní škola a Mateřská škola, Praha 6, Bílá 1', 'Bílá 1784 , Praha 160 00'),
 (462, 'Základní škola a Mateřská škola, Praha 6, Na Dlouhém lánu 43', 'Na dlouhém lánu 555 , Praha 160 00'),
-(463, 'Základní škola Petřiny - sever, Praha 6, Na Okraji 43', 'Na okraji 305 , Praha 162 00'),
-(464, 'Základní škola a Mateřská škola T. G. Masaryka, Praha 6, náměstí Českého povstání 6', 'náměstí Českého povstání 511 , Praha 161 00');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(463, 'Základní škola Petřiny - sever, Praha 6, Na Okraji 43', 'Na okraji 305 , Praha 162 00');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
+(464, 'Základní škola a Mateřská škola T. G. Masaryka, Praha 6, náměstí Českého povstání 6', 'náměstí Českého povstání 511 , Praha 161 00'),
 (465, 'Základní škola a Mateřská škola Antonína Čermáka, Praha 6', 'Antonína Čermáka 1022 , Praha 160 00'),
 (466, 'Základní škola a Mateřská škola Emy Destinnové, Praha 6, náměstí Svobody 3/930', 'náměstí Svobody 930 , Praha 160 00'),
 (467, 'Základní škola a Mateřská škola, Praha 6, náměstí Svobody 2', 'náměstí Svobody 930 , Praha 160 00'),
@@ -1131,10 +1175,10 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (979, 'Základní škola a mateřská škola Pavlíkov, okres Rakovník', '77 , Pavlíkov 270 21'),
 (980, 'Základní škola a Mateřská škola Kolešovice, okres Rakovník', '235 , Kolešovice 270 02'),
 (981, 'Základní škola a Mateřská škola Čistá, okres Rakovník', 'Tyršova 127 , Čistá 270 34'),
-(982, 'Základní škola a mateřská škola Jesenice, okres Rakovník', 'Školní 323 , Jesenice 270 33'),
+(982, 'Základní škola a mateřská škola Jesenice, okres Rakovník', 'Školní 323 , Jesenice 270 33');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (983, 'Základní škola a Mateřská škola Kounov, okres Rakovník', '196 , Kounov 270 06'),
-(984, 'Základní škola a Mateřská škola Křivoklát', '157 , Křivoklát 270 23');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(984, 'Základní škola a Mateřská škola Křivoklát', '157 , Křivoklát 270 23'),
 (985, 'Základní škola Charlotty Garrigue Masarykové Lány, okres Kladno', 'Školní 93 , Lány 270 61'),
 (986, 'Základní škola a mateřská škola Lužná, příspěvková organizace', 'Masarykovo nám. 252 , Lužná 270 51'),
 (987, 'Základní škola Mutějovice, okres Rakovník', 'Husova 245 , Mutějovice 270 07'),
@@ -1620,10 +1664,10 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (1467, 'Základní škola Údlice, okres Chomutov', 'Stará Čtvrť 363 , Údlice 431 41'),
 (1468, 'Základní škola Jirkov, Studentská 1427, okres Chomutov', 'Studentská 1427 , Jirkov 431 11'),
 (1469, 'Základní škola Chomutov, Zahradní 5265', 'Zahradní 5265 , Chomutov 430 04'),
-(1470, 'Městské gymnázium a Základní škola Jirkov', 'Krušnohorská 1675 , Jirkov 431 11'),
+(1470, 'Městské gymnázium a Základní škola Jirkov', 'Krušnohorská 1675 , Jirkov 431 11');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (1471, 'Základní škola, Klášterec nad Ohří, Krátká 676, okres Chomutov', 'Krátká 676 , Klášterec nad Ohří 431 51'),
-(1472, 'Základní škola, Klášterec nad Ohří, Petlérská 447, okres Chomutov', 'Petlérská 447 , Klášterec nad Ohří 431 51');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(1472, 'Základní škola, Klášterec nad Ohří, Petlérská 447, okres Chomutov', 'Petlérská 447 , Klášterec nad Ohří 431 51'),
 (1473, 'Základní škola a Mateřská škola Vysoká Pec, okres Chomutov, příspěvková organizace', 'Julia Fučíka 40 , Vysoká Pec 431 59'),
 (1474, 'Základní škola a Mateřská škola, Chomutov, 17. listopadu 4728, příspěvková organizace', '17. listopadu 4728 , Chomutov 430 04'),
 (1475, 'Základní škola a mateřská škola při nemocnici, Kadaň, Chomutovská 1289', 'Chomutovská 1289 , Kadaň 432 01'),
@@ -2103,11 +2147,11 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (1949, 'Základní škola a Mateřská škola Slaná, příspěvková organizace', '68 , Slaná 512 01'),
 (1950, 'Základní škola Ohrazenice, okres Semily - příspěvková organizace', '88 , Ohrazenice 511 01'),
 (1951, 'Masarykova základní škola Libštát, příspěvková organizace', '17 , Libštát 512 03'),
-(1952, 'Základní škola Rovensko pod Troskami, příspěvková organizace', 'Revoluční 413 , Rovensko pod Troskami 512 63'),
+(1952, 'Základní škola Rovensko pod Troskami, příspěvková organizace', 'Revoluční 413 , Rovensko pod Troskami 512 63');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (1953, 'Základní škola Turnov, 28. října 18, příspěvková organizace', '28. října 18 , Turnov 511 01'),
 (1954, 'Waldorfská základní škola a střední škola Semily, příspěvková organizace', 'Tyršova 485 , Semily 513 01'),
-(1955, 'Základní škola, Mírová pod Kozákovem, příspěvková organizace', '31 , Mírová pod Kozákovem 511 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(1955, 'Základní škola, Mírová pod Kozákovem, příspěvková organizace', '31 , Mírová pod Kozákovem 511 01'),
 (1956, 'Základní škola a Mateřská škola Josefa Šíra, Horní Branná, příspěvková organizace', '257 , Horní Branná 512 36'),
 (1957, 'Krkonošská základní škola a mateřská škola Vítkovice, příspěvková organizace', '28 , Vítkovice 512 38'),
 (1958, 'Základní škola Jilemnice, Komenského 288, příspěvková organizace', 'Komenského 288 , Jilemnice 514 01'),
@@ -2404,7 +2448,7 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (2249, 'Základní škola Modřice, okres Brno-venkov, příspěvková organizace', 'Benešova 332 , Modřice 664 42'),
 (2250, 'Základní škola Mokrá-Horákov, příspěvková organizace', '352 , Mokrá-Horákov 664 04'),
 (2251, 'Základní škola  a Mateřská škola Ořechov, okres Brno-venkov, příspěvková organizace', 'Komenského 703 , Ořechov 664 44'),
-(2252, 'Základní škola Oslavany, okres Brno-venkov', 'Hlavní 850, Oslavany 664 12'),
+(2252, 'Základní škola Oslavany, okres Brno-venkov', 'Hlavní 850 , Oslavany 664 12'),
 (2253, 'Základní škola a mateřská škola Pozořice, příspěvková organizace', 'U školy 386 , Pozořice 664 07'),
 (2254, 'Základní škola T.G. Masaryka Rajhrad, okres Brno-venkov, příspěvková organizace', 'Havlíčkova 452 , Rajhrad 664 61'),
 (2255, 'Základní škola Rosice, příspěvková organizace', 'Pod Zahrádkami 120 , Rosice 665 01'),
@@ -2587,11 +2631,11 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (2432, 'Základní škola a Mateřská škola, Moravský Písek, příspěvková organizace', 'Velkomoravská 168 , Moravský Písek 696 85'),
 (2433, 'Základní škola a Mateřská škola Nenkovice, okres Hodonín, příspěvková organizace', '222 , Nenkovice 696 37'),
 (2434, 'Základní škola a mateřská škola Nová Lhota, okres Hodonín, příspěvková organizace', '241 , Nová Lhota 696 74'),
-(2435, 'Základní škola a Mateřská škola Prušánky, okres Hodonín, příspěvková organizace', '289 , Prušánky 696 21'),
+(2435, 'Základní škola a Mateřská škola Prušánky, okres Hodonín, příspěvková organizace', '289 , Prušánky 696 21');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (2436, 'Základní škola a mateřská škola Rohatec, příspěvková organizace', 'Školní 742 , Rohatec 696 01'),
 (2437, 'Základní škola M. Kudeříkové, Strážnice, Příční 1365, příspěvková organizace', 'Příční 1365 , Strážnice 696 62'),
-(2438, 'Základní škola a Mateřská škola Svatobořice-Mistřín, okres Hodonín, příspěvková organizace', 'Hlavní 871 , Svatobořice-Mistřín 696 04');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(2438, 'Základní škola a Mateřská škola Svatobořice-Mistřín, okres Hodonín, příspěvková organizace', 'Hlavní 871 , Svatobořice-Mistřín 696 04'),
 (2439, 'Základní škola T. G. Masaryka Šardice, okres Hodonín, příspěvková organizace', '521 , Šardice 696 13'),
 (2440, 'Masarykova základní škola Velká nad Veličkou, příspěvková organizace', '461 , Velká nad Veličkou 696 74'),
 (2441, 'Základní škola Vnorovy, okres Hodonín, příspěvková organizace', 'Hlavní 17 , Vnorovy 696 61'),
@@ -3059,12 +3103,12 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (2903, 'Základní škola a Mateřská škola Dolní Lomná 149, příspěvková organizace', '149 , Dolní Lomná 739 91'),
 (2904, 'Základní škola Fryčovice, okres Frýdek-Místek, příspěvková organizace', '628 , Fryčovice 739 45'),
 (2905, 'Základní škola Frýdek-Místek, 1. máje 1700', '1. máje 1700 , Frýdek-Místek 738 01'),
-(2906, 'Základní škola Frýdek-Místek, El. Krásnohorské 2254', 'El. Krásnohorské 2254 , Frýdek-Místek 738 01'),
+(2906, 'Základní škola Frýdek-Místek, El. Krásnohorské 2254', 'El. Krásnohorské 2254 , Frýdek-Místek 738 01');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (2907, 'Základní škola Frýdek-Místek, Jiřího z Poděbrad 3109', 'Jiřího z Poděbrad 3109 , Frýdek-Místek 738 01'),
 (2908, 'Základní škola a mateřská škola Frýdek-Místek, Lískovec, K Sedlištím 320', 'K Sedlištím 320 , Frýdek-Místek 738 01'),
 (2909, 'Základní škola Frýdek-Místek, Komenského 402', 'Komenského 402 , Frýdek-Místek 738 01'),
-(2910, 'Základní škola Frýdek-Místek, Pionýrů 400', 'Pionýrů 400 , Frýdek-Místek 738 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(2910, 'Základní škola Frýdek-Místek, Pionýrů 400', 'Pionýrů 400 , Frýdek-Místek 738 01'),
 (2911, 'Základní škola a mateřská škola Frýdek-Místek - Skalice 192, příspěvková organizace', '192 , Frýdek-Místek 738 01'),
 (2912, 'Základní škola a mateřská škola Pstruží, příspěvková organizace', '104 , Pstruží 739 11'),
 (2913, 'Základní škola Frýdlant nad Ostravicí, náměstí T. G. Masaryka 1260, příspěvková organizace', 'Nám. T. G. Masaryka 1260 , Frýdlant nad Ostravicí 739 11'),
@@ -3505,11 +3549,11 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (3348, 'Základní škola a Mateřská škola Loučná nad Desnou, příspěvková organizace', '58 , Loučná nad Desnou 788 11'),
 (3349, 'Základní škola Šumperk, Sluneční 38', 'Sluneční 2692 , Šumperk 787 01'),
 (3350, 'Základní škola a Mateřská škola Nemile, příspěvková organizace', '90 , Nemile 789 01'),
-(3351, 'Základní škola a Mateřská škola Bušín, okres Šumperk, příspěvková organizace', '150 , Bušín 789 62'),
+(3351, 'Základní škola a Mateřská škola Bušín, okres Šumperk, příspěvková organizace', '150 , Bušín 789 62');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (3352, 'Základní škola Šumperk, Dr.E.Beneše 1', 'Dr. E. Beneše 974 , Šumperk 787 01'),
 (3353, 'Základní škola a mateřská škola Kamenná, okres Šumperk, příspěvková organizace', '66 , Kamenná 789 74'),
-(3354, 'Základní škola Valašské Meziříčí, Šafaříkova 726, okres Vsetín, příspěvková organizace', 'Šafaříkova 726 , Valašské Meziříčí 757 01');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(3354, 'Základní škola Valašské Meziříčí, Šafaříkova 726, okres Vsetín, příspěvková organizace', 'Šafaříkova 726 , Valašské Meziříčí 757 01'),
 (3355, 'Základní škola Valašské Meziříčí, Masarykova 291, okres Vsetín, příspěvková organizace', 'Masarykova 291 , Valašské Meziříčí 757 01'),
 (3356, 'Základní škola Lešná, okres Vsetín', '133 , Lešná 756 41'),
 (3357, 'Základní škola Valašské Meziříčí, Vyhlídka 380, okres Vsetín, příspěvková organizace', 'Králova 380 , Valašské Meziříčí 757 01'),
@@ -3996,11 +4040,11 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 (3838, 'Základní škola a mateřská škola, Praskačka, okres Hradec Králové', '60 , Praskačka 503 33'),
 (3839, 'Základní škola a Mateřská škola, Smidary, okres Hradec Králové', 'J. A. Komenského 326 , Smidary 503 53'),
 (3840, 'Základní škola a mateřská škola, Skřivany, okres Hradec Králové', 'Dr. Vojtěcha 100 , Skřivany 503 52'),
-(3841, 'Základní škola a mateřská škola, Předměřice nad Labem, okres Hradec Králové', 'Školská 279 , Předměřice nad Labem 503 02'),
+(3841, 'Základní škola a mateřská škola, Předměřice nad Labem, okres Hradec Králové', 'Školská 279 , Předměřice nad Labem 503 02');
+INSERT INTO `schools_teamPropaganda` (`id_schools`, `name`, `address`) VALUES
 (3842, 'Základní škola a mateřská škola, Mžany, okres Hradec Králové', '62 , Mžany 503 15'),
 (3843, 'Základní škola, Základní umělecká škola a Mateřská škola Kašperské Hory, příspěvková organizace', 'Vimperská 230 , Kašperské Hory 341 92'),
-(3844, 'Základní škola Manětín, příspěvková organizace', '12 , Manětín 331 62');
-INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
+(3844, 'Základní škola Manětín, příspěvková organizace', '12 , Manětín 331 62'),
 (3845, 'Základní škola a Mateřská škola Ejpovice, okres Rokycany, příspěvková organizace', 'Hlavní 87 , Ejpovice 337 01'),
 (3846, 'Základní škola a mateřská škola Postřekov, příspěvková organizace', '271 , Postřekov 345 35'),
 (3847, 'Základní škola a Mateřská škola T. G. Masaryka Sedlice, okres Strakonice', 'Komenského 256 , Sedlice 387 32'),
@@ -4505,11 +4549,11 @@ INSERT INTO `schools` (`id_schools`, `name`, `address`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `subevents`
+-- Struktura tabulky `subevents_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `subevents`;
-CREATE TABLE `subevents` (
+DROP TABLE IF EXISTS `subevents_teamPropaganda`;
+CREATE TABLE `subevents_teamPropaganda` (
   `id_subevents` int(11) UNSIGNED NOT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp(),
@@ -4520,11 +4564,11 @@ CREATE TABLE `subevents` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `unregistered_attendants`
+-- Struktura tabulky `unregistered_attendants_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `unregistered_attendants`;
-CREATE TABLE `unregistered_attendants` (
+DROP TABLE IF EXISTS `unregistered_attendants_teamPropaganda`;
+CREATE TABLE `unregistered_attendants_teamPropaganda` (
   `variable_symbol` bigint(10) UNSIGNED NOT NULL,
   `id_attendants` int(11) UNSIGNED DEFAULT NULL,
   `id_events` int(11) UNSIGNED NOT NULL,
@@ -4539,16 +4583,17 @@ CREATE TABLE `unregistered_attendants` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabulky `users`
+-- Struktura tabulky `users_teamPropaganda`
 --
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
+DROP TABLE IF EXISTS `users_teamPropaganda`;
+CREATE TABLE `users_teamPropaganda` (
   `id_users` int(16) UNSIGNED NOT NULL,
   `email` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `surname` varchar(255) NOT NULL,
-  `role` enum('user','admin','accountant') NOT NULL DEFAULT 'user',
+  `isNILE` int(1) UNSIGNED NOT NULL DEFAULT 0,
+  `role` enum('admin','accountant','user') NOT NULL DEFAULT 'user',
   `lastLogin` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -4557,81 +4602,100 @@ CREATE TABLE `users` (
 --
 
 --
--- Indexy pro tabulku `attendants`
+-- Indexy pro tabulku `attendants_presence_teamPropaganda`
 --
-ALTER TABLE `attendants`
+ALTER TABLE `attendants_presence_teamPropaganda`
+  ADD PRIMARY KEY (`id_subevents`,`id_attendants`),
+  ADD KEY `attendant` (`id_attendants`);
+
+--
+-- Indexy pro tabulku `attendants_teamPropaganda`
+--
+ALTER TABLE `attendants_teamPropaganda`
   ADD PRIMARY KEY (`id_attendants`),
   ADD KEY `parents` (`id_parent`),
   ADD KEY `schools` (`id_schools`);
 
 --
--- Indexy pro tabulku `attendants_presence`
+-- Indexy pro tabulku `classrooms_teamPropaganda`
 --
-ALTER TABLE `attendants_presence`
-  ADD PRIMARY KEY (`id_subevents`,`id_attendants`),
-  ADD KEY `attendant` (`id_attendants`);
-
---
--- Indexy pro tabulku `classrooms`
---
-ALTER TABLE `classrooms`
+ALTER TABLE `classrooms_teamPropaganda`
   ADD PRIMARY KEY (`id_classrooms`);
 
 --
--- Indexy pro tabulku `email_send`
+-- Indexy pro tabulku `companies_fields_teamPropaganda`
 --
-ALTER TABLE `email_send`
+ALTER TABLE `companies_fields_teamPropaganda`
+  ADD PRIMARY KEY (`id_companies`,`id_fields`),
+  ADD KEY `id_fields` (`id_fields`);
+
+--
+-- Indexy pro tabulku `companies_teamPropaganda`
+--
+ALTER TABLE `companies_teamPropaganda`
+  ADD PRIMARY KEY (`id_companies`),
+  ADD KEY `id_users` (`id_users`);
+
+--
+-- Indexy pro tabulku `email_send_teamPropaganda`
+--
+ALTER TABLE `email_send_teamPropaganda`
   ADD PRIMARY KEY (`id_email_send`);
 
 --
--- Indexy pro tabulku `email_send_user`
+-- Indexy pro tabulku `email_send_user_teamPropaganda`
 --
-ALTER TABLE `email_send_user`
+ALTER TABLE `email_send_user_teamPropaganda`
   ADD PRIMARY KEY (`id_users`,`id_email_send`),
   ADD KEY `id_email_send` (`id_email_send`),
   ADD KEY `id_users` (`id_users`);
 
 --
--- Indexy pro tabulku `events`
+-- Indexy pro tabulku `events_teamPropaganda`
 --
-ALTER TABLE `events`
+ALTER TABLE `events_teamPropaganda`
   ADD PRIMARY KEY (`id_events`);
 
 --
--- Indexy pro tabulku `registered_attendants`
+-- Indexy pro tabulku `fields_teamPropaganda`
 --
-ALTER TABLE `registered_attendants`
+ALTER TABLE `fields_teamPropaganda`
+  ADD PRIMARY KEY (`id_fields`),
+  ADD UNIQUE KEY `short` (`short`);
+
+--
+-- Indexy pro tabulku `registered_attendants_teamPropaganda`
+--
+ALTER TABLE `registered_attendants_teamPropaganda`
   ADD PRIMARY KEY (`variable_symbol`),
   ADD UNIQUE KEY `id_attendants` (`id_attendants`,`id_events`),
   ADD KEY `classroom` (`id_classrooms`),
   ADD KEY `event` (`id_events`);
 
 --
--- Indexy pro tabulku `schools`
+-- Indexy pro tabulku `schools_teamPropaganda`
 --
-ALTER TABLE `schools`
+ALTER TABLE `schools_teamPropaganda`
   ADD PRIMARY KEY (`id_schools`);
-ALTER TABLE `schools` ADD FULLTEXT KEY `name` (`name`);
-ALTER TABLE `schools` ADD FULLTEXT KEY `address` (`address`);
 
 --
--- Indexy pro tabulku `subevents`
+-- Indexy pro tabulku `subevents_teamPropaganda`
 --
-ALTER TABLE `subevents`
+ALTER TABLE `subevents_teamPropaganda`
   ADD PRIMARY KEY (`id_subevents`),
   ADD KEY `events` (`id_events`);
 
 --
--- Indexy pro tabulku `unregistered_attendants`
+-- Indexy pro tabulku `unregistered_attendants_teamPropaganda`
 --
-ALTER TABLE `unregistered_attendants`
+ALTER TABLE `unregistered_attendants_teamPropaganda`
   ADD PRIMARY KEY (`variable_symbol`),
   ADD KEY `events` (`id_events`);
 
 --
--- Indexy pro tabulku `users`
+-- Indexy pro tabulku `users_teamPropaganda`
 --
-ALTER TABLE `users`
+ALTER TABLE `users_teamPropaganda`
   ADD PRIMARY KEY (`id_users`);
 
 --
@@ -4639,51 +4703,63 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT pro tabulku `attendants`
+-- AUTO_INCREMENT pro tabulku `attendants_teamPropaganda`
 --
-ALTER TABLE `attendants`
+ALTER TABLE `attendants_teamPropaganda`
   MODIFY `id_attendants` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `classrooms`
+-- AUTO_INCREMENT pro tabulku `classrooms_teamPropaganda`
 --
-ALTER TABLE `classrooms`
+ALTER TABLE `classrooms_teamPropaganda`
   MODIFY `id_classrooms` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `email_send`
+-- AUTO_INCREMENT pro tabulku `companies_teamPropaganda`
 --
-ALTER TABLE `email_send`
+ALTER TABLE `companies_teamPropaganda`
+  MODIFY `id_companies` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `email_send_teamPropaganda`
+--
+ALTER TABLE `email_send_teamPropaganda`
   MODIFY `id_email_send` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `events`
+-- AUTO_INCREMENT pro tabulku `events_teamPropaganda`
 --
-ALTER TABLE `events`
+ALTER TABLE `events_teamPropaganda`
   MODIFY `id_events` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `registered_attendants`
+-- AUTO_INCREMENT pro tabulku `fields_teamPropaganda`
 --
-ALTER TABLE `registered_attendants`
+ALTER TABLE `fields_teamPropaganda`
+  MODIFY `id_fields` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pro tabulku `registered_attendants_teamPropaganda`
+--
+ALTER TABLE `registered_attendants_teamPropaganda`
   MODIFY `variable_symbol` bigint(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `schools`
+-- AUTO_INCREMENT pro tabulku `schools_teamPropaganda`
 --
-ALTER TABLE `schools`
+ALTER TABLE `schools_teamPropaganda`
   MODIFY `id_schools` int(16) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4345;
 
 --
--- AUTO_INCREMENT pro tabulku `subevents`
+-- AUTO_INCREMENT pro tabulku `subevents_teamPropaganda`
 --
-ALTER TABLE `subevents`
+ALTER TABLE `subevents_teamPropaganda`
   MODIFY `id_subevents` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pro tabulku `users`
+-- AUTO_INCREMENT pro tabulku `users_teamPropaganda`
 --
-ALTER TABLE `users`
+ALTER TABLE `users_teamPropaganda`
   MODIFY `id_users` int(16) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -4691,46 +4767,59 @@ ALTER TABLE `users`
 --
 
 --
--- Omezení pro tabulku `attendants`
+-- Omezení pro tabulku `attendants_presence_teamPropaganda`
 --
-ALTER TABLE `attendants`
-  ADD CONSTRAINT `parents` FOREIGN KEY (`id_parent`) REFERENCES `users` (`id_users`),
-  ADD CONSTRAINT `schools` FOREIGN KEY (`id_schools`) REFERENCES `schools` (`id_schools`);
+ALTER TABLE `attendants_presence_teamPropaganda`
+  ADD CONSTRAINT `attendant` FOREIGN KEY (`id_attendants`) REFERENCES `attendants_teamPropaganda` (`id_attendants`),
+  ADD CONSTRAINT `subevent` FOREIGN KEY (`id_subevents`) REFERENCES `subevents_teamPropaganda` (`id_subevents`);
 
 --
--- Omezení pro tabulku `attendants_presence`
+-- Omezení pro tabulku `attendants_teamPropaganda`
 --
-ALTER TABLE `attendants_presence`
-  ADD CONSTRAINT `attendant` FOREIGN KEY (`id_attendants`) REFERENCES `attendants` (`id_attendants`),
-  ADD CONSTRAINT `subevent` FOREIGN KEY (`id_subevents`) REFERENCES `subevents` (`id_subevents`);
+ALTER TABLE `attendants_teamPropaganda`
+  ADD CONSTRAINT `parents` FOREIGN KEY (`id_parent`) REFERENCES `users_teamPropaganda` (`id_users`),
+  ADD CONSTRAINT `schools` FOREIGN KEY (`id_schools`) REFERENCES `schools_teamPropaganda` (`id_schools`);
 
 --
--- Omezení pro tabulku `email_send_user`
+-- Omezení pro tabulku `companies_fields_teamPropaganda`
 --
-ALTER TABLE `email_send_user`
-  ADD CONSTRAINT `id_email_send` FOREIGN KEY (`id_email_send`) REFERENCES `email_send` (`id_email_send`),
-  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`);
+ALTER TABLE `companies_fields_teamPropaganda`
+  ADD CONSTRAINT `id_companies` FOREIGN KEY (`id_companies`) REFERENCES `companies_teamPropaganda` (`id_companies`),
+  ADD CONSTRAINT `id_fields` FOREIGN KEY (`id_fields`) REFERENCES `fields_teamPropaganda` (`id_fields`);
 
 --
--- Omezení pro tabulku `registered_attendants`
+-- Omezení pro tabulku `companies_teamPropaganda`
 --
-ALTER TABLE `registered_attendants`
-  ADD CONSTRAINT `attendant` FOREIGN KEY (`id_attendants`) REFERENCES `attendants` (`id_attendants`),
-  ADD CONSTRAINT `classroom` FOREIGN KEY (`id_classrooms`) REFERENCES `classrooms` (`id_classrooms`),
-  ADD CONSTRAINT `event` FOREIGN KEY (`id_events`) REFERENCES `events` (`id_events`);
+ALTER TABLE `companies_teamPropaganda`
+  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users_teamPropaganda` (`id_users`);
 
 --
--- Omezení pro tabulku `subevents`
+-- Omezení pro tabulku `email_send_user_teamPropaganda`
 --
-ALTER TABLE `subevents`
-  ADD CONSTRAINT `events` FOREIGN KEY (`id_events`) REFERENCES `events` (`id_events`);
+ALTER TABLE `email_send_user_teamPropaganda`
+  ADD CONSTRAINT `id_email_send` FOREIGN KEY (`id_email_send`) REFERENCES `email_send_teamPropaganda` (`id_email_send`),
+  ADD CONSTRAINT `id_users` FOREIGN KEY (`id_users`) REFERENCES `users_teamPropaganda` (`id_users`);
 
 --
--- Omezení pro tabulku `unregistered_attendants`
+-- Omezení pro tabulku `registered_attendants_teamPropaganda`
 --
-ALTER TABLE `unregistered_attendants`
-  ADD CONSTRAINT `attendants` FOREIGN KEY (`id_attendants`) REFERENCES `attendants` (`id_attendants`) ON DELETE SET NULL ON UPDATE SET NULL,
-  ADD CONSTRAINT `events` FOREIGN KEY (`id_events`) REFERENCES `events` (`id_events`);
+ALTER TABLE `registered_attendants_teamPropaganda`
+  ADD CONSTRAINT `attendant` FOREIGN KEY (`id_attendants`) REFERENCES `attendants_teamPropaganda` (`id_attendants`),
+  ADD CONSTRAINT `classroom` FOREIGN KEY (`id_classrooms`) REFERENCES `classrooms_teamPropaganda` (`id_classrooms`),
+  ADD CONSTRAINT `event` FOREIGN KEY (`id_events`) REFERENCES `events_teamPropaganda` (`id_events`);
+
+--
+-- Omezení pro tabulku `subevents_teamPropaganda`
+--
+ALTER TABLE `subevents_teamPropaganda`
+  ADD CONSTRAINT `events` FOREIGN KEY (`id_events`) REFERENCES `events_teamPropaganda` (`id_events`);
+
+--
+-- Omezení pro tabulku `unregistered_attendants_teamPropaganda`
+--
+ALTER TABLE `unregistered_attendants_teamPropaganda`
+  ADD CONSTRAINT `attendants` FOREIGN KEY (`id_attendants`) REFERENCES `attendants_teamPropaganda` (`id_attendants`) ON DELETE SET NULL ON UPDATE SET NULL,
+  ADD CONSTRAINT `events` FOREIGN KEY (`id_events`) REFERENCES `events_teamPropaganda` (`id_events`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

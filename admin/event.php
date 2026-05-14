@@ -113,7 +113,7 @@ if (isset($_POST["action"])) {
             echo "<h1>Vytvořit novou událost</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start, price FROM events WHERE id_events = ?;");
+            $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start, price FROM events_teamPropaganda WHERE id_events = ?;");
             $stmt->bind_param("i", $_GET["event"]);
             $stmt->execute();
             $stmt->store_result();

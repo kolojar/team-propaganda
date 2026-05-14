@@ -59,7 +59,7 @@ function checkAccess(string $file, string $level): bool
 
 function getUserRole(mysqli $conn, int $id): string|null
 {
-    $stmt = $conn->prepare("SELECT role FROM users WHERE id_users=? LIMIT 1;");
+    $stmt = $conn->prepare("SELECT role FROM users_teamPropaganda WHERE id_users=? LIMIT 1;");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->store_result();
@@ -163,7 +163,7 @@ function setupTitlebarAction(mysqli $conn, accessLevel $accessLevel): titlebarSe
 
     //Check if event exists
     $name = 0;
-    $stmt = $conn->prepare("SELECT name FROM events WHERE id_events=?;");
+    $stmt = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=?;");
     $stmt->bind_param("i", $_COOKIE["adminEventId"]);
     $stmt->execute();
     $stmt->store_result();
@@ -195,7 +195,7 @@ function setupTitlebarAction(mysqli $conn, accessLevel $accessLevel): titlebarSe
 
     //Check if subevent exists
     $date = "";
-    $stmt = $conn->prepare("SELECT subevents.date FROM subevents WHERE id_subevents=?;");
+    $stmt = $conn->prepare("SELECT date FROM subevents_teamPropaganda WHERE id_subevents=?;");
     $stmt->bind_param("i", $_COOKIE["adminSubeventId"]);
     $stmt->execute();
     $stmt->store_result();
