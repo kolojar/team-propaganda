@@ -8,7 +8,7 @@ if (isset($_SESSION["userId"])) {
 }
 //login
 if (isset($_POST["login"])) {
-    if (isset($_POST["login"])) $_SESSION["login"] = $_POST["login"];
+    $_SESSION["login"] = $_POST["login"];
     $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
     $stmt->bind_param("s", $_SESSION["login"]);
     $stmt->execute();
@@ -23,26 +23,36 @@ if (isset($_POST["login"])) {
         $_SESSION["login"] = null;
         exit;
     }
-} else if (isset($_POST["email"]) && isset($_POST["name"]) && isset($_POST["surname"]) && isset($_POST["id_schools"])) { //sign in
-    if (isset($_POST["email"])) $_SESSION["signup"] = $_POST["email"];
-    if (isset($_POST["name"])) $_SESSION["name"] = $_POST["name"];
-    if (isset($_POST["surname"])) $_SESSION["surname"] = $_POST["surname"];
-    if (isset($_POST["id_schools"])) $_SESSION["id_schools"] = $_POST["id_schools"];
+} else if (
+    isset($_POST["email"]) &&
+    isset($_POST["name"]) &&
+    isset($_POST["surname"]) &&
+    isset($_POST["id_schools"])
+) { //sign in
+    $_SESSION["signup"] = $_POST["email"];
+    $_SESSION["name"] = $_POST["name"];
+    $_SESSION["surname"] = $_POST["surname"];
+    $_SESSION["id_schools"] = $_POST["id_schools"];
+
     $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
     $stmt->bind_param("s", $_SESSION["signup"]);
     $stmt->execute();
     $res = $stmt->get_result();
     $stmt->close();
     if ($res->num_rows == 0) {
-        echo "vpoho";
         verify($_POST["email"]);
         exit;
     } else {
+        http_response_code(400);
         echo "Uživatel již přihlášen";
         $_SESSION["signup"] = null;
         exit;
     }
-} else if (!$_SESSION["login"] && !$_SESSION["signup"]) { //trying to go around
+} else if (isset($_POST["verify"])) {
+    $_SESSION["verify"] = $_POST["verify"];
+    verify($_SESSION["verify"]);
+    exit;
+} else if (!$_SESSION["login"] && !$_SESSION["signup"] && !$_SESSION["verify"]) { //trying to go around
     header('Location: ./loginForm.html');
     exit;
 }
@@ -50,13 +60,17 @@ if (isset($_POST["login"])) {
 /**
  * create verify code and call sendMail() with email prepared
  */
-function verify($email)
+function verify(string $email)
 {
     $code = rand(10000, 99999);
     //echo $code;
     $_SESSION["verify"] = $code;
     $message = str_replace("\$code", $code, file_get_contents("./assets/verifyEmail.html"));
-    sendMail($email, "Ověření Emailu", $message);
+    if (!sendMail($email, "Ověření Emailu", $message)) {
+        http_response_code(400);
+        echo "Nepodařilo se odeslat email.";
+        die;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -268,14 +282,14 @@ function verify($email)
             <button type="submit" class="verify-btn">Verify Code</button>
         </form>
 
-        <div class="footer">
+        <!--<div class="footer">
             <p>Didn't receive the email?</p>
             <a href="#" class="resend-link">Resend Code</a>
-        </div>
+        </div>-->
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-        const fields = document.querySelectorAll('.otp-field');
+        const fields = document.getElementsByClassName('otp-field');
 
         fields.forEach((field, index) => {
             // Handle entering a digit
@@ -336,7 +350,6 @@ function verify($email)
             const btn = document.querySelector('.verify-btn');
             btn.textContent = 'Verifying...';
             btn.style.opacity = '0.7';
-            //btn.disabled = true;
 
             // Collect the full code
             let verificationCode = "";

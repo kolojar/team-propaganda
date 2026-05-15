@@ -31,7 +31,8 @@
         }
 
         .header {
-            background-color: #4A90E2; /* Profesionální modrá pro refundace */
+            background-color: #4A90E2;
+            /* Profesionální modrá pro refundace */
             padding: 30px;
             text-align: center;
             color: white;
@@ -97,20 +98,22 @@
 
             <div class="body-content">
                 <p>Dobrý den,</p>
-                <p>potvrzujeme, že jsme právě zpracovali vrácení Vaší platby (refundaci) spojené s Vaší přihláškou. Peníze by se měly objevit na Vašem účtu v závislosti na rychlosti bankovních převodů (obvykle 2–5 pracovních dnů).</p>
+                <p>potvrzujeme, že jsme právě zpracovali vrácení Vaší platby (refundaci) spojené s Vaší přihláškou.
+                    Peníze by se měly objevit na Vašem účtu v závislosti na rychlosti bankovních převodů (obvykle 2–5
+                    pracovních dnů).</p>
 
                 <div class="details-container">
                     <div class="detail-row">
                         <span class="label">Variabilní symbol:</span>
-                        <span>$variable_symbol</span>
+                        <span>${variable_symbol}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Datum zpracování:</span>
-                        <span>$refund_date</span>
+                        <span>${refund_date}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Vrácená částka:</span>
-                        <span>$amount CZK</span>
+                        <span>${amount} CZK</span>
                     </div>
                 </div>
 
@@ -119,9 +122,9 @@
                 </p>
             </div>
 
-            <div class="footer">
+            <!--<div class="footer">
                 <p>© 2026 Název Vaší Aplikace | Všechna práva vyhrazena</p>
-            </div>
+            </div>-->
         </div>
     </div>
 </body>

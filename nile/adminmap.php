@@ -172,8 +172,8 @@ if (isset($_POST["sitePos"])) {
         })
 
         function dragMove(event) {
-            lastMousePosition.x = event.clientX + scrollX - 25
-            lastMousePosition.y = event.clientY + scrollY - 25
+            lastMousePosition.x = event.clientX + scrollX
+            lastMousePosition.y = event.clientY + scrollY
             if (elementToMove != null) {
                 elementToMove.style.top = lastMousePosition.y + "px"
                 elementToMove.style.left = lastMousePosition.x + "px"

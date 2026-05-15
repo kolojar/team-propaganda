@@ -31,7 +31,8 @@
         }
 
         .header {
-            background-color: #f39c12; /* Varovná oranžová */
+            background-color: #f39c12;
+            /* Varovná oranžová */
             padding: 30px;
             text-align: center;
             color: white;
@@ -51,7 +52,8 @@
         .details-container {
             margin: 25px 0;
             padding: 20px;
-            background-color: #fff9f0; /* Jemný oranžový nádech pozadí */
+            background-color: #fff9f0;
+            /* Jemný oranžový nádech pozadí */
             border-radius: 6px;
             border: 1px solid #fbeed5;
         }
@@ -108,35 +110,37 @@
 
             <div class="body-content">
                 <p>Dobrý den,</p>
-                <p>evidujeme Vaši přihlášku, ale zatím jsme k ní neobdrželi příslušnou platbu. Aby mohla být Vaše registrace dokončena, prosíme o uhrazení částky co nejdříve.</p>
+                <p>evidujeme Vaši přihlášku, ale zatím jsme k ní neobdrželi příslušnou platbu. Aby mohla být Vaše
+                    registrace dokončena, prosíme o uhrazení částky co nejdříve.</p>
 
                 <div class="details-container">
                     <div class="detail-row">
                         <span class="label">Číslo účtu:</span>
-                        <span>$bank_account</span>
+                        <span>${bank_account}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Variabilní symbol:</span>
-                        <span>$variable_symbol</span>
+                        <span>${variable_symbol}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Datum splatnosti:</span>
-                        <span style="color: #e74c3c;">$due_date</span>
+                        <span style="color: #e74c3c;">${due_date}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Částka k úhradě:</span>
-                        <span>$amount CZK</span>
+                        <span>${amount} CZK</span>
                     </div>
                 </div>
 
-                <p style="font-size: 13px; margin-top: 30px; color: #888;">
-                    <strong>Tip:</strong> Pokud jste platbu již odeslali, považujte prosím tento e-mail za bezpředmětný (připsání platby může trvat 1–2 pracovní dny).
-                </p>
+                <!--<p style="font-size: 13px; margin-top: 30px; color: #888;">
+                    <strong>Tip:</strong> Pokud jste platbu již odeslali, považujte prosím tento e-mail za bezpředmětný
+                    (připsání platby může trvat 1–2 pracovní dny).
+                </p>-->
             </div>
 
-            <div class="footer">
+            <!--<div class="footer">
                 <p>© 2026 Název Vaší Aplikace | Potřebujete poradit? podpora@vasewebovka.cz</p>
-            </div>
+            </div>-->
         </div>
     </div>
 </body>

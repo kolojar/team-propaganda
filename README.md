@@ -3,15 +3,16 @@ team pro team na pomoc propagačním systémům pro školu
 - Update pomocí: ``` git submodule update --remote --recursive ```
 - Zdroj dat základních škol: https://lkod-test.msmt.gov.cz/datasets
 
-# Požadavky paní Klobásová - Kurzy
+# Požadavky paní Klobásová - Kurzy  
+  - [ ] Verify špatnej email ve verify
   - [ ] Formuláře na přihlášení - kdo, odkud, na kterou akci
 	  - Odkud vybrat a nebo vypsat (+ schválit)
 	  - Adresy budou
 	  - Zda příjdou druhou sobotu
 		  + Pokud ne = OSOBNĚ + KONTAKT / Online
   - [ ] Spárování počtu žáků ke škole + každého rozhodit do učeben (ideálně 1 dítě z jedné školy v jedné třídě - oddělit je)
-  - [ ] Plán s učebnou, počet židlí a pozice
-  - [ ] Většinou max 25 žáků, nějak průměrně
+  - [X] Plán s učebnou, počet židlí a pozice
+  - [X] Většinou max 25 žáků, nějak průměrně
   - [ ] Možnost přemístění žáků ručně
   - [ ] Možnost přemístění celé učebny
   - [ ] ? Možnost propojení žáků jako kamarádů na přípravy + schválení
@@ -31,20 +32,19 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Úprava odeslaných textů + fotky
   - [ ] Přikládání souborů / příloh
   - [X] Šablony pro E-Maily (texty)
-  - [ ] Účet pro rodiče / dítě - ověření jako Matrix
-  - [ ] Zablokovat duplikáty
-  - [ ] ? Více rodičů k dítěti
+  - [X] Účet pro rodiče / dítě - ověření jako Matrix
+  - [x] Zablokovat duplikáty
   - [ ] Výstup plakátků na učebnu - jména děcek abecedně dle příjmení
   - [ ] Výstup docházka tisk 
   - [ ] Docházka online
   - [ ] Přílohy jak v E-Mail tak i v panelu
-  - [ ] Admin panel pro více uživatelů
+  - [X] Admin panel pro více uživatelů
   - [ ] Kurzy poslat i materiály (lze i hromadně)
   - [ ] Kurzy - Všichni uvidí materiály v následující den ve 12:00
   - [ ] Materiály lze změtit
   - [ ] Po skončení celé akce poděkování + hodně štěstí
   - [ ] Přesun E-Mailů z kurzy@purkynka.cz na účet paní Klobásové + přiložit i do admin panelu
-  - [ ] Počet přihlášených a zaplacených
+  - [X] Počet přihlášených a zaplacených
 	  - Přihlašení + zaplacení
 	  - Přihlášení + nezaplacní
 	  - Přihlášení + nezaplacení po termínu (nepočítat do počtu)
@@ -52,7 +52,6 @@ team pro team na pomoc propagačním systémům pro školu
 	  - Dle termínu akce
 	  - Zkracování splatnosti s blížícím se termínem
   - [ ] Zaplaceno -> Informace o akci upravit dle data
-  - Max 1 zákonný zástupce
   - [ ] Oslovování
 	  - Skloňování
 	  - Více jmen a přijmení
@@ -72,7 +71,6 @@ team pro team na pomoc propagačním systémům pro školu
 
 # prop
 [X] zadávání učeben + úprava (admin)
-foto učebny pro vizuál
 [X] účet pro uchazeče
 formulář
 - možnost posazení spolu
@@ -87,13 +85,13 @@ auto email
 - hromadné odesílání výsledků
 - děkování za účast
 admin panel
-- úprava členů
+- [X] úprava členů
 - vyhledávání
 - [X] hromadná / jednotná korespondence
 - úprava zasedání
-- detekce omylného přihlášení 2× {při odeslání formuláře}
+- [X] detekce omylného přihlášení 2× {při odeslání formuláře}
 - vložit dokument se zobrazením
-- možnost side admin účtů
+- [X] možnost side admin účtů
 - nebyl dostane materiály ?
 - [X] list škol
 formulář na odhlášení
@@ -117,7 +115,7 @@ seznam pomocníků (pomoc před a po + role)
 wifi
 	 - [X] Jméno
 	 - [X] Obory
-	 - [ ] Co chtějí
+	 - [X] Co chtějí
 	 - [X] Popis krátký
 	 - [X] Popis dlouhý
  
@@ -139,7 +137,7 @@ wifi
 	 - [ ] Databanku firem a výbírat, zda tento rok budou nebo ne
 - [ ] Rozhraní pro studenty
 	- [ ] ? Feedback
-	- [ ] ? Mapka pro studenty
+	- [X] ? Mapka pro studenty
 	- [ ] ? Popis firem
 	
 - [ ] Kalendář událostí

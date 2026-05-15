@@ -20,8 +20,11 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         foreach (json_decode($_POST["userIds"]) as $uid) {
             $stmt2 = $conn->prepare("SELECT email FROM users_teamPropaganda WHERE id_users = ?");
             $stmt2->bind_param("i", $uid);
-            if ($stmt2->execute()) echo "sent $uid\n";
-            else echo "not sent $uid\n";
+            if ($stmt2->execute()) {
+                http_response_code(400);
+                echo "Nepodařilo se zapsat data do databáze u uživatele s id: $uid";
+                die;
+            }
             $stmt2->store_result();
             //
             //add variable checking in messages;
@@ -29,18 +32,27 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             $message = $_POST["message"];
             $stmt2->bind_result($email);
             $stmt2->fetch();
-            sendMail($email, $_POST["subject"], $message);
+            if (!sendMail($email, $_POST["subject"], $message)) {
+                http_response_code(400);
+                echo "Nepodařilo se odeslat email pro uživatele s id: $uid";
+                die;
+            }
         }
         $sent = 1;
     }
-    if ($stmt->execute())
-        echo ("vpoho\n");
-    else echo ("vprdeli\n");
+    if (!$stmt->execute()) {
+        http_response_code(400);
+        echo ("Nepodařilo se odeslat data na do databáze.\n");
+        exit;
+    }
     $emailId = $stmt->insert_id;
     $stmt->prepare("INSERT INTO email_send_user_teamPropaganda (id_users, id_email_send, sent) VALUES (?, ?, ?)");
     $stmt->bind_param("iii", $uid, $emailId, $sent);
     foreach ($_POST["userIds"] as $uid) {
-        if (!$stmt->execute()) echo "nope $uid\n";
+        if (!$stmt->execute()) {
+            http_response_code(400);
+            echo "Nepodařilo se uložit data k uživateli s id: $uid";
+        };
     }
     exit;
 }
@@ -72,7 +84,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     <th>E-mail</th>
                 </tr>
                 <?php
-                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0;");
+                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = user;");
                 while ($row = $res->fetch_object()) {
                     echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
                 }

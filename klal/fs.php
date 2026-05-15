@@ -27,7 +27,7 @@ session_start();
                 <th>Email</th>
             </tr>
             <?php
-            $stmt = $conn->query("SELECT * FROM users_teamPropaganda WHERE isNILE = 0");
+            $stmt = $conn->query("SELECT * FROM users_teamPropaganda WHERE isNILE = 0 AND role = user");
             if ($stmt->num_rows > 0) {
                 while ($user = $stmt->fetch_assoc()) {
                     echo "<tr><td>";
