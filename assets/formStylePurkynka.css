@@ -1,0 +1,720 @@
+:root {
+    --background-color: #f4f7fa;
+    --color: #1a1a1a;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--color);
+}
+
+.formBox {
+    background-color: white;
+    border-radius: 10px;
+    /*box-shadow: 10px 10px 10px black;*/
+    padding: 20px;
+    padding-bottom: 10px;
+    font-size: large;
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+    margin: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: calc(100% - 60px);
+    max-height: calc(100% - 60px);
+    overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+    .formBox {
+        background-color: black;
+        color: white;
+    }
+}
+
+.formBoxScrollContent {
+    overflow: auto;
+    max-width: calc(100%);
+    max-height: calc(100vh - 70px);
+    margin-bottom: 20px;
+}
+
+.formTransitionAnimations {
+    transition: all 1s;
+}
+
+.FadeInAnimation {
+    animation: fadeIn 2s forwards;
+}
+
+.FadeOutAnimation {
+    animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+.puslatingEffectHalf {
+    animation: pulseFadeHalf 2s infinite;
+}
+
+@keyframes pulseFadeHalf {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.75;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.puslatingEffectFull {
+    animation: pulseFadeFull 2s infinite;
+}
+
+@keyframes pulseFadeFull {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.formBackground {
+    background: linear-gradient(to bottom right, #0099ff 0%, #000066 85%);
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+}
+
+.formCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formHeader {
+    font-weight: 700;
+    font-size: larger;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.formButton {
+    text-align: center;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.centerHorizontaly {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.formButton:hover {
+    /*background-color: gray;*/
+    transition: 0.5s;
+    filter: saturate(2);
+}
+
+.formButton:active {
+    transition: 0.3s;
+    filter: saturate(0.5);
+}
+
+.formButton:disabled {
+    /*background-color: gray;*/
+    cursor: not-allowed;
+    filter: saturate(0.5);
+}
+
+.inputFullScale {
+    width: 100%;
+}
+
+.imageAsText {
+    width: auto;
+    height: 1.5rem;
+    vertical-align: text-top;
+    margin-right: 0.25rem;
+}
+
+.formButtonBoxHolder {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.formButtonBox {
+    display: flex;
+    justify-content: right;
+    width: max-content;
+    display: inline;
+}
+
+.formButtonBox>* {
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.formButtonBox>:last-child {
+    margin-right: 0px;
+}
+
+
+.formButtonBox>*>* {
+    margin-bottom: 8px;
+}
+
+
+.formJustifyRight {
+    justify-content: right;
+    margin-left: auto;
+}
+
+.formJustifyLeft {
+    justify-content: left;
+    margin-right: auto;
+}
+
+.formButtonBox:last-of-type {
+    display: block;
+}
+
+form-toggle .labelBefore {
+    display: inline;
+    position: relative;
+    margin-right: 4px;
+}
+
+form-toggle {
+    margin: 4px;
+    display: inline-flex;
+    align-items: center;
+}
+
+form-toggle .toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+form-toggle .toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+form-toggle .toggle .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 20px;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+form-toggle .toggle .slider:before {
+    position: absolute;
+    content: "";
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    left: 4px;
+    bottom: 4.5px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+form-toggle .formSwitchChecked .slider:before {
+    transform: translateX(27px);
+}
+
+form-toggle .labelAfter {
+    margin-left: 4px
+}
+
+/*.formSwitch {
+    position: relative;
+    display: inline;
+    width: 60px;
+    height: 34px;
+    margin: 4px;
+    margin-top: 5px;
+}
+
+.formSwitch input {
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+}
+
+.formSwitch span {
+    position: absolute;
+    cursor: pointer;
+    width: 60px;
+    height: 34px;
+    display:inline-block;
+    top: -14px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.formSwitch span::before {
+    position: absolute;
+    content: "";
+    width: 26px;
+    height: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.formSwitchChecked input:checked,
+.formSwitchChecked span:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.formSwitch span {
+    border-radius: 34px;
+}
+
+.formSwitch span:before {
+    border-radius: 50%;
+}*/
+
+.formSwitchOff {
+    background-color: #ccc;
+}
+
+form-input {
+    /*transition: all 1s;*/
+    min-height: 34px;
+    margin: 4px;
+    /*display: inline-block;*/
+    display: inline-block;
+}
+
+form-input>div {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    transition: border-color 0.5s ease;
+    border-radius: 4px;
+    border: 1px solid black;
+}
+
+@media (prefers-color-scheme: dark) {
+    form-input>div {
+        border: 1px solid white;
+    }
+}
+
+
+/*.formTextInput holder {
+    display: flex;
+    flex-flow: row nowrap;
+}*/
+
+form-input>div>img {
+    height: 32px;
+    margin: 1px 0.5rem;
+    display: inline;
+}
+
+@media (prefers-color-scheme: dark) {
+    form-input img {
+        filter: invert(1)
+    }
+}
+
+form-input>div>input,
+form-input>div>select {
+    border: none;
+    margin: 4px;
+    display: inline-block;
+    position: relative;
+    margin-left: 0px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+
+    form-input>div>input,
+    form-input>div>select {
+        background-color: black;
+        color: white;
+    }
+}
+
+
+form-input>div>textarea {
+    border: none;
+    margin: 4px;
+    display: inline-block;
+    margin-left: 0px;
+    vertical-align: top;
+    position: relative;
+    width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+    form-input>div>textarea {
+        background-color: black;
+        color: white;
+    }
+}
+
+form-input>.listHolder {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: calc(100%-4px);
+    max-height: 100px;
+    flex-direction: column;
+    align-items: start;
+    display: flex;
+    overflow: auto;
+    z-index: 1;
+    border-radius: 4px;
+    margin: 2px;
+    border: none;
+}
+
+form-input>.listHolder>div {
+    width: 100%;
+    cursor: pointer;
+    background-color: #ccc;
+}
+
+@media (prefers-color-scheme: dark) {
+    form-input>.listHolder>div {
+        background-color: #333;
+    }
+}
+
+form-input>.listHolder>div:hover {
+    background-color: gray;
+}
+
+form-input>div>p {
+    margin-top: 8px;
+    margin-left: 4px;
+}
+
+form-input>div>input[type="color"] {
+    margin-bottom: 8px;
+    height: 26px
+}
+
+form-input>div>input:focus {
+    outline: none;
+}
+
+.formToastHolder {
+    gap: 4px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    flex-direction: column;
+    float: right;
+    display: flex;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.formToast {
+    margin-left: auto;
+    background-color: white;
+    border-radius: 4px;
+    padding: 4px;
+    cursor: pointer;
+    width: max-content;
+    pointer-events: all
+}
+
+
+@media (prefers-color-scheme: dark) {
+    .formToast {
+        color: black;
+    }
+}
+
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(0px);
+    }
+}
+
+@keyframes slideOutToRight {
+    0% {
+        transform: translateX(0px);
+    }
+
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+.formToast img {
+    height: 32px;
+    max-height: 32px;
+}
+
+.formToast .timeout {
+    width: 100%;
+    height: 4px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    animation: timeoutToast 10s 0.5s forwards;
+}
+
+@keyframes timeoutToast {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}
+
+.formToast .content {
+    display: flex;
+    flex-direction: row;
+}
+
+.formToast .contentText {
+    margin-left: 10px;
+    padding-top: 0.25rem;
+}
+
+.formToast .formHeader {
+    margin-top: -16px;
+    margin-bottom: 0px;
+}
+
+
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0px);
+    }
+}
+
+@keyframes slideOutToLeft {
+    0% {
+        transform: translateX(0px);
+    }
+
+    100% {
+        transform: translateX(-200%);
+    }
+}
+
+p {
+    margin-top: 4px;
+    margin-left: 4px;
+    margin-bottom: 0px;
+    margin-right: 4px;
+}
+
+.formFlexRow {
+    /*Places items next to each other*/
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.formFlexColumn {
+    /*Places items under each other*/
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+formrow {
+    margin: 4px;
+}
+
+formrow p:first-child {
+    margin-top: 0px;
+}
+
+.formDialog {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px black;
+    font-size: large;
+    overflow: hidden;
+    margin: 0;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: max-content;
+    height: max-content;
+    /*white-space: ;*/
+}
+
+.formDialogFadeIn {
+    opacity: 0;
+    animation: fadeIn 0.25s forwards;
+}
+
+.formDialogFadeIn::backdrop {
+    opacity: 0;
+    animation: fadeIn 0.25s forwards;
+}
+
+.formDialog.is-hidden {
+    pointer-events: none;
+    opacity: 1;
+    animation: fadeOut 0.25s forwards;
+}
+
+.formDialog.is-hidden::backdrop {
+    opacity: 1;
+    animation: fadeOut 0.25s forwards;
+}
+
+@media (prefers-color-scheme: dark) {
+    .formDialog {
+        background-color: black;
+        color: white;
+    }
+}
+
+.formButtonMakeInline {
+    width: auto;
+    height: 1.5rem;
+    vertical-align: text-top;
+    margin-right: 0.25rem;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: 0;
+}
+
+.formButtonBoxTable {
+    padding: 2px 4px;
+    justify-content: center;
+    text-align: center;
+}
+
+.formButtonBoxTable>* {
+    margin-right: 4px;
+}
+
+.formButtonBoxTable> :last-child {
+    margin-right: 0px;
+}
+
+.formProgress {
+    height: 32px;
+    max-height: 32px;
+    pointer-events: none;
+    width: 100%;
+}
+
+.formDialogTitleDrag {
+    background-color: #ccc;
+    cursor: move;
+}
+
+@media (prefers-color-scheme: dark) {
+    .formDialogTitleDrag {
+        background-color: #333;
+    }
+}
+
+.formOkColor {
+    background: #02aa42;
+}
+
+.formWarnColor {
+    background: #dba401;
+}
+
+.formErrorColor {
+    background: #cf0000;
+}
+
+.formInfoColor {
+    background: #008ce8;
+}
+
+.formBlackColor {
+    background: black;
+    color: white;
+}
+
+.formOkBorderColor {
+    border-color: #02aa42;
+}
+
+.formWarnBorderColor {
+    border-color: #dba401;
+}
+
+.formErrorBorderColor {
+    border-color: #cf0000;
+}
+
+.formInfoBorderColor {
+    border-color: #008ce8;
+}
+
+.formInputFocus {
+    border-color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+    .formTextInputFocus {
+        border-color: #ccc;
+    }
+}
