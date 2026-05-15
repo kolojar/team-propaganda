@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE events SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=?,price=? WHERE id_events=?");
+        $stmt = $conn->prepare("UPDATE events_teamPropaganda SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=?,price=? WHERE id_events=?");
         $stmt->bind_param("sssssssiisii", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"],$_POST["price"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -33,7 +33,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO events(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start,price) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt = $conn->prepare("INSERT INTO events_teamPropaganda(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start,price) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
         $stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["price"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -53,7 +53,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Delete
-        $stmt = $conn->prepare("DELETE FROM events WHERE id_events=?");
+        $stmt = $conn->prepare("DELETE FROM events_teamPropaganda WHERE id_events=?");
         $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);

@@ -33,7 +33,7 @@ if (isset($_POST["login"])) {
     $stmt->execute();
     $res = $stmt->get_result();
     $stmt->close();
-    if ($res->num_rows = 0) {
+    if ($res->num_rows == 0) {
         echo "vpoho";
         verify($_POST["email"]);
         exit;
