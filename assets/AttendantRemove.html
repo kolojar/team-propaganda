@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potvrzení odhlášení</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f7;
+            color: #51545e;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f7;
+            padding-bottom: 40px;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background-color: #607d8b; /* Neutrální břidlicová modro-šedá */
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .body-content {
+            padding: 40px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .status-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .details-container {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #ededed;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 8px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+            font-weight: bold;
+        }
+
+        .label {
+            color: #74787e;
+            font-weight: bold;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            margin-top: 30px;
+            color: #888;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <div class="status-icon">∅</div>
+                <h1 style="margin:0; font-size: 24px;">Odhlášení proběhlo úspěšně</h1>
+            </div>
+
+            <div class="body-content">
+                <p>Dobrý den,</p>
+                <p>potvrzujeme, že Vaše odhlášení z naší evidence/akce bylo úspěšně zpracováno. Vaše místo bylo uvolněno a veškeré další kroky spojené s touto přihláškou byly stornovány.</p>
+
+                <div class="details-container">
+                    <div class="detail-row">
+                        <span class="label">Původní var. symbol:</span>
+                        <span>$variable_symbol</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Datum odhlášení:</span>
+                        <span>$unregistration_date</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Stav přihlášky:</span>
+                        <span style="color: #e74c3c;">Zrušena</span>
+                    </div>
+                </div>
+
+                <p class="feedback-text">
+                    Mrzí nás, že to tentokrát nevyšlo. Budeme se na Vás těšit při nějaké další příležitosti!
+                </p>
+
+                <p style="font-size: 13px; margin-top: 20px; color: #b0b0b0; text-align: center;">
+                    Pokud jste toto odhlášení neprovedli Vy, kontaktujte nás prosím obratem.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>© 2026 Název Vaší Aplikace | podpora@vasewebovka.cz</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
