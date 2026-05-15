@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlašovací kód</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f7;
+            color: #51545e;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f7;
+            padding-bottom: 40px;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background-color: #34495e; /* Elegantní tmavě modrá pro bezpečnost */
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .body-content {
+            padding: 40px;
+            line-height: 1.6;
+            text-align: center;
+            color: #333333;
+        }
+
+        .code-container {
+            margin: 30px 0;
+            padding: 25px;
+            background-color: #f0f4f8;
+            border: 2px solid #d1d9e6;
+            border-radius: 8px;
+        }
+
+        .login-code {
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            color: #2c3e50;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="content">
+            <div class="header">
+                <h1 style="margin:0; font-size: 24px;">Přihlášení do aplikace</h1>
+            </div>
+
+            <div class="body-content">
+                <p>Dobrý den,</p>
+                <p>pro přihlášení k Vašemu účtu použijte prosím následující ověřovací kód:</p>
+
+                <div class="code-container">
+                    <div class="login-code">$login_code</div>
+                </div>
+
+                <p style="font-size: 14px; margin-top: 30px; color: #888;">
+                    Pokud jste se o přihlášení nepokoušeli, můžete tento e-mail bezpečně ignorovat. Váš účet je v bezpečí.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>© 2026 Název Vaší Aplikace | Zabezpečený přístup</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
