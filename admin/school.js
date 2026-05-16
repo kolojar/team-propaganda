@@ -1,6 +1,6 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
-import { setupSaveCancelButtons } from "./sharedScripts.js";
+import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-setupSaveCancelButtons(dialogManager, "schoolValidate", "./schools.php", "./school.php", urlSearchParams.get("school"));
+SetupSaveCancelButtons(dialogManager, "schoolValidate", "./schools.php", "./school.php", urlSearchParams.get("school"));
 //# sourceMappingURL=school.js.map

@@ -2,9 +2,27 @@ import { FormDialog, FormDialogManager } from "../formWebScripts/js/formDialogSc
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
-export function setupSaveCancelButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string, onSaveFunc: null | (() => Promise<boolean>) = null) {
+export function GetChildenElementsByClassName(element: HTMLElement, className: string): HTMLElement[] {
+    return Array.from(element.querySelectorAll("*")).filter(el => el.classList.contains(className)) as HTMLElement[]
+}
+
+//export function getChildenElementsByValueId(element: HTMLElement, valueId: string): HTMLElement[] {
+//    return Array.from(element.querySelectorAll("*")).filter(el => el.getAttribute("value-id") == valueId) as HTMLElement[] 
+//}
+
+export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderId: string | null | HTMLElement, cancelURL: string, postURL: string, id: string, className: string = "validate", onSaveFunc: null | (() => Promise<boolean>) = null) {
+    let holder = null;
+    if (holderId == null) {
+        holder = document.body;
+    } else if (holderId instanceof HTMLElement) {
+        holder = holderId;
+    } else {
+        holder = document.getElementById(holderId as string) as HTMLElement;
+    }
+
     //Setup validation
-    for (const inputElementOriginal of document.getElementsByClassName(className)) {
+    let changed = false
+    for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
         if (inputElementOriginal instanceof HTMLFormInputElement) {
             const inputElement = inputElementOriginal as HTMLFormInputElement
             inputElement.validationFunction = async (value) => {
@@ -16,13 +34,15 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
 
     //Check if exists
     let exists = true;
-    if (document.getElementById("btnSave")?.hasAttribute("exists")) {
-        exists = document.getElementById("btnSave")?.getAttribute("exists") == "true"
+    const saveBtn = GetChildenElementsByClassName(holder, "btnSave")[0]
+    if (saveBtn.hasAttribute("exists")) {
+        exists = saveBtn.getAttribute("exists") == "true"
     }
 
     //Make save button work
-    document.getElementById("btnSave")?.addEventListener("click", async () => {
+    saveBtn.addEventListener("click", async () => {
         //Get elements
+        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
         const changes = []
 
         //Process elements
@@ -44,19 +64,21 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
         //Show dialog if found change
         if (changes.length == 0) {
             SendToast("Nelze uložit změny!", "Žádné změny nebyly provedeny.", "ok")
+            progress2.CloseDialog()
             return
         }
 
         //Run save function
         if (onSaveFunc != null) {
-            if(!(await onSaveFunc())) {
+            if (!(await onSaveFunc())) {
                 return
             }
         }
 
         //Wait for confirm
+        progress2.CloseDialog()
         if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
-            const progress = dialogManager.ShowProgress("Ukládání dat", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
+            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
 
             //Create FormData
             const data = new FormData()
@@ -65,12 +87,12 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
             if (exists) {
                 data.append("id", id)
             }
-            for (const inputElementOriginal of document.getElementsByClassName(className)) {
+            for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
                 const inputElement = inputElementOriginal as HTMLFormInputElement | HTMLFormToggleElement
                 if (inputElement instanceof HTMLFormToggleElement) {
-                    data.append(inputElement.id, inputElement.getValue() ? "1" : "0");
+                    data.append(inputElement.getAttribute("value-id") as string, inputElement.getValue() ? "1" : "0");
                 } else {
-                    data.append(inputElement.id, inputElement.getValue());
+                    data.append(inputElement.getAttribute("value-id") as string, inputElement.getValue());
                 }
             }
 
@@ -78,7 +100,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
             const [ok, _] = await SendPOSTDataToServerAsync(postURL, data)
             //progress.CloseDialog()
             if (ok) {
-                SendToast("Ukládání dat", "Změny uloženy.", "ok")
+                SendToast("Uložení změn proběhlo úspěšně!", "Změny uloženy.", "ok")
                 //progress.SetMessage(0,"Změny uloženy")
                 setTimeout(() => {
                     if (!exists) {
@@ -88,16 +110,17 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
                     }
                 }, 1000)
             } else {
-                SendToast("Ukládání dat", "Změny nemohly být uloženy.", "error")
+                SendToast("Nelze uložit změny!", "Změny nemohly být uloženy.", "error")
                 progress.CloseDialog()
-                await dialogManager.OpenAlert("Ukládání dat", "Změny nemohly být uloženy, opakujte akci později.", true, true)
+                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.", true, true)
             }
         }
     })
 
     //Make cancel button work
-    document.getElementById("btnCancel")?.addEventListener("click", async function () {
+    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function () {
         //Check for changes
+         const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
         let foundChange = false
         const changes = []
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -112,6 +135,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
         }
 
         //Wait for confirm
+        progress2.CloseDialog()
         if (!exists) {
             if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete zrušit vytváření?", true, true)) {
                 window.location.href = cancelURL
@@ -119,6 +143,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
             return
         }
         if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
+            dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true)
             window.location.reload()
         }
         if (!foundChange) {
@@ -146,7 +171,7 @@ export function setupTableDeleteButtons(dialogManager: FormDialogManager, postUR
     //Get buttons
     for (const button of document.getElementsByClassName("btnTableDelete")) {
         button.addEventListener("click", async () => {
-            if(!button.hasAttribute(idAttributeName)) {
+            if (!button.hasAttribute(idAttributeName)) {
                 return
             }
 

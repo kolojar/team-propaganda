@@ -92,7 +92,7 @@ class titlebarSetupResult
     }
 }
 
-function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
+function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
 {
     //DEBUG
     $_SESSION["userId"] = 4;
@@ -110,7 +110,7 @@ function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
     }
 
     //Prepare HTML
-    $result = setupTitlebarAction($conn, $accessLevels[$page]);
+    $result = setupTitlebarAdminAction($conn, $accessLevels[$page]);
     $result->role = $role;
     echo '<h1> Akce: ' . $result->message . '</h1>';
     echo "<div class='formButtonBoxHolder'>";
@@ -143,7 +143,7 @@ function setupTitlebar(mysqli $conn, string $page): titlebarSetupResult
     echo "</div>";
     return $result;
 }
-function setupTitlebarAction(mysqli $conn, accessLevel $accessLevel): titlebarSetupResult
+function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): titlebarSetupResult
 {
     //Check if already redirected due to noEventId
     if (isset($_GET["noEventId"])) {

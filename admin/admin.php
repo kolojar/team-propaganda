@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "admin.php") ?>
+        <?php setupTitlebarAdmin($conn, "admin.php") ?>
     </header>
     <main>
         <h1>Hlavní menu</h1>

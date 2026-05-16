@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "schoolsAll.php") ?>
+        <?php setupTitlebarAdmin($conn, "schoolsAll.php") ?>
     </header>
     <main>
         <h1>Seznam všech škol</h1>

@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php $result = setupTitlebar($conn, "payments.php") ?>
+        <?php $result = setupTitlebarAdmin($conn, "payments.php") ?>
     </header>
     <main>
         <?php

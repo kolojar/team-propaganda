@@ -46,7 +46,7 @@ if (isset($_GET["selectSubevent"])) {
 
 <body class="pageHolder">
     <header>
-        <?php $result = setupTitlebar($conn, "events.php") ?>
+        <?php $result = setupTitlebarAdmin($conn, "events.php") ?>
     </header>
     <main>
         <?php

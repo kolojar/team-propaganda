@@ -87,7 +87,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"event.php") ?>
+        <?php setupTitlebarAdmin($conn,"event.php") ?>
     </header>
     <main>
         <datalist id="typeTypes">

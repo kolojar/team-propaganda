@@ -1,6 +1,6 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
-import { setupTableDeleteButtons } from "./sharedScripts.js";
+import { setupTableDeleteButtons } from "../assets/sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
 setupTableDeleteButtons(dialogManager, "./event.php", "event");

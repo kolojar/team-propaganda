@@ -47,7 +47,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"user.php") ?>
+        <?php setupTitlebarAdmin($conn,"user.php") ?>
     </header>
     <main>
         <?php

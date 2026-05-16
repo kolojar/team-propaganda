@@ -1,0 +1,11 @@
+.headerName {
+    margin-top: 4px;
+    cursor: pointer;
+}
+fieldset>span {
+    margin-left: 4px;
+    margin-right: 4px;
+}
+.formButtonBoxHolder {
+    width: auto;
+}

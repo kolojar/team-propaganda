@@ -153,7 +153,7 @@ if (isset($_POST["action"])) {
 <body class="pageHolder">
     <header>
         <?php
-        setupTitlebar($conn, "attendant.php")
+        setupTitlebarAdmin($conn, "attendant.php")
             ?>
     </header>
     <main>
@@ -167,7 +167,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Get attendant's school info
-        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT name, address FROM schools_teamPropaganda WHERE id_schools = ? LIMIT 1");
         $stmt->bind_param("i", $idSchool);
         $stmt->execute();
         $stmt->store_result();

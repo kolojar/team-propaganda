@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "schools.php") ?>
+        <?php setupTitlebarAdmin($conn, "schools.php") ?>
     </header>
     <main>
         <?php
