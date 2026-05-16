@@ -1,3 +1,4 @@
+var _a;
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
@@ -8,6 +9,29 @@ SetupSaveCancelButtons(dialogManager, "userInfo", ".", "./user.php", "-");
 for (const element of document.getElementsByClassName("attendantInfo")) {
     SetupSaveCancelButtons(dialogManager, element, ".", "./attendant.php", element.getAttribute("attendant"));
 }
+//Make move email button work
+(_a = document.getElementById("btnChangeEmail")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async () => {
+    //Ask for email
+    const email = await dialogManager.OpenPrompt("Přenos na jiný účet", "Zadejte nový Email, kterým se budete přihlašovat do aplikace. Starý přístup zanikne.", null, "email", "Email", true, true);
+    if (email == null) {
+        SendToast("Přenos účtu na jiný Email zrušen!", "Akce byla zrušena úspěšně.", "ok");
+        return;
+    }
+    //Send POST
+    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false, true, true);
+    const formData = new FormData();
+    formData.set("verify", email);
+    const [ok, responce] = await SendPOSTDataToServerAsync("../klal/verify.php", formData);
+    progress.CloseDialog();
+    if (!ok) {
+        SendToast("Nelze přenést účet na jiný Email!", "Změny nemohly být uloženy.", "error");
+        await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true);
+        return;
+    }
+    window.open("../klal/verify.php", "_blank");
+    await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
+    window.location.reload();
+});
 //Make attendant change school field work
 const getSchoolsStart = async () => {
     const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false, true, true);

@@ -2,7 +2,7 @@
 session_start();
 require "../assets/config.php";
 //user already logged in
-if (isset($_SESSION["userId"]) && !($_SESSION["verify"] || $_POST["verify"])) {
+if (isset($_SESSION["userId"]) && !(isset($_SESSION["verify"]) || isset($_POST["verify"]))) {
     header("Location: ../user/");
     exit();
 }
