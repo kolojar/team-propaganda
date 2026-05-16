@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"accessDenied.php") ?>
+        <?php setupTitlebarAdmin($conn,"accessDenied.php") ?>
     </header>
     <main>
         <h1>Přístup odepřen</h1>

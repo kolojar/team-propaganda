@@ -86,7 +86,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn, "subevent.php") ?>
+        <?php setupTitlebarAdmin($conn, "subevent.php") ?>
     </header>
     <main>
         <?php

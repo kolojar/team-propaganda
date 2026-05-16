@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"classrooms.php") ?>
+        <?php setupTitlebarAdmin($conn,"classrooms.php") ?>
     </header>
     <main>
         <h1>Všechny dostupné učebny v databázi</h1>

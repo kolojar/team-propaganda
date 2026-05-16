@@ -87,7 +87,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"school.php") ?>
+        <?php setupTitlebarAdmin($conn,"school.php") ?>
     </header>
     <main>
         <?php

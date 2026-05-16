@@ -21,27 +21,27 @@ require "../assets/config.php";
 //MATCH(schools.name) AGAINST(? IN NATURAL LANGUAGE MODE) OR MATCH(schools.address) AGAINST(? IN NATURAL LANGUAGE MODE) OR schools.name COLLATE utf8mb4_general_ci LIKE ? OR schools.address COLLATE utf8mb4_general_ci LIKE ?
 //-- Order by score and get 20 best
 //ORDER BY score DESC LIMIT 20;");
-$stmt = $conn->prepare("SELECT schools.id_schools, schools.name, schools.address,
+$stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address,
 -- Get score (search order)
 (
 -- Exact match
-(LOWER(schools.name) LIKE CONCAT(?, '%')) * 5 +
+(LOWER(s.name) LIKE CONCAT(?, '%')) * 5 +
 
 -- FULLTEXT search
-MATCH(schools.name) AGAINST(? IN NATURAL LANGUAGE MODE) * 3 +
-MATCH(schools.address) AGAINST(? IN NATURAL LANGUAGE MODE) * 2 +
+MATCH(s.name) AGAINST(? IN NATURAL LANGUAGE MODE) * 3 +
+MATCH(s.address) AGAINST(? IN NATURAL LANGUAGE MODE) * 2 +
 
 -- Partial word matching
-(LOWER(schools.name) LIKE CONCAT('%', ?, '%')) * 2 +
-(LOWER(schools.address) LIKE CONCAT('%', ?, '%'))
+(LOWER(s.name) LIKE CONCAT('%', ?, '%')) * 2 +
+(LOWER(s.address) LIKE CONCAT('%', ?, '%'))
 ) AS score
-FROM schools_teamPropaganda
+FROM schools_teamPropaganda s
 WHERE
 -- Do matching again for each entry for comparsion
-MATCH(schools.name) AGAINST(? IN NATURAL LANGUAGE MODE)
-OR MATCH(schools.address) AGAINST(? IN NATURAL LANGUAGE MODE)
-OR LOWER(schools.name) LIKE CONCAT('%', ?, '%')
-OR LOWER(schools.address) LIKE CONCAT('%', ?, '%')
+MATCH(s.name) AGAINST(? IN NATURAL LANGUAGE MODE)
+OR MATCH(s.address) AGAINST(? IN NATURAL LANGUAGE MODE)
+OR LOWER(s.name) LIKE CONCAT('%', ?, '%')
+OR LOWER(s.address) LIKE CONCAT('%', ?, '%')
 -- Order by score and get 20 best
 ORDER BY score DESC LIMIT 20");
 

@@ -19,7 +19,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebar($conn,"attendants.php") ?>
+        <?php setupTitlebarAdmin($conn,"attendants.php") ?>
     </header>
     <main>
         <h1>Seznam všech zájemců</h1>

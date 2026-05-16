@@ -1,7 +1,7 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
-import { setupTableDeleteButtons } from "./sharedScripts.js";
+import { setupTableDeleteButtons } from "../assets/sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 for (const button of document.getElementsByClassName("btnUnregisterTable")) {

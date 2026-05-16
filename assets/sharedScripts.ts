@@ -2,9 +2,27 @@ import { FormDialog, FormDialogManager } from "../formWebScripts/js/formDialogSc
 import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
-export function setupSaveCancelButtons(dialogManager: FormDialogManager, className: string, cancelURL: string, postURL: string, id: string, onSaveFunc: null | (() => Promise<boolean>) = null) {
+export function GetChildenElementsByClassName(element: HTMLElement, className: string): HTMLElement[] {
+    return Array.from(element.querySelectorAll("*")).filter(el => el.classList.contains(className)) as HTMLElement[]
+}
+
+//export function getChildenElementsByValueId(element: HTMLElement, valueId: string): HTMLElement[] {
+//    return Array.from(element.querySelectorAll("*")).filter(el => el.getAttribute("value-id") == valueId) as HTMLElement[] 
+//}
+
+export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderId: string | null | HTMLElement, cancelURL: string, postURL: string, id: string, className: string = "validate", onSaveFunc: null | (() => Promise<boolean>) = null) {
+    let holder = null;
+    if (holderId == null) {
+        holder = document.body;
+    } else if (holderId instanceof HTMLElement) {
+        holder = holderId;
+    } else {
+        holder = document.getElementById(holderId as string) as HTMLElement;
+    }
+
     //Setup validation
-    for (const inputElementOriginal of document.getElementsByClassName(className)) {
+    let changed = false
+    for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
         if (inputElementOriginal instanceof HTMLFormInputElement) {
             const inputElement = inputElementOriginal as HTMLFormInputElement
             inputElement.validationFunction = async (value) => {
@@ -16,12 +34,13 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
 
     //Check if exists
     let exists = true;
-    if (document.getElementById("btnSave")?.hasAttribute("exists")) {
-        exists = document.getElementById("btnSave")?.getAttribute("exists") == "true"
+    const saveBtn = GetChildenElementsByClassName(holder, "btnSave")[0]
+    if (saveBtn.hasAttribute("exists")) {
+        exists = saveBtn.getAttribute("exists") == "true"
     }
 
     //Make save button work
-    document.getElementById("btnSave")?.addEventListener("click", async () => {
+    saveBtn.addEventListener("click", async () => {
         //Get elements
         const changes = []
 
@@ -49,7 +68,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
 
         //Run save function
         if (onSaveFunc != null) {
-            if(!(await onSaveFunc())) {
+            if (!(await onSaveFunc())) {
                 return
             }
         }
@@ -96,7 +115,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
     })
 
     //Make cancel button work
-    document.getElementById("btnCancel")?.addEventListener("click", async function () {
+    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function () {
         //Check for changes
         let foundChange = false
         const changes = []
@@ -119,6 +138,7 @@ export function setupSaveCancelButtons(dialogManager: FormDialogManager, classNa
             return
         }
         if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
+            dialogManager.ShowProgress("Rušení změn", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true)
             window.location.reload()
         }
         if (!foundChange) {
@@ -146,7 +166,7 @@ export function setupTableDeleteButtons(dialogManager: FormDialogManager, postUR
     //Get buttons
     for (const button of document.getElementsByClassName("btnTableDelete")) {
         button.addEventListener("click", async () => {
-            if(!button.hasAttribute(idAttributeName)) {
+            if (!button.hasAttribute(idAttributeName)) {
                 return
             }
 
