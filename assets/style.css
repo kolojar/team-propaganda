@@ -14,7 +14,81 @@ header {
     margin-top: 0px;
     padding-top: 1px;
     padding-bottom: 0px;
-    background-color:#5088B5;
-    color: white;
+    background-color: var(--purkynka-box-blue);
+    color: var(--purkynka-text-white);
 }
 
+:root {
+    --purkynka-blue-main: #5088B5;
+    --purkynka-blue-darker: #5481AA;
+    --purkynka-blue-dark: #3E6182;
+    --purkynka-blue-lighter: #77AFE0;
+    --purkynka-blue-light: #AAD4F3;
+    --purkynka-background-white: #FFFFFF;
+    --purkynka-text-black: #3C3C3B;
+    --purkynka-box-blue: var(--purkynka-blue-main);
+    --purkynka-text-white: #F0F2F2;
+    --purkynka-box-yellow: #FAB400;
+    --purkynka-active-yellow: rgb(253, 192, 35);
+    --purkynka-green: #70B95E;
+
+    --background-color: var(--purkynka-background-white);
+    --color-next-layer: #333;
+    --color: var(--purkynka-text-black);
+    --background-color-next-layer: #ccc;
+}
+
+/*Button not active*/
+.purkynkaBlueLighterColor {
+    background: var(--purkynka-blue-lighter);
+}
+
+/*Button active*/
+.purkynkaBlueLightColor {
+    background: var(--purkynka-blue-light);
+}
+
+.purkynkaBlueDarkColor {
+    background: var(--purkynka-blue-dark);
+}
+
+/*Button logout*/
+.purkynkaYellowColor {
+    background: var(--purkynka-box-yellow);
+}
+
+/*Button logout*/
+.purkynkaTextBlackColor {
+    color: var(--purkynka-text-black);
+}
+
+.purkynkaButton {
+    border-radius: 0px;
+    color: var(--purkynka-blue-dark);
+    background-color: var(--purkynka-box-yellow);
+    font-weight: normal;
+    box-shadow: 0em .15em .65em 0em rgba(0, 0, 0, .25);
+}
+
+.purkynkaButton:hover {
+    filter: none;
+    background-color: var(--purkynka-active-yellow)
+}
+
+ a {
+    color: var(--purkynka-blue-darker);
+ }
+ a:hover {
+    color:var(--purkynka-blue-lighter);
+ }
+
+fieldset {
+    border-color: var(--background-color-next-layer);
+    border-width: 1px;
+}
+
+ legend {
+    font-family: "Roboto Slab";
+    font-weight: 400;
+    font-size: 16pt;
+ }

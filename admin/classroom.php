@@ -33,7 +33,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO classrooms(name,placesToSit,isFunctional,note) VALUES (?, ?,?, ?)");
+        $stmt = $conn->prepare("INSERT INTO classrooms_teamPropaganda(name,placesToSit,isFunctional,note) VALUES (?, ?,?, ?)");
         $stmt->bind_param("siis", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -53,7 +53,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Delete
-        $stmt = $conn->prepare("DELETE FROM classrooms WHERE id_classrooms=?");
+        $stmt = $conn->prepare("DELETE FROM classrooms_teamPropaganda WHERE id_classrooms=?");
         $stmt->bind_param("i",$_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);

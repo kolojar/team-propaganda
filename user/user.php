@@ -1,19 +1,24 @@
-<!DOCTYPE html>
-<html lang="cz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Užiivatelský panel</title>
-</head>
-<body>
-    <header>
-
-    </header>
-    <main>
-
-    </main>
-    <footer>
-        
-    </footer>
-</body>
-</html>
+<?php
+require "../assets/config.php";
+session_start();
+if (!isset($_SESSION["userId"])) {
+    if (isset($_SESSION["login"])) {
+        echo "login";
+        $_SESSION["userId"] = $conn->query("SELECT id_users FROM users_teamPropaganda WHERE `email` = '" . $_SESSION["login"] . "'");
+        $_SESSION["login"] = null;
+    } else if (isset($_SESSION["signup"])) {
+        echo "signup";
+        $stmt = $comm->prepare("INSERT INTO users_teamPropaganda (name, surname, email, id_schools) VALUES (?, ?, ?, ?)");
+        $stmt->bind_params("sssi", $_SESSION["name"], $_SESSION["surname"], $_SESSION["signup"], $_SESSION["id_schools"]);
+        $stmt->execute();
+        $_SESSION["userId"] = $stmt->insert_id;
+        $_SESSION["name"] = null;
+        $_SESSION["surname"] = null;
+        $_SESSION["signup"] = null;
+        $_SESSION["id_schools"] = null;
+    } else {
+        echo "none";
+        header("Location: ./loginForm.html");
+    }
+}
+?>
