@@ -303,8 +303,10 @@ function verify(string $email)
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         const fields = document.getElementsByClassName('otp-field');
+        console.log(fields)
+        let index = 0
+        for (let field of fields) {
 
-        fields.forEach((field, index) => {
             // Handle entering a digit
             field.addEventListener('input', (e) => {
                 const value = e.target.value;
@@ -333,7 +335,7 @@ function verify(string $email)
                 if (pasteData.length > 0) {
                     // Fill each field starting from the one being pasted into
                     for (let i = 0; i < pasteData.length; i++) {
-                        const targetIndex = index + i;
+                        const targetIndex = i;
                         if (targetIndex < fields.length) {
                             fields[targetIndex].value = pasteData[i];
                         }
@@ -351,7 +353,8 @@ function verify(string $email)
                     e.preventDefault();
                 }
             });
-        });
+            index++
+        };
 
         // Simple form submission feedback
         document.getElementById('otp-form').addEventListener('submit', (e) => {
@@ -366,9 +369,9 @@ function verify(string $email)
 
             // Collect the full code
             let verificationCode = "";
-            fields.forEach(field => {
+            for (let field of fields) {
                 verificationCode += field.value;
-            });
+            };
 
             let data = {
                 code: Number(verificationCode)
@@ -385,7 +388,7 @@ function verify(string $email)
                         btn.style.opacity = '1';
                         console.log("hell yeah")
                         setTimeout(() => {
-                            window.location.href = "./user.php"
+                            window.location.href = "../user"
                         }, 2000)
                     } else {
                         btn.textContent = 'Verify Code';

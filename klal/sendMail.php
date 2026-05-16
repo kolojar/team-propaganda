@@ -67,6 +67,10 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     * {
         user-select: none;
     }
+
+    .y {
+        color: #F4D572;
+    }
 </style>
 
 <head>
@@ -75,45 +79,49 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 </head>
 
 <body>
-    <form id="form">
-        <fieldset id="users">
-            <table>
-                <tr>
-                    <th>×</th>
-                    <th>Jméno</th>
-                    <th>E-mail</th>
-                </tr>
-                <?php
-                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = 'user';");
-                while ($row = $res->fetch_object()) {
-                    echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
-                }
-                ?>
-            </table>
-        </fieldset>
-        <input type="checkbox" id="checkall" name="checkall">
-        <label for="checkall">Vybrat všechny</label><br>
-        <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
-        <label for="subject">Předmět</label>
-        <input type="text" id="subject" name="subject" required><br>
-        <label for="message">Zpráva</label><br>
-        <textarea name="message" id="message" required></textarea><br>
-        <label for="templates">Předvolby</label>
-        <select id="templates">
-            <option value="none" id="option-none">nový</option>
+    <!--<form id="form">-->
+    <fieldset id="users">
+        <table>
+            <tr>
+                <th>×</th>
+                <th>Jméno</th>
+                <th>E-mail</th>
+            </tr>
             <?php
-            $files = array_diff(scandir("./templates/"), array('.', '..'));
-            foreach ($files as $file) {
-                echo "<option value='$file' id='option-$file'>$file</option>";
+            $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = 'user';");
+            while ($row = $res->fetch_object()) {
+                echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
             }
             ?>
-        </select><br>
-        <input type="checkbox" checked id="now" name="now">
-        <label for="now">Odeslat ihned</label><br>
-        <input type="date" id="date" name="date" disabled today>
-        <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
-        <input type="submit">
-    </form>
+        </table>
+    </fieldset>
+    <input type="checkbox" id="checkall" name="checkall">
+    <label for="checkall">Vybrat všechny</label><br>
+    <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
+    <label for="subject">Předmět</label>
+    <input type="text" id="subject" name="subject" required><br>
+    <label for="message">Zpráva</label><br>
+    <textarea name="message" id="message" required></textarea><br>
+    <label for="templates">Předvolby</label>
+    <select id="templates">
+        <option value="none" id="option-none">nový</option>
+        <?php
+        $files = array_diff(scandir("./templates/"), array('.', '..'));
+        foreach ($files as $file) {
+            echo "<option value='$file' id='option-$file'>$file</option>";
+        }
+        ?>
+    </select><br>
+    <input type="checkbox" checked id="now" name="now">
+    <label for="now">Odeslat ihned</label><br>
+    <input type="date" id="date" name="date" disabled today>
+    <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
+    <div id="attachments">
+        <button id="addAttachment" name="addAttachment">+</button>
+        <label for="addAttachment">Přidat přílohu</label>
+    </div>
+    <input type="submit" id="submit">
+    <!--</form>-->
     <script type="module">
         import {
             SendPOSTDataToServerAsync
@@ -121,7 +129,10 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         import {
             SendToast
         } from "../formWebScripts/js/formScript.js";
-
+        import {
+            FormDialogManager
+        } from "../formWebScripts/js/formDialogScript.js";
+        let dm = new FormDialogManager();
         let selectedTemplate = "none";
 
         document.getElementById("now").addEventListener("change", () => {
@@ -188,7 +199,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
         })
 
-        document.getElementById("form").addEventListener('submit', (e) => {
+        document.getElementById("submit").addEventListener('click', (e) => {
             sendToPHP(e)
         })
 
@@ -229,6 +240,25 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             else SendToast("Odpověď serveru", res, "error")
 
         }
+
+        document.getElementById("addAttachment").addEventListener("click", async (e) => {
+            e.preventDefault()
+            let options = new Map();
+
+            <?php
+            $files = array_diff(scandir("./files/"), array('..', '.'));
+            foreach ($files as $file) {
+                if (is_dir("./files/$file")) {
+                    echo "options.set('$file','$file')\n"; //but yellow
+                } else {
+                    echo "options.set('$file','$file')\n";
+                }
+            }
+            ?>
+            console.log(options)
+
+            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='./fs.php'>Přidat novou přílohu.</a>", null, options)
+        })
     </script>
 </body>
 
