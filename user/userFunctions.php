@@ -1,8 +1,9 @@
 <?php
-function setupTitlebarUser(mysqli $conn) {
+function setupTitlebarUser(mysqli $conn)
+{
     //Get name of current user
     $stmt = $conn->prepare("SELECT name, surname FROM users_teamPropaganda WHERE id_users=?");
-    $stmt->bind_param("i",$_SESSION["userId"]);
+    $stmt->bind_param("i", $_SESSION["userId"]);
     $stmt->execute();
     $stmt->store_result();
     $stmt->bind_result($name, $surname);
@@ -46,9 +47,9 @@ function checkIfParentMatches(mysqli $conn, string $attendantId): bool
     if (!$stmtAttendant->bind_result($getId)) {
         return false;
     }
-     if (!$stmtAttendant->fetch()) {
+    if (!$stmtAttendant->fetch()) {
         return false;
-     }
+    }
     return $getId == $_SESSION["userId"];
 }
 
@@ -79,9 +80,9 @@ function checkIfParentMatches2(mysqli $conn, string $variableSymbol): bool
     if (!$stmtAttendant->bind_result($getId)) {
         return false;
     }
-     if (!$stmtAttendant->fetch()) {
+    if (!$stmtAttendant->fetch()) {
         return false;
-     }
+    }
     return $getId == $_SESSION["userId"];
 }
 ?>
