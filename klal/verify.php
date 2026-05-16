@@ -2,8 +2,8 @@
 session_start();
 require "../assets/config.php";
 //user already logged in
-if (isset($_SESSION["userId"])) {
-    header("Location: ./user.php");
+if (isset($_SESSION["userId"]) && !($_SESSION["verify"] || $_POST["verify"])) {
+    header("Location: ../user/");
     exit();
 }
 //login
@@ -25,14 +25,20 @@ if (isset($_POST["login"])) {
     }
 } else if (
     isset($_POST["email"]) &&
-    isset($_POST["name"]) &&
-    isset($_POST["surname"]) &&
-    isset($_POST["id_schools"])
+    isset($_POST["nameA"]) &&
+    isset($_POST["surnameA"]) &&
+    isset($_POST["id_schools"]) &&
+    isset($_POST["nameU"]) &&
+    isset($_POST["surnameU"]) &&
+    isset($_POST["phone"])
 ) { //sign in
     $_SESSION["signup"] = $_POST["email"];
-    $_SESSION["name"] = $_POST["name"];
-    $_SESSION["surname"] = $_POST["surname"];
+    $_SESSION["nameA"] = $_POST["nameA"];
+    $_SESSION["surnameA"] = $_POST["surnameA"];
     $_SESSION["id_schools"] = $_POST["id_schools"];
+    $_SESSION["nameU"] = $_POST["nameU"];
+    $_SESSION["surnameU"] = $_POST["surnameU"];
+    $_SESSION["phone"] = $_POST["phone"];
 
     $stmt = $conn->prepare("SELECT * FROM users_teamPropaganda WHERE email = ?");
     $stmt->bind_param("s", $_SESSION["signup"]);
@@ -46,6 +52,13 @@ if (isset($_POST["login"])) {
         http_response_code(400);
         echo "Uživatel již přihlášen";
         $_SESSION["signup"] = null;
+        $_SESSION["nameA"] = null;
+        $_SESSION["surnameA"] = null;
+        $_SESSION["id_schools"] = null;
+        $_SESSION["nameU"] = null;
+        $_SESSION["surnameU"] = null;
+        $_SESSION["phone"] = null;
+
         exit;
     }
 } else if (isset($_POST["verify"])) {
@@ -64,7 +77,7 @@ function verify(string $email)
 {
     $code = rand(10000, 99999);
     //echo $code;
-    $_SESSION["verify"] = $code;
+    $_SESSION["verifyCode"] = $code;
     $message = str_replace("\$code", $code, file_get_contents("./assets/verifyEmail.html"));
     if (!sendMail($email, "Ověření Emailu", $message)) {
         http_response_code(400);
@@ -282,10 +295,10 @@ function verify(string $email)
             <button type="submit" class="verify-btn">Verify Code</button>
         </form>
 
-        <!--<div class="footer">
-            <p>Didn't receive the email?</p>
-            <a href="#" class="resend-link">Resend Code</a>
-        </div>-->
+        <div class="footer">
+            <p>Didn't receive the email and waited for at least 2 minutes?</p>
+            <a href="#" class="resend-link">Zpět</a>
+        </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
