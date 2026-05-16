@@ -23,7 +23,7 @@ if (isset($_FILES["files"])) {
         exit;
     } else {
         http_response_code(400);
-        echo "Soubor se nepodařilo uložit.";
+        echo "Soubor se nepodařilo nahrát.";
         exit;
     }
 } else if (isset($_POST["name"])) {

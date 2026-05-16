@@ -27,16 +27,16 @@ session_start();
                 <th>Email</th>
             </tr>
             <?php
-            $stmt = $conn->query("SELECT * FROM users_teamPropaganda WHERE isNILE = 0 AND role = user");
+            $stmt = $conn->query("SELECT * FROM users_teamPropaganda WHERE isNILE = 0 AND role = 'user'");
             if ($stmt->num_rows > 0) {
                 while ($user = $stmt->fetch_assoc()) {
                     echo "<tr><td>";
                     if (file_exists("./files/" . $_GET["file"] . "/" . $user["id_users"] . "." . explode(".", $_GET["file"])[1])) {
-                        echo "<button file='" . $user["id_users"] . "' class='view formButton'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                        echo "<button file='" . $_GET["file"] . "/" . $user["id_users"] . "." . explode(".", $_GET["file"])[1] . "' class='show formButton'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
  <path d='M2.42012 12.7132C2.28394 12.4975 2.21584 12.3897 2.17772 12.2234C2.14909 12.0985 2.14909 11.9015 2.17772 11.7766C2.21584 11.6103 2.28394 11.5025 2.42012 11.2868C3.54553 9.50484 6.8954 5 12.0004 5C17.1054 5 20.4553 9.50484 21.5807 11.2868C21.7169 11.5025 21.785 11.6103 21.8231 11.7766C21.8517 11.9015 21.8517 12.0985 21.8231 12.2234C21.785 12.3897 21.7169 12.4975 21.5807 12.7132C20.4553 14.4952 17.1054 19 12.0004 19C6.8954 19 3.54553 14.4952 2.42012 12.7132Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
  <path d='M12.0004 15C13.6573 15 15.0004 13.6569 15.0004 12C15.0004 10.3431 13.6573 9 12.0004 9C10.3435 9 9.0004 10.3431 9.0004 12C9.0004 13.6569 10.3435 15 12.0004 15Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
  </svg></button><button userId='" . $user["id_users"] . "' class='delete formButton formErrorColor deleteUserButton'><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
-</button>";
+</button><button class='download' file='" . $_GET["file"] . "/" . $user["id_users"] . "." . explode(".", $_GET["file"])[1] . "'>d</button>";
                     } else {
                         echo "<button userId='" . $user["id_users"] . "' class='addFile formButton'><svg height='20' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'>
                     <g fill='none' fill-rule='evenodd'>
@@ -80,11 +80,11 @@ session_start();
 </svg></button><button file='./files/$file' class='delDir'><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
 </button>";
                 } else {
-                    echo "<button file='./files/$file' class='show'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    echo "<button file='$file' class='show'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
  <path d='M2.42012 12.7132C2.28394 12.4975 2.21584 12.3897 2.17772 12.2234C2.14909 12.0985 2.14909 11.9015 2.17772 11.7766C2.21584 11.6103 2.28394 11.5025 2.42012 11.2868C3.54553 9.50484 6.8954 5 12.0004 5C17.1054 5 20.4553 9.50484 21.5807 11.2868C21.7169 11.5025 21.785 11.6103 21.8231 11.7766C21.8517 11.9015 21.8517 12.0985 21.8231 12.2234C21.785 12.3897 21.7169 12.4975 21.5807 12.7132C20.4553 14.4952 17.1054 19 12.0004 19C6.8954 19 3.54553 14.4952 2.42012 12.7132Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
  <path d='M12.0004 15C13.6573 15 15.0004 13.6569 15.0004 12C15.0004 10.3431 13.6573 9 12.0004 9C10.3435 9 9.0004 10.3431 9.0004 12C9.0004 13.6569 10.3435 15 12.0004 15Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
  </svg></button><button file='./files/$file' class='delete'><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
-</button>";
+</button><button class='download' file='$file'>d</button>";
                 }
                 echo "</td><td>" . $file . "</td></tr>";
             }
@@ -115,8 +115,10 @@ session_start();
                     let data = new FormData()
                     data.append('files[]', file[0])
                     let [ok, res] = await SendPOSTDataToServerAsync("./addFile.php", data);
-                    if (ok) SendToast("Odpověď serveru", res, "ok")
-                    else SendToast("Odpověď serveru", res, "error")
+                    if (ok) {
+                        SendToast("Odpověď serveru", res, "ok");
+                        window.location.reload()
+                    } else SendToast("Odpověď serveru", res, "error")
                 } else {
                     SendToast("Nahrávání souboru", "Soubor se nepodařilo nahrát", "error")
                     return;
@@ -124,7 +126,7 @@ session_start();
             })
 
             document.getElementById("addFolder").addEventListener("click", async (e) => {
-                let name = await dm.OpenPrompt("Název", "Zadejte název souborů. Tento název bude použit pro všechny soubory, které budou vloženy do této složky. (To platí i pro příponu.)", null)
+                let name = await dm.OpenPrompt("Název", "Zadejte název souborů. <br>Tento název bude použit pro všechny soubory, které budou vloženy do této složky. (To platí i pro příponu.)", null)
                 if (name) {
                     let data = new FormData()
                     data.append("name", name)
@@ -159,7 +161,7 @@ session_start();
             neu.addEventListener("click", async (e) => {
                 let id = neu.getAttribute("userId");
                 let data = new FormData()
-                let file = await dm.OpenPrompt("Soubor", "Vyberte soubor. Jméno souboru bude změněno na jméno složky.", null, "file")
+                let file = await dm.OpenPrompt("Soubor", "Vyberte soubor. <br>Jméno souboru bude změněno na jméno složky.", null, "file")
                 if (file && file[0]) {
                     SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
                     data.append("files[]", file[0])
@@ -180,7 +182,7 @@ session_start();
 
         for (let del of document.getElementsByClassName("delDir")) {
             del.addEventListener("click", async (e) => {
-                if (await dm.OpenConfirm("Smazání složky", "Opravdu si přejete smazat tuto složku? Všechny soubory v této složce budou smazány také.")) {
+                if (await dm.OpenConfirm("Smazání složky", "Opravdu si přejete smazat tuto složku? <br>Všechny soubory v této složce budou smazány také.")) {
                     let data = new FormData()
                     data.append("rmdir", del.getAttribute("file"))
                     let [ok, res] = await SendPOSTDataToServerAsync("./deleteFile.php", data)
@@ -192,8 +194,18 @@ session_start();
             })
         }
         for (let show of document.getElementsByClassName("showDir")) {
-            show.addEventListener("click", async (e) => {
+            show.addEventListener("click", (e) => {
                 window.location.href = "./fs.php?file=" + show.getAttribute("file")
+            })
+        }
+        for (let show of document.getElementsByClassName("show")) {
+            show.addEventListener("click", (e) => {
+                window.open("./showFile.php?file=" + show.getAttribute("file"), "_blank")
+            })
+        }
+        for (let download of document.getElementsByClassName("download")) {
+            download.addEventListener("click", (e) => {
+                window.location.href = "./downloadFile.php?file=" + download.getAttribute("file")
             })
         }
     </script>

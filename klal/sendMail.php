@@ -84,7 +84,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     <th>E-mail</th>
                 </tr>
                 <?php
-                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = user;");
+                $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = 'user';");
                 while ($row = $res->fetch_object()) {
                     echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
                 }
