@@ -34,6 +34,7 @@ require './userFunctions.php';
 
             echo "<form-input class='validate' value-id='name' label='Jméno:' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>";
             echo "<form-input class='validate' value-id='surname' label='Přijmení:' type='text' do-change-check='true' value='$surname' original-value='$surname'></form-input>";
+            echo "<span>Email: $email</span>"
             ?>
             <div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>

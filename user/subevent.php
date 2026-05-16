@@ -18,7 +18,7 @@ require './userFunctions.php';
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarUser($conn) ?>
+        <?php setupTitlebarAdmin($conn) ?>
     </header>
     <main>
         <?php
