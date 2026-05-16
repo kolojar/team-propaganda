@@ -70,7 +70,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         }
         //Wait for confirm
         progress2.CloseDialog();
-        if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
+        if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:<br>" + changes.join("<br>"), true, true)) {
             const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
             //Create FormData
             const data = new FormData();
@@ -134,7 +134,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
             }
             return;
         }
-        if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:\r\n" + changes.join("\r\n"), true, true)) {
+        if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"), true, true)) {
             dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true);
             window.location.reload();
         }

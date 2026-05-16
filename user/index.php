@@ -25,11 +25,11 @@ require './userFunctions.php';
             <?php
             $_SESSION["userId"] = 6;
             //Get name of current user
-            $stmt = $conn->prepare("SELECT name, surname FROM users_teamPropaganda WHERE id_users=?");
+            $stmt = $conn->prepare("SELECT name, surname, email FROM users_teamPropaganda WHERE id_users=?");
             $stmt->bind_param("i", $_SESSION["userId"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name, $surname);
+            $stmt->bind_result($name, $surname,$email);
             $stmt->fetch();
 
             echo "<form-input class='validate' value-id='name' label='Jméno:' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>";

@@ -34,6 +34,9 @@ require './userFunctions.php';
             die();
         }
         ?>
+        <fieldset id="">
+            <legend>Informace o Vás</legend>
+        </fieldset>
     </main>
     <script type='module' src='../formWebScripts/js/formScript.js'></script>
     <script src='./subevent.js' type='module'></script>
