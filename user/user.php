@@ -20,5 +20,33 @@ if (!isset($_SESSION["userId"])) {
         echo "none";
         header("Location: ./loginForm.html");
     }
+    die();
+}
+if (isset($_POST["action"])) {
+    if ($_POST["action"] == "update") {
+        //Check if values set
+        if (!isset($_POST["name"]) || !isset($_POST["surname"])) {
+            http_response_code(400);
+            echo "Invalid usage of function - missing table column parameters";
+            die();
+        }
+
+        //Make SQL Update
+        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET name=?, surname=? WHERE id_users=?");
+        $stmt->bind_param("ssi", $_POST["name"], $_POST["surname"],$_SESSION["userId"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry updated.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be updated.";
+            die();
+        }
+    } else {
+        http_response_code(400);
+        echo "Invalid usage of function - missing action parameter";
+        die();
+    }
 }
 ?>

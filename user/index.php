@@ -14,14 +14,8 @@ require './userFunctions.php';
     <link rel='stylesheet' href='../formWebScripts/css/formStyle.css'>
     <link rel='stylesheet' href='../assets/style.css'>
     <link rel='stylesheet' href='./user.css'>
-    <style>
-        ul {
-            margin-top: 0px;
-        }
-    </style>
 </head>
-
-<body>
+<body class="pageHolder">
     <header>
         <?php setupTitlebarUser($conn) ?>
     </header>
@@ -66,11 +60,31 @@ require './userFunctions.php';
                 <legend>Informace o zájemci: $name $surname</legend>
                 <form-input value-id='name' label='Jméno:' class='validate' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>
                 <form-input value-id='surname' label='Přijmení:' class='validate' type='text' do-change-check='true' value='$surname' original-value='$surname'></form-input>
-                <form-input value-id='school' label='Základní škola:' class='validate schoolValue' type='select' do-change-check='true' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false'></form-input>
-                <span>Přihlášené akce - kliknutím zobrazíte podrobnosti:</span>
-                <ul>";
-            echo "</ul>
-                <div class='formButtonBoxHolder'>
+                <form-input value-id='school' label='Základní škola:' class='validate schoolValue' type='select' do-change-check='true' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false'></form-input>";
+
+            //Get events of attendant
+            $stmt2 = $conn->prepare("SELECT ra.variable_symbol, ra.id_events, ra.paid, e.name, e.price FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.id_attendants = ?;");
+            $stmt2->bind_param("i", $id);
+            $stmt2->execute();
+            $stmt2->store_result();
+            if ($stmt2->num_rows > 0) {
+                echo "<span>Přihlášené akce - kliknutím na modrý název zobrazíte podrobnosti:</span><ul>";
+                for ($j = 0; $j < $stmt2->num_rows; $j++) {
+                    $stmt2->bind_result($variableSymbol, $eventId, $paid, $eventName, $price);
+                    $stmt2->fetch();
+                    echo "<li><a href='./subevent.php?variableSymbol=$variableSymbol'>$eventName</a>";
+                    if($paid == null) {
+                        echo "<span> → Potřeba uhradit poplatek!</span>";
+                    }
+                    echo "</li>";
+                }
+                echo "</ul>";
+            } else {
+                echo "<span>Zájemce není přihlášen na žádnou akci.</span>";
+            }
+
+            //Buttons
+            echo "<div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>
                     <button class='formButton purkynkaButton'>Přihlásit na další akce</button>
                 </div>
@@ -83,9 +97,6 @@ require './userFunctions.php';
         }
         ?>
     </main>
-    <footer>
-
-    </footer>
     <script type='module' src='../formWebScripts/js/formScript.js'></script>
     <script src='./index.js' type='module'></script>
 </body>

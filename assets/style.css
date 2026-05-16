@@ -75,20 +75,21 @@ header {
     background-color: var(--purkynka-active-yellow)
 }
 
- a {
+a {
     color: var(--purkynka-blue-darker);
- }
- a:hover {
-    color:var(--purkynka-blue-lighter);
- }
+}
+
+a:hover {
+    color: var(--purkynka-blue-lighter);
+}
 
 fieldset {
     border-color: var(--background-color-next-layer);
     border-width: 1px;
 }
 
- legend {
+legend {
     font-family: "Roboto Slab";
     font-weight: 400;
     font-size: 16pt;
- }
+}
