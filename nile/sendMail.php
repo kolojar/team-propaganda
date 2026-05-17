@@ -42,6 +42,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     foreach ($_POST["userIds"] as $uid) {
         if (!$stmt->execute()) echo "nope $uid\n";
     }
+    $stmt->close();
     exit;
 }
 ?>
@@ -90,7 +91,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         <select id="templates">
             <option value="none" id="option-none">nový</option>
             <?php
-            $files = array_diff(scandir("./templates/"), array('.', '..'));
+            $files = array_diff(scandir("../klal/templates/"), array('.', '..'));
             foreach ($files as $file) {
                 echo "<option value='$file' id='option-$file'>$file</option>";
             }

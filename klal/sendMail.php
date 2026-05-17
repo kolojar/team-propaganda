@@ -7,20 +7,26 @@ require "../assets/config.php";
 if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userIds"])) {
     //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
+    $attachments = null;
+    if (isset($_POST["files"])) {
+        $attachments = $_POST["files"];
+    }
     if (isset($_POST["datetime"])) {
-        if (!isset($_POST["global"])) {
-            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send) VALUES (?, ?, ?)");
-        } else {
-            $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal) VALUES (?, ?, ?, 1)");
+        $global = 0;
+        if (isset($_POST["global"])) {
+            $global = 1;
         }
-        $stmt->bind_param("sss", $_POST["subject"], $_POST["message"], $_POST["datetime"]);
+        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal, attachments) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssis", $_POST["subject"], $_POST["message"], $_POST["datetime"], $global, $attachments);
     } else {
-        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message) VALUES (?, ?)");
-        $stmt->bind_param("ss", $_POST["subject"], $_POST["message"]);
+        //file_put_contents("php://stdout", "else" . "\n");
+        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, attachments) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $_POST["subject"], $_POST["message"], $attachments);
         foreach (json_decode($_POST["userIds"]) as $uid) {
+            //file_put_contents("php://stdout", "foreach $uid" . "\n");
             $stmt2 = $conn->prepare("SELECT email FROM users_teamPropaganda WHERE id_users = ?");
             $stmt2->bind_param("i", $uid);
-            if ($stmt2->execute()) {
+            if (!$stmt2->execute()) {
                 http_response_code(400);
                 echo "Nepodařilo se zapsat data do databáze u uživatele s id: $uid";
                 die;
@@ -32,11 +38,15 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             $message = $_POST["message"];
             $stmt2->bind_result($email);
             $stmt2->fetch();
-            if (!sendMail($email, $_POST["subject"], $message)) {
+            //file_put_contents("php://stdout", "mes $message, ema $email, uid $uid, sub " . $_POST["subject"] . " att $attachments" . "\n");
+            $mail = sendMail($email, $_POST["subject"], $message, $attachments, $uid);
+            //file_put_contents("php://stdout", "mail $mail" . "\n");
+            if (!$mail) {
                 http_response_code(400);
                 echo "Nepodařilo se odeslat email pro uživatele s id: $uid";
                 die;
             }
+            $stmt2->close();
         }
         $sent = 1;
     }
@@ -47,13 +57,14 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     }
     $emailId = $stmt->insert_id;
     $stmt->prepare("INSERT INTO email_send_user_teamPropaganda (id_users, id_email_send, sent) VALUES (?, ?, ?)");
-    $stmt->bind_param("iii", $uid, $emailId, $sent);
-    foreach ($_POST["userIds"] as $uid) {
+    foreach (json_decode($_POST["userIds"]) as $uid) {
+        $stmt->bind_param("iii", $uid, $emailId, $sent);
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se uložit data k uživateli s id: $uid";
         };
     }
+    $stmt->close();
     exit;
 }
 ?>
@@ -117,9 +128,10 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     <input type="date" id="date" name="date" disabled today>
     <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
     <div id="attachments">
-        <button id="addAttachment" name="addAttachment">+</button>
-        <label for="addAttachment">Přidat přílohu</label>
+
     </div>
+    <button id="addAttachment" name="addAttachment">+</button>
+    <label for="addAttachment">Přidat přílohu</label>
     <input type="submit" id="submit">
     <!--</form>-->
     <script type="module">
@@ -211,6 +223,15 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     userIds.push(user.value);
                 }
             }
+            let files;
+            for (let file of document.getElementsByClassName("atch")) {
+                if (!files) {
+                    files = []
+                };
+                files.push(file.getAttribute("file"))
+
+            }
+
             if (userIds.length == 0 && !document.getElementById("global").checked) {
                 SendToast("Chyba", "Nebyl vybrán žádný příjemce.", "error")
                 return;
@@ -223,6 +244,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             const data = new FormData();
             data.append("subject", document.getElementById("subject").value)
             data.append("message", document.getElementById("message").value)
+            if (files != undefined) data.append("files", JSON.stringify(files))
             if (!document.getElementById("now").checked) {
                 data.append("datetime", document.getElementById("date").value + " " + document.getElementById("hour").value)
             }
@@ -246,9 +268,9 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             let options = new Map();
 
             <?php
-            $files = array_diff(scandir("./files/"), array('..', '.'));
+            $files = array_diff(scandir("../files/"), array('..', '.'));
             foreach ($files as $file) {
-                if (is_dir("./files/$file")) {
+                if (is_dir("../files/$file")) {
                     echo "options.set('$file','$file')\n"; //but yellow
                 } else {
                     echo "options.set('$file','$file')\n";
@@ -257,7 +279,18 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             ?>
             console.log(options)
 
-            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='./fs.php'>Přidat novou přílohu.</a>", null, options)
+            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='./fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
+            console.log(file)
+            if (file) {
+                let btn = document.createElement("button")
+                btn.classList.add("atch")
+                btn.setAttribute("file", file)
+                btn.innerHTML = file
+                btn.addEventListener("click", (e) => {
+                    btn.remove();
+                })
+                document.getElementById("attachments").append(btn)
+            }
         })
     </script>
 </body>

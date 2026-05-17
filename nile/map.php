@@ -19,12 +19,11 @@ require "../assets/config.php";
         }
 
         .round {
-            padding: 1vw;
             border-radius: 50%;
-        }
 
-        .square {
-            padding: 0.5vw;
+            .icon {
+                width: 2.5vw;
+            }
         }
 
         .site {
@@ -35,6 +34,7 @@ require "../assets/config.php";
             place-items: center;
             aspect-ratio: 1;
             background-color: #B000B0;
+            width: 4vw;
         }
 
         .map {
@@ -47,6 +47,7 @@ require "../assets/config.php";
             aspect-ratio: 1;
         }
     </style>
+    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
 </head>
 
 <body>
@@ -69,7 +70,7 @@ require "../assets/config.php";
         }
         echo ">";
         if ($site["icon"] != null) {
-            echo '<img class="icon" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
+            echo '<img class="icon" id="s' . $site["id_sites"] . '" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
         }
         echo "</button>";
     }
@@ -84,6 +85,10 @@ require "../assets/config.php";
         import {
             SendToast
         } from "../formWebScripts/js/formScript.js";
+        import {
+            FormDialogManager
+        } from "../formWebScripts/js/formDialogScript.js";
+        let dm = new FormDialogManager()
 
         function repositionPins() {
             console.log("repos")
@@ -102,6 +107,22 @@ require "../assets/config.php";
                     pin.style.top = ((pctX / 100) * mapHeight) + "px";
                 }
             }
+        }
+
+        let sites = document.getElementsByClassName("site")
+        for (let site of sites) {
+            site.addEventListener("click", async (e) => {
+                let data = new FormData()
+                console.log(site.id)
+                data.append("id_sites", site.id)
+                let [ok, res] = await SendPOSTDataToServerAsync("./siteData.php", data);
+                if (!ok) SendToast("Odpověď serveru.", res, "error")
+                let result = JSON.parse(res)
+                let fields = result["fields"].join(", ")
+                let html = (result.presname) ? `<h2>${result.presname}</h2><br><h3>Info:</h3><br>${result.description}<br>` : "";
+                html += `<h2>` + ((document.getElementById("s" + site.id)) ? `<img class="icon" src="${document.getElementById("s"+site.id).src}"> ` : ``) + `${result.compname}</h2><br>${fields}<br><h3>Info:</h3><br>${result.short_info}<br><br><h3>Popis</h3><br>${result.long_info}<br>`
+                await dm.OpenAlert(result.compname, html)
+            })
         }
 
         repositionPins()

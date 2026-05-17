@@ -19,6 +19,7 @@ if (isset($_POST["sitePos"])) {
         if ($site["id" . $check["id_sites"]]["posX"] != $check["posX"] || $site["id" . $check["id_sites"]]["posY"] != $check["posY"]) {
             $stmt->bind_param("ddi", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $check["id_sites"]);
             if (!$stmt->execute()) {
+                http_response_code(400);
                 echo "error UPDATE";
                 exit;
             }
@@ -44,13 +45,17 @@ if (isset($_POST["sitePos"])) {
         }
 
         .round {
-            padding: 1vw;
+            /*padding: 1vw;*/
             border-radius: 50%;
         }
 
-        .square {
-            padding: 0.5vw;
+        .round .icon {
+            width: 2.5vw;
         }
+
+        /*.square {
+            padding: 0.5vw;
+        }*/
 
         .site {
             position: absolute;
@@ -59,6 +64,7 @@ if (isset($_POST["sitePos"])) {
             display: grid;
             place-items: center;
             aspect-ratio: 1;
+            width: 4vw;
         }
 
         .map {
