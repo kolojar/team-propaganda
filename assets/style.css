@@ -123,3 +123,7 @@ th, td {
 .purkynkaTableFullLines td:last-child,.purkynkaTableFullLines th:last-child {
     border-right: none;
 }
+
+.formBackground {
+    background: linear-gradient(to bottom right, var(--purkynka-blue-lighter) 0%, var(--purkynka-blue-dark) 85%);
+}
