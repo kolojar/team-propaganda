@@ -11,9 +11,8 @@ require "./adminFunctions.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uživatelé</title>
-    <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
+    <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -23,7 +22,7 @@ require "./adminFunctions.php";
     </header>
     <main>
         <h1>Uživatelé</h1>
-        <table class='styledTable styledTableAuto'>
+        <table>
             <tr>
                 <th>Akce</th>
                 <th>Jméno a přijmení</th>
@@ -54,8 +53,8 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./user.php?user=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor deleteUserButton' userId=$id>Odstranit</button>
+                            <a href='./user.php?user=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <button class='formButton formButtonInline purkynkaButton deleteUserButton' userId=$id>Odstranit</button>
                         </td>
                         <td>$name $surname</td>
                         <td><a href='mailto:$email'>$email</td>
@@ -72,6 +71,6 @@ require "./adminFunctions.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./sharedScripts.js'></script>
+<script type='module' src='../assets/sharedScripts.js'></script>
 
 </html>

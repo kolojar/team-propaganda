@@ -40,7 +40,6 @@ if (isset($_GET["selectSubevent"])) {
     <title>Admin panel</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -75,7 +74,7 @@ if (isset($_GET["selectSubevent"])) {
 
         if ($eventName != "") {
             echo "<h1>Dostupné podudálosti pro událost: $eventName</h1>";
-            echo "<table class='styledTable styledTableAuto'>";
+            echo "<table>";
             echo "<tr>";
             echo "<th>Akce</th>";
             echo "<th>Datum</th>";
@@ -96,10 +95,10 @@ if (isset($_GET["selectSubevent"])) {
                 $date = DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
                 echo "<tr class='clickHighlightRow'>";
                 echo "<td class='formButtonBoxTable'>";
-                echo "<a href='./events.php?selectSubevent=$id'><button class='formButton formInfoColor'>Otevřít podpohled</button></a>";
+                echo "<a href='./events.php?selectSubevent=$id'><button class='formButton formButtonInline purkynkaButton'>Otevřít podpohled</button></a>";
                 if ($result->role == "admin") {
-                    echo "<a href='./subevent.php?subevent=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
-                    echo "<button class='formButton formErrorColor btnTableDelete' subevent=$id>Odstranit</button>";
+                    echo "<a href='./subevent.php?subevent=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>";
+                    echo "<button class='formButton formButtonInline purkynkaButton btnTableDelete' subevent=$id>Odstranit</button>";
                 }
                 echo "</td>";
                 echo "<td>$date</td>";
@@ -111,14 +110,14 @@ if (isset($_GET["selectSubevent"])) {
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             if ($result->role == "admin") {
-                echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button class='formButton formWarnColor'>Vytvořit podudálost</button></a>";
+                echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button class='formButton purkynkaButton'>Vytvořit podudálost</button></a>";
             }
-            echo "<a href='./events.php?action=clearSubevent'><button class='formButton formErrorColor'>Zavřít podpohled</button></a>";
+            echo "<a href='./events.php?action=clearSubevent'><button class='formButton purkynkaButton'>Zavřít podpohled</button></a>";
             echo "</div>";
             echo "</div>";
         }
         echo "<h1>Dostupné události</h1>";
-        echo "<table class='styledTable styledTableAuto'>";
+        echo "<table>";
         echo "<tr>";
         echo "<th>Akce</th>";
         echo "<th>Název</th>";
@@ -152,10 +151,10 @@ if (isset($_GET["selectSubevent"])) {
             }
             echo "<tr class='clickHighlightRow'>";
             echo "<td class='formButtonBoxTable'>";
-            echo "<a href='./events.php?selectEvent=$id'><button class='formButton formInfoColor'>Otevřít pohled</button></a>";
+            echo "<a href='./events.php?selectEvent=$id'><button class='formButton formButtonInline purkynkaButton'>Otevřít pohled</button></a>";
             if ($result->role == "admin") {
-                echo "<a href='./event.php?event=$id'><button class='formButton formWarnColor'>Upravit</button></a>";
-                echo "<button class='formButton formErrorColor btnTableDelete' event=$id>Odstranit</button>";
+                echo "<a href='./event.php?event=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>";
+                echo "<button class='formButton formButtonInline purkynkaButton btnTableDelete' event=$id>Odstranit</button>";
             }
             echo "</td>";
             echo "<td>$name</td>";
@@ -169,9 +168,9 @@ if (isset($_GET["selectSubevent"])) {
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         if ($result->role == "admin") {
-            echo "<a href='./event.php?newEvent=1'><button class='formButton formWarnColor'>Vytvořit událost</button></a>";
+            echo "<a href='./event.php?newEvent=1'><button class='formButton purkynkaButton'>Vytvořit událost</button></a>";
         }
-        echo "<a href='./events.php?action=clearEvent'><button class='formButton formErrorColor'>Zavřít pohled</button></a>";
+        echo "<a href='./events.php?action=clearEvent'><button class='formButton purkynkaButton'>Zavřít pohled</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

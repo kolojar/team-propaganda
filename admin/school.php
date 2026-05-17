@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE schools SET name=?, address=? WHERE id_schools=?");
+        $stmt = $conn->prepare("UPDATE schools_teamPropaganda SET name=?, address=? WHERE id_schools=?");
         $stmt->bind_param("ssi", $_POST["name"], $_POST["address"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -33,7 +33,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("INSERT INTO schools(name,address) VALUES (?, ?)");
+        $stmt = $conn->prepare("INSERT INTO schools_teamPropaganda(name,address) VALUES (?, ?)");
         $stmt->bind_param("ss", $_POST["name"], $_POST["address"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -53,7 +53,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Delete
-        $stmt = $conn->prepare("DELETE FROM schools WHERE id_schools=?");
+        $stmt = $conn->prepare("DELETE FROM schools_teamPropaganda WHERE id_schools=?");
         $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -81,7 +81,6 @@ if (isset($_POST["action"])) {
     <title>Informace o škole</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -99,7 +98,7 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             //Get school info
-            $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
+            $stmt = $conn->prepare("SELECT name,address FROM schools_teamPropaganda WHERE id_schools = ? LIMIT 1");
             $stmt->bind_param("i", $_GET["school"]);
             $stmt->execute();
             $stmt->store_result();
@@ -109,14 +108,13 @@ if (isset($_POST["action"])) {
         }
 
         //Print HTML
-        echo "<form-input label='Název:' style='width: 100%' class='schoolValidate'  do-change-check='$exists' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Adresa:' style='width: 100%' class='schoolValidate'  do-change-check='$exists' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
+        echo "<form-input label='Název:' style='width: 100%' class='validate' do-change-check='$exists' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Adresa:' style='width: 100%' class='validate' do-change-check='$exists' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./schools.php'><button class='formButton formInfoColor'>Zpět na seznam škol</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        echo "<a href='./schools.php'><button class='formButton purkynkaButton'>Zpět na seznam škol</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

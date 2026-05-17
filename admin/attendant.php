@@ -146,7 +146,6 @@ if (isset($_POST["action"])) {
     <title>Zájemce</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -184,23 +183,20 @@ if (isset($_POST["action"])) {
 
         //Print HTML
         echo "<h1>Informace o zájemci: $name $surname</h1>";
-        echo "<form-input label='Křestní jméno:' class='attendantValidate' do-change-check='true' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Přijmení:' class='attendantValidate' do-change-check='true' type='text' id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
-        echo "<br>";
+        echo "<form-input label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
         //echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         echo "<p>Zákonný zástupce: $parentName $parentSurname</p>";
         echo "<p>Email zákonného zástupce: <a href='mailto:$parentEmail'>$parentEmail</a></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<br>";
-        echo "<form-input label='Základní škola:' class='attendantValidate' type='select' do-change-check='true' id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
+        echo "<form-input id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./attendants.php'><button class='formButton formInfoColor'>Zpět na seznam zájemců</button></a>";
-        echo "<a href='./school.php?school=$schoolId'><button class='formButton formInfoColor'>Zobrazit informace o škole</button></a>";
-        echo "<a href='./user.php?user=$idParent'><button class='formButton formInfoColor'>Zobrazit informace o zákonném zástupci</button></a>";
+        echo "<button class='formButton purkynkaButton btnSave'>Uložit změny</button>";
+        echo "<button class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        echo "<a href='./attendants.php'><button class='formButton purkynkaButton'>Zpět na seznam zájemců</button></a>";
+        echo "<a href='./school.php?school=$schoolId'><button class='formButton purkynkaButton'>Zobrazit informace o škole</button></a>";
+        echo "<a href='./user.php?user=$idParent'><button class='formButton purkynkaButton'>Zobrazit informace o zákonném zástupci</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

@@ -82,7 +82,6 @@ if (isset($_POST["action"])) {
     <title>Učebna</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -113,15 +112,14 @@ if (isset($_POST["action"])) {
 
         //Create HTML
         echo "<form-input label='Název učebny:' class='classroomValidate' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<br>";
         echo "<form-input label='Počet míst k sezení:' class='classroomValidate' do-change-check='$exists' type='number' id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<br><form-toggle labelBefore='Je učebna aktivní: ' class='classroomValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' id='isFunctional'></form-toggle><br>";
+        echo "<form-toggle labelBefore='Je učebna aktivní: ' class='classroomValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' id='isFunctional'></form-toggle><br>";
         echo "<form-input label='Poznámka:' class='classroomValidate' do-change-check='$exists' type='textarea' id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./classrooms.php'><button class='formButton formInfoColor'>Zpět na seznam učeben</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        echo "<a href='./classrooms.php'><button class='formButton purkynkaButton'>Zpět na seznam učeben</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

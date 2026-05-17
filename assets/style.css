@@ -31,11 +31,13 @@ header {
     --purkynka-box-yellow: #FAB400;
     --purkynka-active-yellow: rgb(253, 192, 35);
     --purkynka-green: #70B95E;
+    --purkynka-active-green: #79c765;
+    --purkynka-gray: #DDDDDD;
 
     --background-color: var(--purkynka-background-white);
     --color-next-layer: #333;
     --color: var(--purkynka-text-black);
-    --background-color-next-layer: #ccc;
+    --background-color-next-layer: var(--purkynka-gray);
 }
 
 /*Button not active*/
@@ -75,6 +77,14 @@ header {
     background-color: var(--purkynka-active-yellow)
 }
 
+.purkynkaButtonGreen {
+    background-color: var(--purkynka-green);
+}
+
+.purkynkaButtonGreen:hover:not(:disabled) {
+    background-color: var(--purkynka-active-green);
+}
+
 a {
     color: var(--purkynka-blue-darker);
 }
@@ -92,4 +102,24 @@ legend {
     font-family: "Roboto Slab";
     font-weight: 400;
     font-size: 16pt;
+}
+
+tr {
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    border-color: var(--purkynka-gray);
+}
+
+th, td {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.purkynkaTableFullLines td,.purkynkaTableFullLines th {
+    border-right: 1px solid;
+    border-color: var(--purkynka-gray);
+}
+
+.purkynkaTableFullLines td:last-child,.purkynkaTableFullLines th:last-child {
+    border-right: none;
 }

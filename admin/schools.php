@@ -13,7 +13,6 @@ require "./adminFunctions.php";
     <title>Seznam škol</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -25,7 +24,7 @@ require "./adminFunctions.php";
         <?php
         $isFirst = true;
         //Request schools with student
-        $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_attendants WHERE ra.id_events = ?;");
+        $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools WHERE ra.id_events = ?;");
         $stmt->bind_param("i", $_COOKIE["adminEventId"]);
         $stmt->execute();
         $stmt->store_result();
@@ -41,7 +40,7 @@ require "./adminFunctions.php";
                     continue;
                 }
                 echo "<h1>Školy, které mají nahlášené zájemce</h1>
-                      <table class='styledTable styledTableAuto'>
+                      <table>
                           <tr>
                               <th>Akce</th>
                               <th>Počet zájemců</th>
@@ -54,8 +53,8 @@ require "./adminFunctions.php";
             //HTML data
             echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>
+                            <a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Zvýraznit zájemce</button></a>
                         </td>
                         <td>$count</td>
                         <td>$name</td>
@@ -65,8 +64,8 @@ require "./adminFunctions.php";
         ?>
         </table>
         <h1>Seznam všech škol</h1>
-        <a href="./school.php?newSchool=1"><button class="formButton formWarnColor">Přidat novou školu</button></a>
-        <a href="./schoolsAll.php"><button class="formButton formOkColor">Zobrazit všechny školy</button></a>
+        <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton">Přidat novou školu</button></a>
+        <a href="./schoolsAll.php"><button class="formButton purkynkaButton">Zobrazit všechny školy</button></a>
     </main>
     <footer>
 

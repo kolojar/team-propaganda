@@ -12,7 +12,6 @@ require "./adminFunctions.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platby</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -39,7 +38,7 @@ require "./adminFunctions.php";
         if ($stmt->num_rows > 0) {
             $found = true;
             echo "<h1>Zájemci čekající na vrácení peněz - v době odhlášení měli zájemci zaplaceno</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Akce</th>
                           <th>Variabilní symbol platby</th>
@@ -80,7 +79,7 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formOkColor btnRefundTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice'>Vrátit platbu</button>
+                            <button class='formButton formButtonInline purkynkaButton btnRefundTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice'>Vrátit platbu</button>
                         </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$eventPrice Kč</td>
@@ -109,7 +108,7 @@ require "./adminFunctions.php";
         if ($stmt->num_rows > 0) {
             $found = true;
             echo "<h1>Zájemci čekající na kontolu doručení peněz - v době odhlášení měli zájemci nezaplaceno</h1><i>Pladba může putovat několik dní, takže se doporučuje počkat nějakou dobu, než provedete rozhodnutí.</i>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Akce</th>
                           <th>Variabilní symbol platby</th>
@@ -148,8 +147,8 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formOkColor btnTableAddPayment' variableSymbol='$variableSymbol' unregistered=1>Platba dorazila</button>
-                            <button class='formButton formErrorColor btnRemoveNotPaidTable' variableSymbol='$variableSymbol'>Platba nedorazila</button>
+                            <button class='formButton formButtonInline purkynkaButton btnTableAddPayment' variableSymbol='$variableSymbol' unregistered=1>Platba dorazila</button>
+                            <button class='formButton formButtonInline purkynkaButton btnRemoveNotPaidTable' variableSymbol='$variableSymbol'>Platba nedorazila</button>
                         </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$eventPrice Kč</td>
@@ -173,7 +172,7 @@ require "./adminFunctions.php";
             $found = true;
             //Echo header
             echo "<h1>Zájemci čekající na zaplacení</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                   <tr>
                       <th>Akce</th>
                       <th>Variabilní symbol platby</th>
@@ -193,10 +192,10 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button variableSymbol=$variableSymbol class='formButton formOkColor btnTableAddPayment'>Zaplatit</button></a>";
+                            <button variableSymbol=$variableSymbol class='formButton formButtonInline purkynkaButton btnTableAddPayment'>Zaplatit</button></a>";
                 if ($result->role == "admin") {
-                    echo "  <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>";
+                    echo "  <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>";
                 }
                 echo "  </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
@@ -320,7 +319,7 @@ require "./adminFunctions.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./sharedScripts.js'></script>
+<script type='module' src='../assets/sharedScripts.js'></script>
 <script type='module' src='./payments.js'></script>
 
 </html>

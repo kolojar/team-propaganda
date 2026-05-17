@@ -2,7 +2,7 @@ import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-SetupSaveCancelButtons(dialogManager, "subeventValidate", "./events.php", "./subevent.php", urlSearchParams.get("subevent"));
+SetupSaveCancelButtons(dialogManager, null, "./events.php", "./subevent.php", urlSearchParams.get("subevent"), "subeventValidate");
 //Setup minimums and maximums
 const startTime = document.getElementById("start_time");
 const endTime = document.getElementById("end_time");

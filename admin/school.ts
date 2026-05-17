@@ -6,4 +6,4 @@ import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-SetupSaveCancelButtons(dialogManager,"schoolValidate","./schools.php","./school.php",urlSearchParams.get("school") as string)
+SetupSaveCancelButtons(dialogManager,null,"./schools.php","./school.php",urlSearchParams.get("school") as string,"schoolValidate")

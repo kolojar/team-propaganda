@@ -81,7 +81,6 @@ if (isset($_POST["action"])) {
     <title>Událost</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -129,33 +128,22 @@ if (isset($_POST["action"])) {
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
         
         //Create HTML
-        echo "<form-input label='Název události:' class='eventValidate' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Typ události:' is-case-sensitive-list='false' class='eventValidate' do-change-check='$exists' type='select' id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Popis události:' class='eventValidate' do-change-check='$exists' type='textarea' id='description' original-value='$description' value='$description' placeholder='$description'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Cena události:' class='eventValidate' do-change-check='$exists' type='number' min=0 id='price' original-value='$price' value='$price' placeholder='$price'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Událost aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='active_since' original-value='$activeSince' value='$activeSince'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Událost aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='active_until' original-value='$activeUntil' value='$activeUntil'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Registrace aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='registration_open' original-value='$registrationOpen' value='$registrationOpen'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Registrace aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' id='registration_close' original-value='$registrationClose' value='$registrationClose'></form-input>";
-        echo "<br>";
-        echo "<form-input min=0 label='Počet konání akce:' class='eventValidate' do-change-check='$exists' type='number' id='repeat_count' original-value='$repeatCount' value='$repeatCount' placeholder='$repeatCount'></form-input>";
-        echo "<br>";
-        echo "<form-input min=0 label='Rozestup automatického opakování akce ve dnech (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='number' id='repeat_interval' original-value='$repeatInterval' value='$repeatInterval' placeholder='$repeatInterval'></form-input>";
-        echo "<br>";
-        echo "<form-input label='První den podakce (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='datetime-local' id='repeat_start' original-value='$repeatStart' value='$repeatStart'></form-input>";
-        echo "<br>";
+        echo "<form-input label='Název události:' class='eventValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Typ události:' is-case-sensitive-list='false' class='eventValidate' do-change-check='$exists' type='select' value-id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
+        echo "<form-input label='Popis události:' class='eventValidate' do-change-check='$exists' type='textarea' value-id='description' original-value='$description' value='$description' placeholder='$description'></form-input>";
+        echo "<form-input label='Cena události:' class='eventValidate' do-change-check='$exists' type='number' min=0 value-id='price' original-value='$price' value='$price' placeholder='$price'></form-input>";
+        echo "<form-input label='Událost aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='active_since' id='active_since' original-value='$activeSince' value='$activeSince'></form-input>";
+        echo "<form-input label='Událost aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='active_until' id='active_until' original-value='$activeUntil' value='$activeUntil'></form-input>";
+        echo "<form-input label='Registrace aktivní od:' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='registration_open'  id='registration_open' original-value='$registrationOpen' value='$registrationOpen'></form-input>";
+        echo "<form-input label='Registrace aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='registration_close' id='registration_close' original-value='$registrationClose' value='$registrationClose'></form-input>";
+        echo "<form-input min=0 label='Počet konání akce:' class='eventValidate' do-change-check='$exists' type='number' value-id='repeat_count'  id='repeat_count' original-value='$repeatCount' value='$repeatCount' placeholder='$repeatCount'></form-input>";
+        echo "<form-input min=0 label='Rozestup automatického opakování akce ve dnech (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='number' value-id='repeat_interval' original-value='$repeatInterval' value='$repeatInterval' placeholder='$repeatInterval'></form-input>";
+        echo "<form-input label='První den podakce (automatické vytváření podakcí):' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='repeat_start' id='repeat_start' original-value='$repeatStart' value='$repeatStart'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./events.php'><button class='formButton formInfoColor'>Zpět na seznam události</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        echo "<a href='./events.php'><button class='formButton purkynkaButton'>Zpět na seznam události</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

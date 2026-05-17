@@ -36,7 +36,7 @@ require "./adminFunctions.php";
         //echo "<button id='btnPageShow' class='formButton formInfoColor'>Zobrazit</button>";
         ?>
         <i>Poznámka: Nekteré školy není možné smazat, jelikož mají nahlášené zájemce.</i>
-        <table class='styledTable styledTableAuto'>
+        <table>
             <tr>
                 <th>Akce</th>
                 <th>Počet zájemců</th>
@@ -56,11 +56,11 @@ require "./adminFunctions.php";
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./school.php?school=$id'><button class='formButton formWarnColor'>Upravit</button></a> ";
+                            <a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a> ";
                 if ($count > 0) {
-                    echo "<a href='./attendants.php?school=$id'><button class='formButton formInfoColor'>Zvýraznit zájemce</button></a>";
+                    echo "<a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Zvýraznit zájemce</button></a>";
                 } else {
-                    echo "<button class='formButton formErrorColor btnTableDelete' school=$id>Odstranit</button>";
+                    echo "<button class='formButton formButtonInline purkynkaButton btnTableDelete' school=$id>Odstranit</button>";
                 }
                 echo "</td>
                         <td>$count</td>

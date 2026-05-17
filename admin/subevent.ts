@@ -4,7 +4,7 @@ import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-SetupSaveCancelButtons(dialogManager, "subeventValidate", "./events.php", "./subevent.php", urlSearchParams.get("subevent") as string)
+SetupSaveCancelButtons(dialogManager, null, "./events.php", "./subevent.php", urlSearchParams.get("subevent") as string,"subeventValidate")
 
 //Setup minimums and maximums
 const startTime = (document.getElementById("start_time") as HTMLFormInputElement)

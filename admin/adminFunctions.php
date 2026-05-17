@@ -104,8 +104,8 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
         if ($value->hasTitlebarButton) {
             if (checkAccess($key, $role)) {
                 $text = $value->titlebarButtonText;
-                $colorClass = $value->titlebarButtonColorClass;
-                $line = "<a href='$key'><button class='formButton $colorClass'>$text</button></a>";
+                $colorClass = $page == $key ? "purkynkaButtonGreen" : "";
+                $line = "<a href='$key'><button class='formButton purkynkaButton $colorClass'>$text</button></a>";
                 if ($value->hasTitlebarButtonLeft) {
                     $buttonsLeftHtml .= $line;
                 } else {

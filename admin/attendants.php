@@ -12,7 +12,6 @@ require "./adminFunctions.php";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemci</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -40,7 +39,7 @@ require "./adminFunctions.php";
                 $found = true;
                 //Echo header
                 echo "<h1>Registrovaní a zaplacení zájemci</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Akce</th>
                           <th>Jméno a přijmení</th>
@@ -56,8 +55,8 @@ require "./adminFunctions.php";
                 for ($i = 0; $i < $stmt->num_rows; $i++) {
                     $stmt->bind_result($registered, $paid, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName);
                     $stmt->fetch();
-                    $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
                     //Highlight
                     $highlightSchoolClass = "";
@@ -68,8 +67,8 @@ require "./adminFunctions.php";
                     //Put in table
                     echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
+                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
@@ -98,7 +97,7 @@ require "./adminFunctions.php";
             $found = true;
             //Echo header
             echo "<h1>Registrovaní a nezaplacení zájemci</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                   <tr>
                       <th>Akce</th>
                       <th>Jméno a přijmení</th>
@@ -114,7 +113,7 @@ require "./adminFunctions.php";
                 $stmt->bind_result($registered, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName);
                 $stmt->fetch();
                 $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
                 //Highlight
                 $highlightSchoolClass = "";
@@ -125,8 +124,8 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
+                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
                         </td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
@@ -148,7 +147,7 @@ require "./adminFunctions.php";
             if ($stmt->num_rows > 0) {
                 $found = true;
                 echo "<h1>Odhlášení zájemci</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Akce</th>
                           <th>Jméno a přijmení</th>
@@ -175,13 +174,17 @@ require "./adminFunctions.php";
                         $parentFullName = "Není k dispozici";
                         $parentEmail = "Není k dispozici";
                     }
-                    $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $unregistered = new DateTime($unregistered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    if($paid != null) {
+                    $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    } else {
+                        $paid = "Nezaplaceno";
+                    }
+                    $unregistered = new DateTime($unregistered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                     $refundedFormated = "Zatím nevráceno";
                     $disableDelete = "";
                     if ($refunded != null) {
-                        $refundedFormated = new DateTime($refunded)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                        $refundedFormated = new DateTime($refunded)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                     } else {
                         $disableDelete = "disabled";
                     }
@@ -195,7 +198,7 @@ require "./adminFunctions.php";
                     //Put in table
                     echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formErrorColor btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol'>Odstranit</button>
+                            <button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol'>Odstranit</button>
                         </td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
@@ -221,7 +224,7 @@ require "./adminFunctions.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./sharedScripts.js'></script>
+<script type='module' src='../assets/sharedScripts.js'></script>
 <script type='module' src='./attendants.js'></script>
 
 </html>

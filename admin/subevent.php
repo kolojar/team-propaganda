@@ -80,7 +80,6 @@ if (isset($_POST["action"])) {
     <title>Podudálost</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -119,7 +118,7 @@ if (isset($_POST["action"])) {
         if (!isset($_GET["newSubevent"])) {
             $dateFormated = new DateTime($dateDB)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
             echo "<h1>Informace o události: $name → $dateFormated </h1>";
-            echo "<i>Nedoporučuje se upravovat již proběhlé události, mohl by nastat chaos.</i><br><br>";
+            echo "<i>Nedoporučuje se upravovat již proběhlé události, mohl by nastat chaos.</i><br>";
         }
 
         //Format dates
@@ -134,17 +133,14 @@ if (isset($_POST["action"])) {
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
         
         //Create HTML
-        echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
-        echo "<br>";
+        echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
+        echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
+        echo "<form-input label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' exists='$exists' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' exists='$exists' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./events.php'><button class='formButton formInfoColor'>Zpět na seznam události</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        echo "<a href='./events.php'><button class='formButton purkynkaButton'>Zpět na seznam události</button></a>";
         echo "</div>";
         echo "</div>";
         ?>

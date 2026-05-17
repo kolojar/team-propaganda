@@ -13,7 +13,6 @@ require "./adminFunctions.php";
     <title>Admin panel</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -23,7 +22,7 @@ require "./adminFunctions.php";
     </header>
     <main>
         <h1>Všechny dostupné učebny v databázi</h1>
-        <table class='styledTable styledTableAuto'>
+        <table>
             <tr>
                 <th>Akce</th>
                 <th>Název učebny</th>
@@ -44,8 +43,8 @@ require "./adminFunctions.php";
                 $isFunctionalString = $isFunctional == 1 ? "Ano" : "Ne";
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./classroom.php?classroom=$id'><button class='formButton formWarnColor'>Upravit</button></a>
-                            <button class='formButton formErrorColor btnTableDelete' classroom=$id classroomName='$name'>Odstranit</button>
+                            <a href='./classroom.php?classroom=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
+                            <button class='formButton formErrorColor formButtonInline purkynkaButton' classroom=$id classroomName='$name'>Odstranit</button>
                         </td>
                         <td>$name</td>
                         <td>$placesToSit</td>
@@ -55,7 +54,7 @@ require "./adminFunctions.php";
             }
             ?>
         </table>
-        <a href='./classroom.php?newClassroom=1'><button class='formButton formWarnColor'>Vytvořit učebnu</button></a>
+        <a href='./classroom.php?newClassroom=1'><button class='formButton purkynkaButton'>Vytvořit učebnu</button></a>
     </main>
     <footer>
 

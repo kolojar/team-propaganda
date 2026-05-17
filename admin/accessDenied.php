@@ -23,7 +23,7 @@ require "./adminFunctions.php";
     </header>
     <main>
         <h1>Přístup odepřen</h1>
-        <a href="./admin.php"><button class="formButton formInfoColor">Zpět na hlavní stránku</button></a>
+        <a href="./admin.php"><button class="formButton purkynkaButton">Zpět na hlavní stránku</button></a>
     </main>
     <footer>
 

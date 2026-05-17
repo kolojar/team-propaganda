@@ -52,6 +52,7 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
+            return;
         }
         //Handle errors
         progress.CloseDialog();
