@@ -91,6 +91,7 @@ require './userFunctions.php';
             echo "<div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>
                     <button class='formButton purkynkaButton'>Přihlásit na další akce</button>
+                    <button class='formButton purkynkaButton btnDeleteAttendant' attendant='$id'>Odebrat zájemce</button>
                 </div>
                 <div class='formButtonBox formJustifyRight'>
                     <button class='formButton purkynkaButton btnCancel'>Zrušit provedené změny</button>

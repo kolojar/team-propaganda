@@ -32,6 +32,37 @@ for (const element of document.getElementsByClassName("attendantInfo")) {
     await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
     window.location.reload();
 });
+//Make attendant delete button work
+for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
+    btn.addEventListener("click", async () => {
+        //Ask for confirm
+        const confirm = await dialogManager.OpenConfirm("Odebrat zájemce?", "Opravdu chcete odebrat zájemce? Tento krok nelze vzít zpět.", true, true);
+        if (!confirm) {
+            SendToast("Odebrat zájemce", "Akce zrušena.", "info");
+            return;
+        }
+        //Send delete request
+        const progress = dialogManager.ShowProgress("Odebrat zájemce", "Probíhá odebírání zájemce, čekejte prosím...", () => { }, 0, false, true, true);
+        const formData = new FormData();
+        formData.set("action", "delete");
+        formData.set("id", btn.getAttribute("attendant"));
+        const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", formData);
+        if (ok) {
+            SendToast("Odebrat zájemce", "Zájemce odebrán úspěšně", "ok");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+        //Handle errors
+        progress.CloseDialog();
+        if (responce == "has subevents") {
+            SendToast("Nelze smazat zájemce", "Zájemce je přihlášen na nějaké akci.", "error");
+            return;
+        }
+        SendToast("Odebrat zájemce", "Zájemce nemohl být odebrán.", "error");
+        await dialogManager.OpenAlert("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.", true, true);
+    });
+}
 //Make attendant change school field work
 const getSchoolsStart = async () => {
     const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false, true, true);

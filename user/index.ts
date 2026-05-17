@@ -20,7 +20,7 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
     }
 
     //Send POST
-    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false,true, true)
+    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false, true, true)
     const formData = new FormData()
     formData.set("verify", email)
     const [ok, responce] = await SendPOSTDataToServerAsync("../klal/verify.php", formData)
@@ -30,10 +30,45 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
         await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true)
         return
     }
-    window.open("../klal/verify.php","_blank");
+    window.open("../klal/verify.php", "_blank");
     await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
     window.location.reload()
 })
+
+//Make attendant delete button work
+for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
+    btn.addEventListener("click", async () => {
+        //Ask for confirm
+        const confirm = await dialogManager.OpenConfirm("Odebrat zájemce?", "Opravdu chcete odebrat zájemce? Tento krok nelze vzít zpět.", true, true)
+        if (!confirm) {
+            SendToast("Odebrat zájemce", "Akce zrušena.", "info")
+            return
+        }
+
+        //Send delete request
+        const progress = dialogManager.ShowProgress("Odebrat zájemce", "Probíhá odebírání zájemce, čekejte prosím...", () => { }, 0, false, true, true)
+        const formData = new FormData()
+        formData.set("action", "delete")
+        formData.set("id", btn.getAttribute("attendant") as string)
+        const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", formData)
+        if (ok) {
+            SendToast("Odebrat zájemce", "Zájemce odebrán úspěšně", "ok")
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000)
+            return;
+        }
+
+        //Handle errors
+        progress.CloseDialog()
+        if (responce == "has subevents") {
+            SendToast("Nelze smazat zájemce", "Zájemce je přihlášen na nějaké akci.", "error")
+            return
+        }
+        SendToast("Odebrat zájemce", "Zájemce nemohl být odebrán.", "error")
+        await dialogManager.OpenAlert("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.", true, true)
+    })
+}
 
 //Make attendant change school field work
 const getSchoolsStart = async () => {
