@@ -30,11 +30,7 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
         await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true)
         return
     }
-<<<<<<< Updated upstream
-    window.open("../klal/verify.php", "_blank");
-=======
     window.open("../verify.php","_blank");
->>>>>>> Stashed changes
     await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
     window.location.reload()
 })
