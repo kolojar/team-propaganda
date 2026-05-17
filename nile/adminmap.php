@@ -6,9 +6,9 @@ if (!isset($_SESSION["adminId"])) {
 }
 
 if (isset($_POST["sitePos"])) {
-    $checks = $conn->query("SELECT id_sites, posX, posY FROM sites_teamPropaganda");
+    $checks = $conn->query("SELECT id_sites, posX, posY, floor FROM sites_teamPropaganda");
     $site = json_decode($_POST["sitePos"], true);
-    $stmt = $conn->prepare("UPDATE `sites_teamPropaganda` SET `posX` = ?, `posY` = ? WHERE `sites_teamPropaganda`.`id_sites` = ?;");
+    $stmt = $conn->prepare("UPDATE `sites_teamPropaganda` SET `posX` = ?, `posY` = ?, `floor` = ? WHERE `sites_teamPropaganda`.`id_sites` = ?;");
     while ($check = $checks->fetch_assoc()) {
         if ($site["id" . $check["id_sites"]]["posX"] == 0) {
             $site["id" . $check["id_sites"]]["posX"] = null;
@@ -17,7 +17,7 @@ if (isset($_POST["sitePos"])) {
             $site["id" . $check["id_sites"]]["posY"] = null;
         }
         if ($site["id" . $check["id_sites"]]["posX"] != $check["posX"] || $site["id" . $check["id_sites"]]["posY"] != $check["posY"]) {
-            $stmt->bind_param("ddi", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $check["id_sites"]);
+            $stmt->bind_param("ddii", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $site["id" . $check["id_sites"]]["floor"], $check["id_sites"]);
             if (!$stmt->execute()) {
                 http_response_code(400);
                 echo "error UPDATE";
@@ -45,17 +45,12 @@ if (isset($_POST["sitePos"])) {
         }
 
         .round {
-            /*padding: 1vw;*/
             border-radius: 50%;
         }
 
         .round .icon {
             width: 2.5vw;
         }
-
-        /*.square {
-            padding: 0.5vw;
-        }*/
 
         .site {
             position: absolute;
@@ -78,21 +73,73 @@ if (isset($_POST["sitePos"])) {
             aspect-ratio: 1;
         }
 
-        /*#save {
-            float: right;
-            margin-right: 6%;
-        margin-top: 2%;
+        .panel {
+            width: 10vw;
+            height: 4vw;
+
+            border: 4px solid black;
+            border-radius: 1vw;
+            background: white;
+
+            position: absolute;
+            bottom: 2vh;
+            right: -1vw;
+            transform: translate(-50%, -50%);
         }
 
-        */
+        .arrow-btn {
+            width: 3vw;
+            height: 3vw;
+
+            border: none;
+            background: transparent;
+
+            font-size: 2.5vw;
+            cursor: pointer;
+
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #upBtn {
+            right: 0.6vw;
+        }
+
+        #downBtn {
+            left: 0.6vw;
+        }
+
+        .display {
+            width: 2vw;
+            height: 2vw;
+
+            border: 3px solid black;
+            background: #f5f5f5;
+
+            font-size: 1.6vw;
+            font-weight: bold;
+            text-align: center;
+            line-height: 2vw;
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
 
 </head>
 
 <body>
-    <img id="map" src="assets/img.png" style="width: 80%; height: auto; display: block;" class="map">
     <?php
+    $floor = 0;
+    if (isset($_GET["floor"])) {
+        $floor = $_GET["floor"];
+    }
+    echo "<img id='map' src='./assets/map$floor.jpg' style='width: 80%; height: auto; display: block;' class='map'>";
+
     $sites = $conn->query("SELECT * FROM sites_teamPropaganda NATURAL RIGHT JOIN companies_teamPropaganda");
     $offset = 15;
     while ($site = $sites->fetch_assoc()) {
@@ -105,7 +152,7 @@ if (isset($_POST["sitePos"])) {
         echo "' id='" . $site["id_sites"] . "'";
 
         if ($site["posX"] != 0 && $site["posY"] != 0) {
-            echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "'";
+            echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "' floor='" . $site["floor"] . "'";
         }
         if ($site["electricity"]) {
             echo "style=' background-color: #00FF00;";
@@ -125,7 +172,12 @@ if (isset($_POST["sitePos"])) {
     <div class="formCenter" style="width:20%; height: 10%; float: right; margin-top: 2%;">
         <button id="save" class="formButton formOkColor">Uložit plánek</button>
     </div>
-
+    <div class="panel">
+        <?php
+        if ($floor < 4) echo '<button class="arrow-btn" id="upBtn">↑</button>';
+        echo '<div class="display" id="floorDisplay">' . $floor . '</div>';
+        if ($floor > 0) echo '<button class="arrow-btn" id="downBtn">↓</button>';
+        ?></div>
     <script type="module">
         import {
             SendPOSTDataToServerAsync
@@ -133,6 +185,7 @@ if (isset($_POST["sitePos"])) {
         import {
             SendToast
         } from "../formWebScripts/js/formScript.js";
+        let get = new URLSearchParams(window.location.search)
 
         for (let site of document.getElementsByClassName("site")) {
             site.addEventListener("mousedown", (e) => {
@@ -153,7 +206,7 @@ if (isset($_POST["sitePos"])) {
         let elementToMove = null;
 
         function dragStart(element) {
-            console.log(element)
+            //console.log(element)
             elementToMove = element
             elementToMove.style.zIndex = "10"
         }
@@ -196,19 +249,25 @@ if (isset($_POST["sitePos"])) {
 
                 let relativeY = ((Number(site.style.left.slice(0, -2)) / mapWidth) * 100);
                 let relativeX = ((Number(site.style.top.slice(0, -2)) / mapHeight) * 100);
-                console.log(relativeX, relativeY, Number(site.style.top.slice(0, -2)))
+                //console.log(relativeX, relativeY, Number(site.style.top.slice(0, -2)))
 
                 if (relativeX < 0 || relativeX > 100 || relativeY < 0 || relativeY > 100) {
                     relativeX = 0;
                     relativeY = 0;
                 }
 
+                let floor = site.getAttribute("floor");
+                if (!floor) {
+                    floor = get.get("floor")
+                    if (!floor) floor = 0
+                }
                 siteList["id" + site.id] = {
                     posX: relativeX,
-                    posY: relativeY
+                    posY: relativeY,
+                    floor: floor
                 };
             }
-            console.log(siteList["id1"], siteList["id2"])
+            //console.log(siteList["id1"], siteList["id2"])
             data.append("sitePos", JSON.stringify(siteList))
 
             let [ok, res] = await SendPOSTDataToServerAsync("./adminmap.php", data)
@@ -222,27 +281,53 @@ if (isset($_POST["sitePos"])) {
 
 
         function repositionPins() {
-            console.log("repos")
+            //console.log("repos")
             const map = document.getElementById("map");
             const pins = document.getElementsByClassName("site");
 
             const mapWidth = map.clientWidth;
             const mapHeight = map.clientHeight;
             let offset = 15;
+            let gfloor = get.get("floor")
+            if (!gfloor) {
+                gfloor = 0
+            }
 
             for (let pin of pins) {
                 const pctX = pin.getAttribute("data-pct-x");
                 const pctY = pin.getAttribute("data-pct-y");
+                const floor = pin.getAttribute("floor");
 
-                if (pctX && pctY && pctX != 0 && pctY != 0) {
+                if (pctX && pctY && pctX != 0 && pctY != 0 && floor) {
                     pin.style.left = ((pctY / 100) * mapWidth) + "px";
                     pin.style.top = ((pctX / 100) * mapHeight) + "px";
-                } else if (pctX == 0 || pctY == 0 || !pctX || !pctY) {
+                    if (Number(floor) != gfloor) {
+                        pin.style.zIndex = -100;
+                        continue
+                    }
+                } else if (pctX == 0 || pctY == 0 || !pctX || !pctY || !floor) {
                     pin.style.left = (0.895 * window.innerWidth) + "px";
                     pin.style.top = offset + "%"
+                    offset += 10
                 }
-                offset += 10
             }
+        }
+
+        if (document.getElementById("upBtn")) {
+            document.getElementById("upBtn").addEventListener("click", () => {
+                let floor = get.get("floor")
+                if (!floor) floor = 0
+
+                window.location.href = "./adminmap.php?floor=" + (Number(floor) + 1)
+            })
+        }
+
+        if (document.getElementById("downBtn")) {
+            document.getElementById("downBtn").addEventListener("click", () => {
+                let floor = get.get("floor")
+                if (!floor) floor = 0
+                window.location.href = "./adminmap.php?floor=" + (floor - 1)
+            })
         }
 
         repositionPins();
