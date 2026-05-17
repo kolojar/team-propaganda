@@ -1,9 +1,9 @@
 <?php
 session_start();
-require "../assets/config.php";
+require "./assets/config.php";
 //user already logged in
 if (isset($_SESSION["userId"]) && !(isset($_SESSION["verify"]) || isset($_POST["verify"]))) {
-    header("Location: ../user/");
+    header("Location: ./user/");
     exit();
 }
 //login
@@ -78,7 +78,7 @@ function verify(string $email)
     $code = rand(10000, 99999);
     //echo $code;
     $_SESSION["verifyCode"] = $code;
-    $message = str_replace("\$code", $code, file_get_contents("./assets/verifyEmail.html"));
+    $message = str_replace("\${login_code}", $code, file_get_contents("./assets/AuthEmail.html"));
     if (!sendMail($email, "Ověření Emailu", $message)) {
         http_response_code(400);
         echo "Nepodařilo se odeslat email.";

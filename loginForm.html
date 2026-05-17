@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>loginform</title>
-    <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
+    <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
 
 </head>
 
@@ -17,10 +17,10 @@
     <script type="module">
         import {
             SendPOSTDataToServerAsync
-        } from "../formWebScripts/js/serverComunication.js";
+        } from "./formWebScripts/js/serverComunication.js";
         import {
             SendToast
-        } from "../formWebScripts/js/formScript.js";
+        } from "./formWebScripts/js/formScript.js";
 
         let sent = false
         document.getElementById("form").addEventListener("submit", (e) => {sendToPHP(e)});

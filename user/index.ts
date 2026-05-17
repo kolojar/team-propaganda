@@ -23,14 +23,18 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
     const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false, true, true)
     const formData = new FormData()
     formData.set("verify", email)
-    const [ok, responce] = await SendPOSTDataToServerAsync("../klal/verify.php", formData)
+    const [ok, responce] = await SendPOSTDataToServerAsync("../verify.php", formData)
     progress.CloseDialog()
     if (!ok) {
         SendToast("Nelze přenést účet na jiný Email!", "Změny nemohly být uloženy.", "error")
         await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true)
         return
     }
+<<<<<<< Updated upstream
     window.open("../klal/verify.php", "_blank");
+=======
+    window.open("../verify.php","_blank");
+>>>>>>> Stashed changes
     await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
     window.location.reload()
 })
