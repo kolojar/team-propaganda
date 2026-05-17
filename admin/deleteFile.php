@@ -1,8 +1,11 @@
 <?php
 require "../assets/config.php";
 session_start();
-echo $_POST["rmdir"] . "<br>";
+//echo $_POST["rmdir"] . "<br>";
 if (isset($_POST["name"]) && file_exists($_POST["name"])) {
+    if (isset($_POST["isNILE"])) {
+        //sql delete
+    }
     if (unlink($_POST["name"])) {
         echo "Soubor smazán úspěšně";
         exit;

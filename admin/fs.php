@@ -118,7 +118,8 @@ session_start();
                 if (file && file[0]) {
                     SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
                     let data = new FormData()
-                    data.append('files[]', file[0])
+                    data.append('files[]', file[0]);
+                    data.append("isNILE", ) // add if nile
                     let [ok, res] = await SendPOSTDataToServerAsync("./addFile.php", data);
                     if (ok) {
                         SendToast("Odpověď serveru", res, "ok");
@@ -135,6 +136,7 @@ session_start();
                 if (name) {
                     let data = new FormData()
                     data.append("name", name)
+                    data.append("isNILE", ) // add if nile
                     let [ok, res] = await SendPOSTDataToServerAsync("./addFile.php", data)
                     if (ok) {
                         SendToast("Odpověď serveru", res, "ok");
@@ -152,6 +154,7 @@ session_start();
                         data.append("name", "../files/" + urlSearchParams.get("file") + "/" + del.getAttribute("userId") + "." + urlSearchParams.get("file").split(".")[1])
                     } else {
                         data.append("name", del.getAttribute("file"))
+                        data.append("isNILE", ) // add if nile
                     }
                     let [ok, res] = await SendPOSTDataToServerAsync("./deleteFile.php", data)
                     if (ok) {
@@ -190,6 +193,7 @@ session_start();
                 if (await dm.OpenConfirm("Smazání složky", "Opravdu si přejete smazat tuto složku? <br>Všechny soubory v této složce budou smazány také.")) {
                     let data = new FormData()
                     data.append("rmdir", del.getAttribute("file"))
+                    data.append("isNILE", ) // add if nile
                     let [ok, res] = await SendPOSTDataToServerAsync("./deleteFile.php", data)
                     if (ok) {
                         SendToast("Odpověď serveru", res, "ok");

@@ -1,6 +1,7 @@
 <?php
+require "./assets/config.php";
 session_start();
-if (!isset($_SESSION["admin"])) {
+if (!isset($_SESSION["userId"])) {
     //header("Location: loginAdmin.php");
 }
 if (isset($_POST["template"], $_POST["name"], $_POST["message"])) {

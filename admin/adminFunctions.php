@@ -35,7 +35,8 @@ $accessLevels = array(
     "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
     "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost", "formWarnColor"),
     "logout.php" => new accessLevel(array("*"), false, false, true, false, "Odhlásit se", "formErrorColor"),
-    "accessDenied.php" => new accessLevel(array("*"), false)
+    "accessDenied.php" => new accessLevel(array("*"), false),
+    "index.php" => new accessLevel(array("*"), false)
 );
 
 function checkAccess(string $file, string $level): bool
@@ -194,4 +195,4 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
     //All OK
     return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format("d. m. Y"), true);
 }
-?>
+

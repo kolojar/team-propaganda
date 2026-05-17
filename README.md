@@ -141,3 +141,10 @@ wifi
 	- [ ] ? Popis firem
 	
 - [ ] Kalendář událostí
+
+
+
+
+- [ ] chmod.php for changing access
+- [ ] fs.php isNILE
+- [ ] deleteFile.php sql
