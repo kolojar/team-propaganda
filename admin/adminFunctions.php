@@ -1,8 +1,4 @@
 <?php
-const STANDARD_CZECH_TIME_FORMAT_FULL = 'd. m. Y H:i:s';
-const STANDARD_CZECH_DATE_FORMAT_FULL = 'd. m. Y';
-const JS_TIME_FORMAT = 'Y-m-d\\TH:i';
-
 class accessLevel
 {
     public readonly bool $needsEvent;
@@ -42,11 +38,6 @@ $accessLevels = array(
     "accessDenied.php" => new accessLevel(array("*"), false)
 );
 
-function logToConsole(string $log)
-{
-    file_put_contents("php://stdout", $log . "\n");
-}
-
 function checkAccess(string $file, string $level): bool
 {
     global $accessLevels;
@@ -57,16 +48,6 @@ function checkAccess(string $file, string $level): bool
     return false;
 }
 
-function getUserRole(mysqli $conn, int $id): string|null
-{
-    $stmt = $conn->prepare("SELECT role FROM users_teamPropaganda WHERE id_users=? LIMIT 1;");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($role);
-    $stmt->fetch();
-    return $role;
-}
 function setEventId($id): void
 {
     setcookie("adminEventId", $id, time() + 60 * 60 * 24 * 30);
@@ -99,6 +80,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
 
     //Get global variables + user role
     global $accessLevels;
+    require_once "../assets/sharedFunctions.php";
     $role = getUserRole($conn, $_SESSION["userId"]);
 
     //Check access level

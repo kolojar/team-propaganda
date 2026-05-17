@@ -15,27 +15,30 @@ require './userFunctions.php';
     <link rel='stylesheet' href='../assets/style.css'>
     <link rel='stylesheet' href='./user.css'>
 </head>
+
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarUser($conn) ?>
+        <?php
+        $_SESSION["userId"] = 6;
+        setupTitlebarUser($conn)
+            ?>
     </header>
     <main>
         <fieldset id="userInfo">
             <legend>Informace o Vás</legend>
             <?php
-            $_SESSION["userId"] = 6;
             //Get name of current user
             $stmt = $conn->prepare("SELECT name, surname, email FROM users_teamPropaganda WHERE id_users=?");
             $stmt->bind_param("i", $_SESSION["userId"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name, $surname,$email);
+            $stmt->bind_result($name, $surname, $email);
             $stmt->fetch();
 
             echo "<form-input class='validate' value-id='name' label='Jméno:' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>";
             echo "<form-input class='validate' value-id='surname' label='Přijmení:' type='text' do-change-check='true' value='$surname' original-value='$surname'></form-input>";
             echo "<span>Email: $email</span>"
-            ?>
+                ?>
             <div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>
                     <button class='formButton purkynkaButton' id='btnChangeEmail'>Převést účet na jiný Email</button>
@@ -73,8 +76,8 @@ require './userFunctions.php';
                 for ($j = 0; $j < $stmt2->num_rows; $j++) {
                     $stmt2->bind_result($variableSymbol, $eventId, $paid, $eventName, $price);
                     $stmt2->fetch();
-                    echo "<li><a href='./subevent.php?variableSymbol=$variableSymbol'>$eventName</a>";
-                    if($paid == null) {
+                    echo "<li><a href='./event.php?variableSymbol=$variableSymbol'>$eventName</a>";
+                    if ($paid == null) {
                         echo "<span> → Potřeba uhradit poplatek!</span>";
                     }
                     echo "</li>";

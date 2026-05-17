@@ -20,7 +20,7 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
     }
 
     //Send POST
-    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false, true, true)
+    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false,true, true)
     const formData = new FormData()
     formData.set("verify", email)
     const [ok, responce] = await SendPOSTDataToServerAsync("../klal/verify.php", formData)
