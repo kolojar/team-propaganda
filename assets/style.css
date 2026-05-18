@@ -33,11 +33,12 @@ header {
     --purkynka-green: #70B95E;
     --purkynka-active-green: #79c765;
     --purkynka-gray: #DDDDDD;
-
+    
     --background-color: var(--purkynka-background-white);
     --color-next-layer: #333;
     --color: var(--purkynka-text-black);
     --background-color-next-layer: var(--purkynka-gray);
+    --form-background: linear-gradient(to bottom right, var(--purkynka-blue-lighter) 0%, var(--purkynka-blue-dark) 85%);
 }
 
 /*Button not active*/
@@ -122,10 +123,6 @@ th, td {
 
 .purkynkaTableFullLines td:last-child,.purkynkaTableFullLines th:last-child {
     border-right: none;
-}
-
-.formBackground {
-    background: linear-gradient(to bottom right, var(--purkynka-blue-lighter) 0%, var(--purkynka-blue-dark) 85%);
 }
 
 .formBox {
