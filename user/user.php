@@ -1,6 +1,10 @@
 <?php
 require "../assets/config.php";
 session_start();
+if (!isset($_SESSION["userId"])) {
+    header("Location: ./index.php");
+    exit();
+}
 if (!isset($_SESSION["userId"]) || isset($_SESSION["verify"])) {
     if (isset($_SESSION["login"])) {
         $_SESSION["userId"] = $conn->query("SELECT id_users FROM users_teamPropaganda WHERE `email` = '" . $_SESSION["login"] . "'");

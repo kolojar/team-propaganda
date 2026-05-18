@@ -90,4 +90,4 @@ const getSchoolsStart = async () => {
     progress.CloseDialog();
 };
 getSchoolsStart();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=main.js.map
