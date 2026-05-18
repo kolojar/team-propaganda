@@ -127,3 +127,13 @@ th, td {
 .formBackground {
     background: linear-gradient(to bottom right, var(--purkynka-blue-lighter) 0%, var(--purkynka-blue-dark) 85%);
 }
+
+.formBox {
+    box-shadow: 0em .15em .65em 0em rgb(0, 0, 0);
+}
+
+.formBoxTitle {
+     font-family: "Roboto Slab";
+    font-weight: 700;
+    font-size: 16pt;
+}

@@ -5,15 +5,21 @@
     <meta charset="UTF-8">
     <title>loginform</title>
     <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
-
+    <link rel="stylesheet" href="./formWebScripts/css/sharedStyle.css">
+    <link rel="stylesheet" href="./assets/style.css">
 </head>
 
-<body>
-    <form method="post" id="form">
-        <label for="login">E-mail:</label>
-        <input type="email" id="email" name="login" required><br>
-        <button type="submit">Odeslat</button>
-    </form>
+<body class="formBackground formCenter">
+    <img class="formBackgroundLogo" src="./assets/PurkynkaVERBrnoOrgBila.png">
+    <div class="formBox">
+        <p class="formBoxTitle">Přihlášení do systému akcí</p>
+        <form method="post" id="form">
+            <form-input type="email" label="Přihlašovací E-mail" id="email" placeholder="Zadejte Váš E-mail"></form-input>
+            <div class="formButtonBoxHolder formCenter">
+                <button type="submit" class="formButton purkynkaButton">Zaslat ověřovací kód</button>
+            </div>
+        </form>
+    </div>
     <script type="module">
         import {
             SendPOSTDataToServerAsync
@@ -23,13 +29,13 @@
         } from "./formWebScripts/js/formScript.js";
 
         let sent = false
-        document.getElementById("form").addEventListener("submit", (e) => {sendToPHP(e)});
+        document.getElementById("form").addEventListener("submit", (e) => { sendToPHP(e) });
         async function sendToPHP(e) {
             e.preventDefault();
             if (!sent) {
                 sent = true
                 const data = new FormData();
-                data.append("login", document.getElementById("email").value);
+                data.append("login", document.getElementById("email").getValue());
 
                 const [ok, res] = await SendPOSTDataToServerAsync("./verify.php", data);
 
@@ -44,8 +50,9 @@
                 else SendToast("Odpověď serveru", res, "error")
             }
         }
-        document.getElementById("email").addEventListener("change", () => {sent = false})
+        document.getElementById("email").addEventListener("change", () => { sent = false })
     </script>
+    <script type="module" src="./formWebScripts/js/formScript.js"></script>
 </body>
 
 </html>
