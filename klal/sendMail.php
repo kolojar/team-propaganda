@@ -5,7 +5,6 @@ require "../assets/config.php";
 //    exit();
 //}
 if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userIds"])) {
-    //echo $_POST["subject"], $_POST["message"], $_POST["userIds"], $_POST["datetime"];
     $sent = 0;
     $attachments = null;
     if (isset($_POST["files"])) {
@@ -14,14 +13,14 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     if (isset($_POST["datetime"])) {
         $global = 0;
         if (isset($_POST["global"])) {
-            $global = 1;
+            $global = $_POST["userIds"] + 1;
         }
-        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal, attachments) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssis", $_POST["subject"], $_POST["message"], $_POST["datetime"], $global, $attachments);
+        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, send, isGlobal) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sssi", $_POST["subject"], $_POST["message"], $_POST["datetime"], $global);
     } else {
         //file_put_contents("php://stdout", "else" . "\n");
-        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message, attachments) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $_POST["subject"], $_POST["message"], $attachments);
+        $stmt = $conn->prepare("INSERT INTO email_send_teamPropaganda (subject, message) VALUES (?, ?)");
+        $stmt->bind_param("ss", $_POST["subject"], $_POST["message"]);
         foreach (json_decode($_POST["userIds"]) as $uid) {
             //file_put_contents("php://stdout", "foreach $uid" . "\n");
             $stmt2 = $conn->prepare("SELECT email FROM users_teamPropaganda WHERE id_users = ?");
@@ -57,16 +56,27 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     }
     $emailId = $stmt->insert_id;
     $stmt->prepare("INSERT INTO email_send_user_teamPropaganda (id_users, id_email_send, sent) VALUES (?, ?, ?)");
-    foreach (json_decode($_POST["userIds"]) as $uid) {
-        $stmt->bind_param("iii", $uid, $emailId, $sent);
+    if (!isset($_POST["global"])) {
+        foreach (json_decode($_POST["userIds"]) as $uid) {
+            $stmt->bind_param("iii", $uid, $emailId, $sent);
+            if (!$stmt->execute()) {
+                http_response_code(400);
+                echo "Nepodařilo se uložit data k uživateli s id: $uid";
+            };
+        }
+    }
+    $stmt->prepare("INSERT INTO email_send_files_teamPropaganda (id_files, id_email_send) VALUES (?, ?)");
+    foreach (json_decode($attachments) as $fileId) {
+        $stmt->bind_param("ii", $fileId, $emailId);
         if (!$stmt->execute()) {
             http_response_code(400);
-            echo "Nepodařilo se uložit data k uživateli s id: $uid";
+            echo "Nepodařilo se uložit soubory k emailu.";
         };
     }
     $stmt->close();
     exit;
 }
+$isNILE = 2;
 ?>
 
 <html>
@@ -99,7 +109,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 <th>E-mail</th>
             </tr>
             <?php
-            $res = $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = 0 AND role = 'user';");
+            $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
             while ($row = $res->fetch_object()) {
                 echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
             }
@@ -117,7 +127,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     <select id="templates">
         <option value="none" id="option-none">nový</option>
         <?php
-        $files = array_diff(scandir("./templates/"), array('.', '..'));
+        $files = array_diff(scandir("../templates/"), array('.', '..'));
         foreach ($files as $file) {
             echo "<option value='$file' id='option-$file'>$file</option>";
         }
@@ -250,7 +260,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
             if (document.getElementById("global").checked) {
                 data.append("global", true)
-                data.append("userIds", "")
+                data.append("userIds", <?php echo $isNILE; ?>)
 
             } else {
                 data.append("userIds", JSON.stringify(userIds))
@@ -266,26 +276,28 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         document.getElementById("addAttachment").addEventListener("click", async (e) => {
             e.preventDefault()
             let options = new Map();
+            let files = {};
 
             <?php
-            $files = array_diff(scandir("../files/"), array('..', '.'));
-            foreach ($files as $file) {
-                if (is_dir("../files/$file")) {
-                    echo "options.set('$file','$file')\n"; //but yellow
-                } else {
-                    echo "options.set('$file','$file')\n";
+            $files = ($isNILE == 2) ? $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda`") : $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda` WHERE isNILE = 2 OR isNILE = " . $isNILE);
+            while ($file = $files->fetch_assoc()) {
+                echo "files['" . $file["id_files"] . "'] = '" . $file["name"] . "'\n";
+                if ($file["isDir"] == 1 && is_dir("../files/" . $file["name"])) {
+                    echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n"; //but yellow
+                } else if ($file["isdir"] == 0 && file_exists("../files/" . $file["name"])) {
+                    echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n";
                 }
             }
             ?>
             console.log(options)
 
-            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='./fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
+            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
             console.log(file)
             if (file) {
                 let btn = document.createElement("button")
                 btn.classList.add("atch")
                 btn.setAttribute("file", file)
-                btn.innerHTML = file
+                btn.innerHTML = files[file]
                 btn.addEventListener("click", (e) => {
                     btn.remove();
                 })

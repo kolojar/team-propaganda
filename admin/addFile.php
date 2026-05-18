@@ -19,7 +19,7 @@ if (isset($_FILES["files"])) {
         exit;
     }
     if (move_uploaded_file($_FILES["files"]["tmp_name"][0], "../files/" . $_FILES["files"]["name"][0])) {
-        if (!$conn->query("INSERT INTO `files_teamPropaganda`(`name`, `isNILE`) VALUES (" . $_FILES["files"]["name"][0] . ", " . $_POST["isNILE"] . ")")) {
+        if (!$conn->query("INSERT INTO `files_teamPropaganda`(`name`, `isNILE`) VALUES ('" . $_FILES["files"]["name"][0] . "', " . $_POST["isNILE"] . ")")) {
             http_response_code(400);
             echo "Soubor se nepodařilo zapsat do databáze.";
             die;
