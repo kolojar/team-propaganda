@@ -52,11 +52,11 @@ if (isset($_SESSION["userId"])) {
                 const data = new FormData();
                 data.append("login", document.getElementById("email").getValue());
 
-                const [ok, res] = await SendPOSTDataToServerAsync("./verify.php", data);
+                const [ok, res] = await SendPOSTDataToServerAsync("../verify.php", data);
 
                 if (ok) {
                     if (res == "vpoho") {
-                        window.location.href = "./verify.php";
+                        window.location.href = "../verify.php";
                     }
                     else {
                         SendToast("Odpověď serveru", res, "error");
@@ -65,15 +65,20 @@ if (isset($_SESSION["userId"])) {
                             window.location.reload()
                         }, 2000)
                     }
-                    }
-                }
-                else {
-                    SendToast("Odpověď serveru", res, "error")
+                } else {
+                    SendToast("Odpověď serveru", res, "error");
                     setTimeout(async () => {
                         await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                         window.location.reload()
                     }, 2000)
                 }
+            }
+            else {
+                SendToast("Odpověď serveru", res, "error")
+                setTimeout(async () => {
+                    await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
+                    window.location.reload()
+                }, 2000)
             }
         }
         document.getElementById("email").addEventListener("change", () => { sent = false })

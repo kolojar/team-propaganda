@@ -1,14 +1,11 @@
 <?php
 require "../assets/config.php";
 session_start();
-if (!isset($_SESSION["userId"])) {
-    header("Location: ./index.php");
-    exit();
-}
 if (!isset($_SESSION["userId"]) || isset($_SESSION["verify"])) {
     if (isset($_SESSION["login"])) {
         $_SESSION["userId"] = $conn->query("SELECT id_users FROM users_teamPropaganda WHERE `email` = '" . $_SESSION["login"] . "'");
         $_SESSION["login"] = null;
+        header("Location: ./main.php");
     } else if (isset($_SESSION["signup"])) {
         $stmt = $comm->prepare("INSERT INTO users_teamPropaganda (name, surname, email, id_schools) VALUES (?, ?, ?, ?)");
         $stmt->bind_params("sssi", $_SESSION["name"], $_SESSION["surname"], $_SESSION["signup"], $_SESSION["id_schools"]);
@@ -24,7 +21,7 @@ if (!isset($_SESSION["userId"]) || isset($_SESSION["verify"])) {
         $stmt->execute();
         $_SESSION["verify"] = null;
     } else {
-        header("Location: ./loginForm.html");
+        header("Location: ./loginForm.php");
     }
     die();
 }

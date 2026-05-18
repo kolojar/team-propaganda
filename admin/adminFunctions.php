@@ -30,13 +30,14 @@ $accessLevels = array(
     "classroom.php" => new accessLevel(array("admin"), false),
     "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
     "payments.php" => new accessLevel(array("admin", "accountant"), true, false, true, true, "Platby"),
+    "presets.php" => new accessLevel(array("admin"), false,false,true,true,"Šablony"),
     "event.php" => new accessLevel(array("admin"), false),
     "subevent.php" => new accessLevel(array("admin"), false),
     "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
     "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Změnit událost", "formWarnColor"),
     "logout.php" => new accessLevel(array("*"), false, false, true, false, "Odhlásit se", "formErrorColor"),
     "accessDenied.php" => new accessLevel(array("*"), false),
-    "index.php" => new accessLevel(array("*"), false)
+    "index.php" => new accessLevel(array("*"), false),
 );
 
 function checkAccess(string $file, string $level): bool
