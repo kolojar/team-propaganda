@@ -1,5 +1,9 @@
 {
     "delete": "./icons/delete32.svg",
     "download": "./icons/download32.svg",
-    "openFolder": "./icons/folderOpen32.svg"
+    "openFolder": "./icons/folderOpen32.svg",
+    "addFolder": "./icons/createNewFolder32.svg",
+    "addFile": "./icons/noteAdd32.svg",
+    "file": "./icons/draft32.svg",
+    "folder": "./icons/folder32.svg"
 }
