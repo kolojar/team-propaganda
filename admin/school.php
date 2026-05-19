@@ -77,6 +77,8 @@ if (isset($_POST["action"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informace o škole</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -108,13 +110,13 @@ if (isset($_POST["action"])) {
         }
 
         //Print HTML
-        echo "<form-input label='Název:' style='width: 100%' class='validate' do-change-check='$exists' type='text' id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
-        echo "<form-input label='Adresa:' style='width: 100%' class='validate' do-change-check='$exists' type='text' id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
+        echo "<form-input label='Název:' class='validate' do-change-check='$exists' type='text' value-id='name' value='$name' original-value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Adresa:' class='validate' do-change-check='$exists' type='text' value-id='address' value='$address' original-value='$address' placeholder='$address'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
-        echo "<a href='./schools.php'><button class='formButton purkynkaButton'>Zpět na seznam škol</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave' form-icon='!save'></button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel' form-icon='!dontSave'></button>";
+        echo "<a href='./schools.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam škol</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>

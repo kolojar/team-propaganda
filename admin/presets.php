@@ -31,6 +31,8 @@ if (isset($_POST["file"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Šablony</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
@@ -55,12 +57,8 @@ if (isset($_POST["file"])) {
             foreach ($files as $file) {
                 echo "<tr>
                         <td>$file</td>
-                        <td>
-                            <button file='$file' class='delete purkynkaButton formButtonInline' form-icon>
-                                <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
-                            </button><button file='$file' class='templateChange purkynkaButton formButtonInline' form-icon>
-                                    <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M226.67-80q-27 0-46.84-19.83Q160-119.67 160-146.67v-666.66q0-27 19.83-46.84Q199.67-880 226.67-880H560l240 240v260h-66.67v-220H520v-213.33H226.67v666.66H620V-80H226.67ZM878-74.33 753.33-199v113h-66.66v-227.33H914v66.66H800L924.67-122 878-74.33Zm-651.33-72.34V-813.33v666.66Z\"/></svg>
-                            </button>
+                        <td class='formButtonHolderTable'>
+                            <button file='$file' class='delete purkynkaButton' form-icon='!delete'></button><button file='$file' class='templateChange purkynkaButton' form-icon='!openFile'></button>
                         </td>
                     </tr>";
             }
@@ -68,8 +66,10 @@ if (isset($_POST["file"])) {
         </table>
         <form-input type="text" label="Název souboru:" id="name" placeholder="Zadejte název souboru"></form-input>
         <form-input type="textarea" label="Zpráva:" id="message" placeholder="Zadejte zprávu"></form-input>
-        <button id="save" class="purkynkaButton">Uložit</button>
-        <button id="savenew" class="purkynkaButton">Uložit jako nový dokument</button>
+        <div class="formButtonBox">
+            <button id="save" class="purkynkaButton" form-icon="!save"></button>
+            <button id="savenew" class="purkynkaButton" form-icon="!saveAs"></button>
+        </div>
     </main>
     <script>
         console.log("html")

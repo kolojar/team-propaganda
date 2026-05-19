@@ -9,6 +9,8 @@ require "./adminFunctions.php";
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seznam škol</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -53,8 +55,8 @@ require "./adminFunctions.php";
             //HTML data
             echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
-                            <a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Zvýraznit zájemce</button></a>
+                            <a href='./school.php?school=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>
+                            <a href='./attendants.php?school=$id'><button form-icon='!highlightUsers' class='formButton formButtonInline purkynkaButton'></button></a>
                         </td>
                         <td>$count</td>
                         <td>$name</td>
@@ -63,9 +65,8 @@ require "./adminFunctions.php";
         }
         ?>
         </table>
-        <h1>Seznam všech škol</h1>
-        <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton">Přidat novou školu</button></a>
-        <a href="./schoolsAll.php"><button class="formButton purkynkaButton">Zobrazit všechny školy</button></a>
+        <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton" form-icon='!add'><span>Přidat novou školu</span></button></a>
+        <a href="./schoolsAll.php"><button class="formButton purkynkaButton"  form-icon='!listTable'><span>Zobrazit všechny školy</span></button></a>
     </main>
     <footer>
 

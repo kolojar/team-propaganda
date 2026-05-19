@@ -47,6 +47,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
             console.log(changed, isValid);
             if (!isValid) {
                 SendToast("Nelze uložit změny!", "Pole obsahuje neplatnou hodnotu.", "error");
+                progress2.CloseDialog();
                 return;
             }
             if (!exists) {

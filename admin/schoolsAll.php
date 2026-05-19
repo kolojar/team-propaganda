@@ -9,6 +9,8 @@ require "./adminFunctions.php";
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seznam škol</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -23,7 +25,7 @@ require "./adminFunctions.php";
     </header>
     <main>
         <h1>Seznam všech škol</h1>
-        <a href="./school.php?newSchool=1"><button class="formButton formWarnColor">Přidat novou školu</button></a><br>
+        <a href="./school.php?newSchool=1"><button class="purkynkaButton" form-icon="!add"><span>Přidat novou školu</span></button></a><br>
         <?php
         //$itemsPerPage = isset($_GET["itemsPerPage"]) ? $_GET["itemsPerPage"] : 10;
         //$page = isset($_GET["page"]) ? $_GET["page"] * $itemsPerPage : 0;
@@ -56,11 +58,11 @@ require "./adminFunctions.php";
                 $stmt->fetch();
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a> ";
+                            <a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a> ";
                 if ($count > 0) {
-                    echo "<a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton'>Zvýraznit zájemce</button></a>";
+                    echo "<a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton' form-icon='!highlightUsers'></button></a>";
                 } else {
-                    echo "<button class='formButton formButtonInline purkynkaButton btnTableDelete' school=$id>Odstranit</button>";
+                    echo "<button class='formButton formButtonInline purkynkaButton btnTableDelete' school=$id form-icon='!delete'></button>";
                 }
                 echo "</td>
                         <td>$count</td>

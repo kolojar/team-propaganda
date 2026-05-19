@@ -5,5 +5,13 @@
     "addFolder": "./icons/createNewFolder32.svg",
     "addFile": "./icons/noteAdd32.svg",
     "file": "./icons/draft32.svg",
-    "folder": "./icons/folder32.svg"
+    "folder": "./icons/folder32.svg",
+    "edit":"./icons/edit32.svg",
+    "save": "./icons/save32.svg",
+    "dontSave":"./icons/dontSaveCustom.svg",
+    "highlightUsers": "./icons/groupSearch32.svg",
+    "add": "./icons/add32.svg",
+    "listTable": "./icons/listAlt32.svg",
+    "saveAs": "./icons/saveAs32.svg",
+    "openFile": "./icons/fileOpen32.svg"
 }

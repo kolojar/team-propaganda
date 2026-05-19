@@ -9,6 +9,8 @@ require "./adminFunctions.php";
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin panel</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -18,7 +20,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"classrooms.php") ?>
+        <?php setupTitlebarAdmin($conn, "classrooms.php") ?>
     </header>
     <main>
         <h1>Všechny dostupné učebny v databázi</h1>
@@ -43,8 +45,7 @@ require "./adminFunctions.php";
                 $isFunctionalString = $isFunctional == 1 ? "Ano" : "Ne";
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./classroom.php?classroom=$id'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
-                            <button class='formButton formErrorColor formButtonInline purkynkaButton' classroom=$id classroomName='$name'>Odstranit</button>
+                            <a href='./classroom.php?classroom=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
                         </td>
                         <td>$name</td>
                         <td>$placesToSit</td>
@@ -54,7 +55,7 @@ require "./adminFunctions.php";
             }
             ?>
         </table>
-        <a href='./classroom.php?newClassroom=1'><button class='formButton purkynkaButton'>Vytvořit učebnu</button></a>
+        <a href='./classroom.php?newClassroom=1'><button class='formButton purkynkaButton' form-icon="!add"><span>Vytvořit učebnu</span></button></a>
     </main>
     <footer>
 
@@ -62,4 +63,5 @@ require "./adminFunctions.php";
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type="module" src="./classrooms.js"></script>
+
 </html>

@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE classrooms SET name=?, placesToSit=?,isFunctional=?, note=? WHERE id_classrooms=?");
+        $stmt = $conn->prepare("UPDATE classrooms_teamPropaganda SET name=?, placesToSit=?,isFunctional=?, note=? WHERE id_classrooms=?");
         $stmt->bind_param("siisi", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -44,9 +44,9 @@ if (isset($_POST["action"])) {
             echo "Entry could not be created.";
             die();
         }
-    } else if ($_POST["action"] == "delete")  {
+    } else if ($_POST["action"] == "delete") {
         //Check if values set
-        if(!isset($_POST["id"])) {
+        if (!isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
@@ -54,7 +54,7 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM classrooms_teamPropaganda WHERE id_classrooms=?");
-        $stmt->bind_param("i",$_POST["id"]);
+        $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry deleted.";
@@ -64,8 +64,7 @@ if (isset($_POST["action"])) {
             echo "Entry could not be deleted.";
             die();
         }
-    }
-    else {
+    } else {
         http_response_code(400);
         echo "Invalid usage of function - invalid action";
         die();
@@ -78,6 +77,8 @@ if (isset($_POST["action"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Učebna</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -87,7 +88,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"classroom.php") ?>
+        <?php setupTitlebarAdmin($conn, "classroom.php") ?>
     </header>
     <main>
         <?php
@@ -111,15 +112,15 @@ if (isset($_POST["action"])) {
         $isFunctionalString = $isFunctional == 1 ? "true" : "false";
 
         //Create HTML
-        echo "<form-input label='Název učebny:' class='classroomValidate' do-change-check='$exists' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input label='Počet míst k sezení:' class='classroomValidate' do-change-check='$exists' type='number' id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<form-toggle labelBefore='Je učebna aktivní: ' class='classroomValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' id='isFunctional'></form-toggle><br>";
-        echo "<form-input label='Poznámka:' class='classroomValidate' do-change-check='$exists' type='textarea' id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
+        echo "<form-input label='Název učebny:' class='classroomValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Počet míst k sezení:' class='classroomValidate' do-change-check='$exists' type='number' value-id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
+        echo "<form-toggle labelBefore='Je učebna aktivní: ' class='classroomValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' value-id='isFunctional'></form-toggle><br>";
+        echo "<form-input label='Poznámka:' class='classroomValidate' do-change-check='$exists' type='textarea' value-id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
-        echo "<a href='./classrooms.php'><button class='formButton purkynkaButton'>Zpět na seznam učeben</button></a>";
+        echo "<button exists='$exists' class='purkynkaButton btnSave' form-icon='!save'></button>";
+        echo "<button exists='$exists' class='purkynkaButton btnCancel' form-icon='!dontSave'></button>";
+        echo "<a href='./classrooms.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam učeben</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>
