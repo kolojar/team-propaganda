@@ -2,6 +2,7 @@
 team pro team na pomoc propagačním systémům pro školu
 - Update pomocí: ``` git submodule update --remote --recursive ```
 - Zdroj dat základních škol: https://lkod-test.msmt.gov.cz/datasets
+- Icons from: https://fonts.google.com/icons?icon.size=32&icon.color=%23000000
 
 # Požadavky paní Klobásová - Kurzy  
   - [ ] Verify špatnej email ve verify
