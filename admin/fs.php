@@ -10,13 +10,12 @@ session_start();
 $isNILE = 2;
 ?>
 <!DOCTYPE html>
-<html>
-
-<!DOCTYPE html>
 <html lang="cs">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soubory</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
@@ -98,11 +97,9 @@ $isNILE = 2;
 </svg></button><button form-icon file='../files/" . $file["name"] . "' class='delDir purkynkaButton'><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
 </button></td><td class = y>" . $file["name"] . "</td></tr>";
                     } else if ($file["isdir"] == 0 && file_exists("../files/" . $file["name"])) {
-                        echo "<button form-icon file='" . $file["name"] . "' class='show purkynkaButton'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
- <path d='M2.42012 12.7132C2.28394 12.4975 2.21584 12.3897 2.17772 12.2234C2.14909 12.0985 2.14909 11.9015 2.17772 11.7766C2.21584 11.6103 2.28394 11.5025 2.42012 11.2868C3.54553 9.50484 6.8954 5 12.0004 5C17.1054 5 20.4553 9.50484 21.5807 11.2868C21.7169 11.5025 21.785 11.6103 21.8231 11.7766C21.8517 11.9015 21.8517 12.0985 21.8231 12.2234C21.785 12.3897 21.7169 12.4975 21.5807 12.7132C20.4553 14.4952 17.1054 19 12.0004 19C6.8954 19 3.54553 14.4952 2.42012 12.7132Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
- <path d='M12.0004 15C13.6573 15 15.0004 13.6569 15.0004 12C15.0004 10.3431 13.6573 9 12.0004 9C10.3435 9 9.0004 10.3431 9.0004 12C9.0004 13.6569 10.3435 15 12.0004 15Z' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
- </svg></button><button form-icon file='../files/" . $file["name"] . "' class='delete purkynkaButton'><svg xmlns=\"http://www.w3.org/2000/svg\" height=\"20px\" viewBox=\"0 -960 960 960\" width=\"20px\" fill=\"black\"><path d=\"M267.33-120q-27.5 0-47.08-19.58-19.58-19.59-19.58-47.09V-740H160v-66.67h192V-840h256v33.33h192V-740h-40.67v553.33q0 27-19.83 46.84Q719.67-120 692.67-120H267.33Zm425.34-620H267.33v553.33h425.34V-740Zm-328 469.33h66.66v-386h-66.66v386Zm164 0h66.66v-386h-66.66v386ZM267.33-740v553.33V-740Z\"/></svg>
-</button><button form-icon class='download purkynkaButton' file='" . $file["name"] . "'>d</button></td><td>" . $file["name"] . "</td></tr>";
+                        echo "<button form-icon='!eye' file='" . $file["name"] . "' class='show purkynkaButton'>
+                        <button form-icon='!delete' file='../files/" . $file["name"] . "' class='delete purkynkaButton'></button>
+                        <button form-icon='!download' class='download purkynkaButton' file='" . $file["name"] . "'></button></td><td>" . $file["name"] . "</td></tr>";
                     }
                 }
                 ?>
