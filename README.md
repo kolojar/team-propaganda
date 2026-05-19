@@ -17,32 +17,32 @@ team pro team na pomoc propagačním systémům pro školu
   - [ ] Možnost přemístění žáků ručně
   - [ ] Možnost přemístění celé učebny
   - [ ] ? Možnost propojení žáků jako kamarádů na přípravy + schválení
-  - [ ] Platba - potvrzení v admin panelu + informace E-Mailem
+  - [X] Platba - potvrzení v admin panelu + informace E-Mailem
   - [X] Platba musí mít variabilní symbol
   - [X] Platba musí jít vrátit + rušení účastníků
-  - [ ] Účetní admin panel + oznámení
+  - [X] Účetní admin panel + oznámení
   - [ ] Formulář / informace o oznámení
-  - [ ] Uživatelský panel
+  - [X] Uživatelský panel
   - [ ] Emaily:
 	  - [ ] Přihlášení
-	  - [ ] Platba OK
+	  - [X] Platba OK
 	  - [ ] 14 dnů před akcí - co, kdy, kde jak
 	  - [ ] Pátek před akcí - místo učebny
 	  - [X] Hromadná korespondence
   - [ ] Jednoduchý poradce a informační koutek
-  - [ ] Úprava odeslaných textů + fotky
-  - [ ] Přikládání souborů / příloh
+  <!-- - [ ] Úprava odeslaných textů + fotky -->
+  - [X] Přikládání souborů / příloh
   - [X] Šablony pro E-Maily (texty)
   - [X] Účet pro rodiče / dítě - ověření jako Matrix
   - [x] Zablokovat duplikáty
   - [ ] Výstup plakátků na učebnu - jména děcek abecedně dle příjmení
   - [ ] Výstup docházka tisk 
   - [ ] Docházka online
-  - [ ] Přílohy jak v E-Mail tak i v panelu
+  - [X] Přílohy jak v E-Mail tak i v panelu
   - [X] Admin panel pro více uživatelů
   - [ ] Kurzy poslat i materiály (lze i hromadně)
   - [ ] Kurzy - Všichni uvidí materiály v následující den ve 12:00
-  - [ ] Materiály lze změtit
+  - [X] Materiály lze změtit
   - [ ] Po skončení celé akce poděkování + hodně štěstí
   - [ ] Přesun E-Mailů z kurzy@purkynka.cz na účet paní Klobásové + přiložit i do admin panelu
   - [X] Počet přihlášených a zaplacených
@@ -57,7 +57,7 @@ team pro team na pomoc propagačním systémům pro školu
 	  - Skloňování
 	  - Více jmen a přijmení
   - [X] V kolik hodin odešel E-Mail
-  - [ ] Odhlášení
+  - [X] Odhlášení
  	   - Jak
  	   - Kdy
  	   - Přes co
@@ -89,13 +89,12 @@ admin panel
 - [X] úprava členů
 - vyhledávání
 - [X] hromadná / jednotná korespondence
-- úprava zasedání
 - [X] detekce omylného přihlášení 2× {při odeslání formuláře}
 - vložit dokument se zobrazením
 - [X] možnost side admin účtů
 - nebyl dostane materiály ?
 - [X] list škol
-formulář na odhlášení
+[X] formulář na odhlášení
 plakátky k učebnám abecedně příjmení
 prezenčka
 přidání materiálů k účtům
@@ -139,7 +138,7 @@ wifi
 - [ ] Rozhraní pro studenty
 	- [ ] ? Feedback
 	- [X] ? Mapka pro studenty
-	- [ ] ? Popis firem
+	- [X] ? Popis firem
 	
 - [ ] Kalendář událostí
 
@@ -148,4 +147,10 @@ wifi
 
 - [ ] chmod.php for changing access
 - [ ] fs.php isNILE
-- [ ] deleteFile.php sql
+- [X] deleteFile.php sql
+- [ ] sendMail no duplicate files
+- [ ] Maybe description for files
+- [ ] company days insert event on creation
+- [ ] new table company days companies
+    - [ ] insert to it
+

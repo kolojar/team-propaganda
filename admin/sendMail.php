@@ -76,7 +76,8 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     $stmt->close();
     exit;
 }
-$isNILE = 2;
+if (isset($_GET["isNILE"])) $isNILE = $_GET["isNILE"];
+else header("Location: ./accessDenied.php");
 ?>
 
 <html>
@@ -110,8 +111,9 @@ $isNILE = 2;
             </tr>
             <?php
             $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
+            $uid = $_GET["uid"];
             while ($row = $res->fetch_object()) {
-                echo "<tr><td><input type='checkbox' name='users' value='$row->id_users'/></td><td>$row->surname $row->name</td><td>$row->email</td></tr>";
+                echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
             }
             ?>
         </table>

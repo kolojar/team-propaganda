@@ -27,7 +27,7 @@ require "./adminFunctions.php";
         //if(isset($_GET['schools'])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
-        
+
         $found = false;
 
         //Request waiting for refund attendants
@@ -75,7 +75,7 @@ require "./adminFunctions.php";
                 //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                 //    $highlightSchoolClass = "trHighlight";
                 //}
-        
+
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
@@ -99,7 +99,7 @@ require "./adminFunctions.php";
         //if(isset($_GET['schools'])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
-        
+
         //Request waiting for refund attendants without payment
         $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE ua.id_events = ? AND ua.refunded IS NULL AND ua.paid IS NULL;");
         $stmt->bind_param("i", $_COOKIE["adminEventId"]);
@@ -143,7 +143,7 @@ require "./adminFunctions.php";
                 //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                 //    $highlightSchoolClass = "trHighlight";
                 //}
-        
+
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
@@ -162,9 +162,9 @@ require "./adminFunctions.php";
             }
             echo "</table>";
         }
-        
+
         //Request not paid attendants
-        $stmt = $conn->prepare("SELECT ra.registered, ra.variable_symbol,ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users WHERE ra.paid IS NULL AND ra.id_events = ?;");
+        $stmt = $conn->prepare("SELECT ra.id_events, ra.registered, ra.variable_symbol,ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users WHERE ra.paid IS NULL AND ra.id_events = ?;");
         $stmt->bind_param("i", $_COOKIE["adminEventId"]);
         $stmt->execute();
         $stmt->store_result();
@@ -184,7 +184,7 @@ require "./adminFunctions.php";
 
             //List all attendants in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($registered, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail);
+                $stmt->bind_result($idevents, $registered, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail);
                 $stmt->fetch();
                 $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
                 $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
@@ -192,7 +192,7 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button variableSymbol=$variableSymbol class='formButton formButtonInline purkynkaButton btnTableAddPayment'>Zaplatit</button></a>";
+                            <button variableSymbol=$variableSymbol class='formButton formButtonInline purkynkaButton btnTableAddPayment' email='$parentEmail' id-events='$idevents'>Zaplatit</button></a>";
                 if ($result->role == "admin") {
                     echo "  <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
                             <button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>";
@@ -248,7 +248,7 @@ require "./adminFunctions.php";
                     //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                     //    $highlightSchoolClass = "trHighlight";
                     //}
-        
+
                     //Put in table
                     echo "<tr class='clickHighlightRow'>
                         <td>$refunded</td>

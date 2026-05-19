@@ -9,6 +9,9 @@ SetupSaveCancelButtons(dialogManager, "userInfo", ".", "./user.php", "-");
 for (const element of document.getElementsByClassName("attendantInfo")) {
     SetupSaveCancelButtons(dialogManager, element, ".", "./attendant.php", element.getAttribute("attendant"));
 }
+for (const element of document.getElementsByClassName("companyInfo")) {
+    SetupSaveCancelButtons(dialogManager, element, ".", "./company.php", element.getAttribute("company"));
+}
 //Make move email button work
 (_a = document.getElementById("btnChangeEmail")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async () => {
     //Ask for email

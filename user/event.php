@@ -45,15 +45,14 @@ if (isset($_POST["action"])) {
             echo "Entry could not be CHECKED.";
             die();
         }
-        $stmt->store_result();
-        $stmt->bind_result($userIdCheck, $registrationClose);
+        $res = $stmt->get_result()->fetch_assoc();
         $stmt->fetch();
-        if ($userIdCheck != $_SESSION["userId"]) {
+        if ($res["id_parent"] != $_SESSION["userId"]) {
             http_response_code(400);
             echo "Invalid usage of function - current user is not parent";
             die();
         }
-        if (new DateTime($registrationClose) < new DateTime()) {
+        if (new DateTime($res["registration_close"]) < new DateTime()) {
             http_response_code(400);
             echo "Invalid usage of function - cannot unregister after time limit";
             die();
@@ -135,12 +134,10 @@ if (isset($_POST["action"])) {
         //Security check
         if (!isset($_GET["variableSymbol"])) {
             echo "<h1>Nebyl zadán platní variabilní symbol!</h1>";
-            echo "<a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>";
             die();
         }
         if (!checkIfParentMatches2($conn, $_GET["variableSymbol"])) {
             echo "<h1>Nejste rodičem tohoto zájemce!</h1>";
-            echo "<a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>";
             die();
         }
         ?>
@@ -148,27 +145,26 @@ if (isset($_POST["action"])) {
             <legend>Informace o akci</legend>
             <?php
             //Get info from DB
-            $stmt = $conn->prepare("SELECT  ra.id_attendants, ra.id_events, ra.registered, ra.user_paid, ra.paid, e.name, e.description, e.registration_close, e.price, ra.id_classrooms, c.name, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events JOIN classrooms_teamPropaganda c ON ra.id_classrooms = c.id_classrooms LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 WHERE variable_symbol=?;");
+            $stmt = $conn->prepare("SELECT  ra.id_attendants, ra.id_events, ra.registered, ra.user_paid, ra.paid, e.name ename, e.description, e.registration_close, e.price, ra.id_classrooms, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events JOIN classrooms_teamPropaganda c ON ra.id_classrooms = c.id_classrooms LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 WHERE variable_symbol=?;");
             $stmt->bind_param("i", $_GET["variableSymbol"]);
             $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($attendantId, $eventId, $registered, $userPaid, $paid, $eventName, $eventDescription, $registrationClose, $price, $classroomId, $classroomName, $subeventIdNext, $subeventDate, $subeventStart, $subeventEnd);
-            $stmt->fetch();
-
+            $res = $stmt->get_result()->fetch_assoc();
+            //$stmt->bind_result($attendantId, $eventId, $registered, $userPaid, $paid, $eventName, $eventDescription, $registrationClose, $price, $classroomId, $classroomName, $subeventIdNext, $subeventDate, $subeventStart, $subeventEnd);
+            //$stmt->fetch();
             //Format times
-            $registeredFormated = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-            $registrationCloseDate = new DateTime($registrationClose);
+            $registeredFormated = new DateTime($res["registered"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+            $registrationCloseDate = new DateTime($res["registration_close"]);
             $registrationCloseFormated = $registrationCloseDate->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
             //Put to HTML
-            echo "<p>Název akce: $eventName</p>";
-            echo "<p>Popis akce: $eventDescription</p>";
+            echo "<p>Název akce: " . $res["ename"] . "</p>";
+            echo "<p>Popis akce: " . $res["description"] . "</p>";
             echo "<p>Přihlášen od: $registeredFormated</p>";
             echo "<p>Do kdy se lze odhlásit: $registrationCloseFormated</p>";
-            if ($subeventIdNext != null) {
-                $subeventDateFormated = new DateTime($subeventDate)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                $subeventStartFormated = new DateTime($subeventStart)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                echo "<p><b>Příští událost: $subeventDateFormated v: $subeventStartFormated v učebně: $classroomName</b></p>";
+            if ($res["id_subevents"] != null) {
+                $subeventDateFormated = new DateTime($res["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                $subeventStartFormated = new DateTime($res["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                echo "<p><b>Příští událost: $subeventDateFormated v: $subeventStartFormated v učebně: " . $res["cname"] . "</b></p>";
             }
 
             //Disable remove from action button
@@ -180,7 +176,7 @@ if (isset($_POST["action"])) {
             //Put to HTML
             echo "<div class='formButtonBoxHolder'>";
             echo "    <div class='formButtonBox formJustifyLeft'>";
-            echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveAttendant'>Ohlásit zájemce z akce</button>";
+            echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveAttendant'>Odhlásit zájemce z akce</button>";
             echo "    </div>";
             echo "</div>";
             ?>
@@ -190,14 +186,14 @@ if (isset($_POST["action"])) {
             <?php
             //Sort payment info
             echo "<p>Stav zaplacení: ";
-            if ($paid != null) {
+            if ($res["paid"] != null) {
                 echo "OK</p>";
-                $paidFormated = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                $paidFormated = new DateTime($res["paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                 echo "<p>Datum zaplacení: $paidFormated";
             } else {
-                if ($userPaid != null) {
+                if ($res["user_paid"] != null) {
                     echo "Čeká na zpracování</p>";
-                    $userPaidFormated = new DateTime($userPaid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    $userPaidFormated = new DateTime($res["user_paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                     echo "<p>Datum odeslání platby: $userPaidFormated";
                 } else {
                     echo "Nezaplaceno</p>";
@@ -209,7 +205,7 @@ if (isset($_POST["action"])) {
             //Disable remove from action button
             $disabledRemove2 = "";
             $variableSymbolFormated = str_pad($_GET["variableSymbol"], 10, "0", STR_PAD_LEFT);
-            if ($userPaid != null) {
+            if ($res["user_paid"] != null) {
                 $disabledRemove2 = "disabled";
                 echo "<p>Variabilní symbol: <span class='fontMono'>$variableSymbolFormated</span></p>";
             }
@@ -233,37 +229,36 @@ if (isset($_POST["action"])) {
                 $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.variable_symbol = ? OR ap.variable_symbol IS NULL);");
                 $stmt->bind_param("ii", $eventId, $variableSymbol);
                 $stmt->execute();
-                $stmt->store_result();
-                for ($i = 0; $i < $stmt->num_rows; $i++) {
-                    $stmt->bind_result($subeventId, $date, $startTime, $endTime, $present);
-                    $stmt->fetch();
+                $res = $stmt->get_result();
+                if ($res->num_rows > 0) {
+                    while ($row = $res->fetch_assoc()) {
+                        //Format dates of subevents
+                        $dateFormated = new DateTime($row["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                        $startTimeFormated = new DateTime($row["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                        $endTimeFormated = new DateTime($row["end_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                        $currentDate = new DateTime();
 
-                    //Format dates of subevents
-                    $dateFormated = new DateTime($date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                    $startTimeFormated = new DateTime($startTime)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $endTimeFormated = new DateTime($endTime)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $currentDate = new DateTime();
-
-                    //Sort presence
-                    $presence = $present == 1 ? "Přítomen" : "Nepřítomen";
-                    if ($present == null) {
-                        $startCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $startTimeFormated);
-                        $endCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $endTimeFormated);
-                        if ($startCombined > $currentDate) {
-                            $presence = "Událost ještě neproběhla.";
-                        } else if ($currentDate >= $startCombined && $currentDate <= $endCombined) {
-                            $presence = "Událost probíhá, docházka zatím nezapsána.";
-                        } else {
-                            $presence = "Docházka neznámá";
+                        //Sort presence
+                        $presence = $row["present"] == 1 ? "Přítomen" : "Nepřítomen";
+                        if ($row["present"] == null) {
+                            $startCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $startTimeFormated);
+                            $endCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $endTimeFormated);
+                            if ($startCombined > $currentDate) {
+                                $presence = "Událost ještě neproběhla.";
+                            } else if ($currentDate >= $startCombined && $currentDate <= $endCombined) {
+                                $presence = "Událost probíhá, docházka zatím nezapsána.";
+                            } else {
+                                $presence = "Docházka neznámá";
+                            }
                         }
-                    }
 
-                    //Put to HTML
-                    echo "<li><a href='./subevent.php?subeventId=$subeventId&variableSymbol=$variableSymbol'>$dateFormated → $startTimeFormated - $endTimeFormated</a> = $presence</li>";
+                        //Put to HTML
+                        echo "<li><a href='./subevent.php?subeventId=" . $row["id_subevents"] . "&variableSymbol=$variableSymbol'>$dateFormated → $startTimeFormated - $endTimeFormated</a> = $presence</li>";
+                    }
                 }
                 ?>
             </ol>
-        </fieldset>
+        </fieldset><a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>
     </main>
     <script type='module' src='../formWebScripts/js/formScript.js'></script>
     <script src='./event.js' type='module'></script>

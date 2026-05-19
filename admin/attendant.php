@@ -24,7 +24,7 @@ if (isset($_POST["action"])) {
             echo "Entry could not be updated.";
             die();
         }
-    }else if ($_POST["action"] == "delete") {
+    } else if ($_POST["action"] == "delete") {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);
@@ -44,9 +44,16 @@ if (isset($_POST["action"])) {
             echo "Entry could not be deleted.";
             die();
         }
-    }  else if ($_POST["action"] == "addPayment") {
+    } else if ($_POST["action"] == "addPayment") {
         //Check if values set
-        if (!isset($_POST["paid"]) || !isset($_POST["bank_account"]) || !isset($_POST["id"]) || !isset($_POST["unregistered"])) {
+        if (
+            !isset($_POST["paid"]) ||
+            !isset($_POST["bank_account"]) ||
+            !isset($_POST["id"]) ||
+            !isset($_POST["unregistered"]) ||
+            !isset($_POST["email"]) ||
+            !isset($_POST["id_events"])
+        ) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
@@ -60,6 +67,16 @@ if (isset($_POST["action"])) {
         $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,bank_account=? WHERE variable_symbol=?;");
         $stmt->bind_param("ssi", $_POST["paid"], $_POST["bank_account"], $_POST["id"]);
         if ($stmt->execute()) {
+            $res = $conn->query("SELECT price FROM `events_teamPropaganda` WHERE id_events = " . $_POST["id_events"])->fetch_assoc();
+            $message = file_get_contents("../assets/PaymentOk.html");
+            $message = str_replace("\${variable_symbol}", str_pad($_POST["id"], 10, "0", STR_PAD_LEFT), $message);
+            $date = new DateTime($_POST["paid"]);
+            $d = $date->format('d. m. Y H:i:s');
+            $message = str_replace("\${payment_date}", $d, $message);
+            $message = str_replace("\${amount}", $res["price"], $message);
+
+            echo "\n\n$message\n\n";
+            sendMail($_POST["email"], "Platba potvrzena.", $message);
             http_response_code(201);
             echo "Entry updated.";
             die();
@@ -153,7 +170,7 @@ if (isset($_POST["action"])) {
     <header>
         <?php
         setupTitlebarAdmin($conn, "attendant.php")
-            ?>
+        ?>
     </header>
     <main>
         <?php

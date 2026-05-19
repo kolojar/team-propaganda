@@ -23,6 +23,8 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
         data.set("bank_account", bankAccount);
         data.set("paid", datePaid);
         data.set("id", button.getAttribute("variableSymbol"));
+        data.set("email", button.getAttribute("email"));
+        data.set("id_events", button.getAttribute("id-events"));
         data.set("unregistered", button.hasAttribute("unregistered") ? "1" : "0");
         const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", data);
         if (!ok) {

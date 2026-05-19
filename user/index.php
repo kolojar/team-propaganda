@@ -35,7 +35,8 @@ if (isset($_SESSION["userId"])) {
             SendPOSTDataToServerAsync
         } from "../formWebScripts/js/serverComunication.js";
         import {
-            SendToast, SetWaitStatusForms
+            SendToast,
+            SetWaitStatusForms
         } from "../formWebScripts/js/formScript.js";
         import {
             FormDialogManager
@@ -43,7 +44,9 @@ if (isset($_SESSION["userId"])) {
 
         const dialogManager = new FormDialogManager()
         let sent = false
-        document.getElementById("form").addEventListener("submit", (e) => { sendToPHP(e) });
+        document.getElementById("form").addEventListener("submit", (e) => {
+            sendToPHP(e)
+        });
         async function sendToPHP(e) {
             e.preventDefault();
             if (!sent) {
@@ -57,8 +60,7 @@ if (isset($_SESSION["userId"])) {
                 if (ok) {
                     if (res == "vpoho") {
                         window.location.href = "../verify.php";
-                    }
-                    else {
+                    } else {
                         SendToast("Odpověď serveru", res, "error");
                         setTimeout(async () => {
                             await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
@@ -72,8 +74,7 @@ if (isset($_SESSION["userId"])) {
                         window.location.reload()
                     }, 2000)
                 }
-            }
-            else {
+            } else {
                 SendToast("Odpověď serveru", res, "error")
                 setTimeout(async () => {
                     await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
@@ -81,7 +82,9 @@ if (isset($_SESSION["userId"])) {
                 }, 2000)
             }
         }
-        document.getElementById("email").addEventListener("change", () => { sent = false })
+        document.getElementById("email").addEventListener("change", () => {
+            sent = false
+        })
     </script>
     <script type="module" src="../formWebScripts/js/formScript.js"></script>
 </body>

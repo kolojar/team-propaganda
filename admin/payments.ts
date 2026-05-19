@@ -26,6 +26,8 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
         data.set("bank_account", bankAccount);
         data.set("paid", datePaid);
         data.set("id", button.getAttribute("variableSymbol") as string);
+        data.set("email", button.getAttribute("email") as string);
+        data.set("id_events", button.getAttribute("id-events") as string);
         data.set("unregistered", button.hasAttribute("unregistered") ? "1" : "0")
         const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", data)
         if (!ok) {
@@ -33,7 +35,7 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
             SendToast("Zadat platbu", "Platbu se nepodařilo zadat!", "error")
             return
         }
-        SendToast("Zadat platbu", "Platbu uložena!", "ok")
+        SendToast("Zadat platbu", "Platba uložena!", "ok")
         setTimeout(() => {
             window.location.reload();
         }, 1000)
