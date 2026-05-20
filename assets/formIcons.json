@@ -25,5 +25,7 @@
     "userRole": "./icons/identityPlatform32.svg",
     "email": "./icons/alternateEmail32.svg",
     "attachment": "./icons/attachFile32.svg",
-    "send": "./icons/send32.svg"
+    "send": "./icons/send32.svg",
+    "openView": "./icons/preview32.svg",
+    "closeView": "./icons/previewOff32.svg"
 }
