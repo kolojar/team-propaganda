@@ -90,8 +90,12 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             }
             for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
                 const inputElement = inputElementOriginal as HTMLFormInputElement | HTMLFormToggleElement
+                console.log(inputElement);
                 if (inputElement instanceof HTMLFormToggleElement) {
                     data.append(inputElement.getAttribute("value-id") as string, inputElement.getValue() ? "1" : "0");
+                } else if (inputElement.getType() == "file") {
+                    console.log("file");
+                    data.append(inputElement.getAttribute("value-id") as string, inputElement.getAttribute("file") as string);
                 } else {
                     data.append(inputElement.getAttribute("value-id") as string, inputElement.getValue());
                 }
@@ -119,9 +123,9 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
     })
 
     //Make cancel button work
-    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function () {
+    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function() {
         //Check for changes
-         const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
+        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
         let foundChange = false
         const changes = []
         for (const inputElementOriginal of document.getElementsByClassName(className)) {

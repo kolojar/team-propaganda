@@ -82,8 +82,13 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
             }
             for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
                 const inputElement = inputElementOriginal;
+                console.log(inputElement);
                 if (inputElement instanceof HTMLFormToggleElement) {
                     data.append(inputElement.getAttribute("value-id"), inputElement.getValue() ? "1" : "0");
+                }
+                else if (inputElement.getType() == "file") {
+                    console.log("file");
+                    data.append(inputElement.getAttribute("value-id"), inputElement.getValueRaw());
                 }
                 else {
                     data.append(inputElement.getAttribute("value-id"), inputElement.getValue());
