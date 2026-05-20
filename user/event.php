@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["variable_symbol"]) || !isset($_POST["bank_account"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -33,7 +33,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["id"]) || !isset($_POST["reason"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 

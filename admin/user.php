@@ -2,19 +2,43 @@
 session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
+require "../assets/sharedFunctions.php";
+
+function echoCheckAdminDelete(mysqli $conn, $role)
+{
+    if ($role != "admin") {
+        return;
+    }
+    $stmt = $conn->prepare("SELECT COUNT(id_users) FROM users_teamPropaganda WHERE role='admin';");
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($count);
+    $stmt->fetch();
+    if ($count <= 1) {
+        http_response_code(400);
+        echo "Nelze odebrat posledního správce systému.";
+        die();
+    }
+}
 
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["email"]) || !isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["school"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
+        //Security check
+        $role = getUserRole($conn, $_POST["id"]);
+        if ($role != $_POST["role"]) {
+            echoCheckAdminDelete($conn, $role);
+        }
+
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE users SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
-        $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET  name=?, surname=?, role=? WHERE id_users=?");
+        $stmt->bind_param("sssi",  $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -40,16 +64,14 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zájemce</title>
-    <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
+    <title>Uživatel</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/tableStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"user.php") ?>
+        <?php setupTitlebarAdmin($conn, "user.php") ?>
         <datalist id="userRoles">
             <option label="Správce systému" value="admin"></option>
             <option label="Účetní" value="accountant"></option>
@@ -60,16 +82,28 @@ if (isset($_POST["action"])) {
         <?php
         //Get user info
         $id = $_GET["user"];
-        $stmt = $conn->prepare("SELECT name, surname, email,role, isNILE, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
-        $stmt->bind_param("i", $_GET["user"]);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($name, $surname,$email,$role,$isNILE, $lastLogin);
-        $stmt->fetch();
-        $lastLoginFormat = new DateTime($lastLogin)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+        $name = "";
+        $surname = "";
+        $email = "";
+        $role = "user";
+        $isNILE = 0;
+        $lastLogin = new DateTime()->format('Y-m-d H:i:s');
+        $exists = "true";
+        if (isset($_GET["newClassroom"])) {
+            echo "<h1>Vytvořit nového uživatele</h1>";
+            $exists = "false";
+        } else {
+            $stmt = $conn->prepare("SELECT name, surname, email,role, isNILE, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
+            $stmt->bind_param("i", $_GET["user"]);
+            $stmt->execute();
+            $stmt->store_result();
+            $stmt->bind_result($name, $surname, $email, $role, $isNILE, $lastLogin);
+            $stmt->fetch();
+            $lastLoginFormat = new DateTime($lastLogin)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+            echo "<h1>Informace o uživateli: $name $surname</h1>";
+        }
 
         //Print HTML
-        echo "<h1>Informace o uživateli: $name $surname</h1>";
         echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
         echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
         echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
@@ -79,8 +113,8 @@ if (isset($_POST["action"])) {
         echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' class='purkynkaButton' form-icon='!save'></button>";
-        echo "<button id='btnCancel' class='purkynkaButton' form-icon='!dontSave'></button>";
+        echo "<button class='purkynkaButton btnSave' form-icon='!save' exists='$exists'></button>";
+        echo "<button class='purkynkaButton btnCancel' form-icon='!dontSave'></button>";
         echo "<a href='./users.php'><button class='purkynkaButton' form-icon='!listTable'><span>Zpět na seznam uživatelů</span></button></a>";
         echo "<a href='./attendants.php?parent=$id'><button class='purkynkaButton' form-icon='!highlightUsers'><span>Zvýraznit přidružené zájemce</span></button></a>";
         echo "</div>";
@@ -92,6 +126,6 @@ if (isset($_POST["action"])) {
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-<script type='module' src='./attendant.js'></script>
+<script type='module' src='./user.js'></script>
 
 </html>

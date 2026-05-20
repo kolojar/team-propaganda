@@ -8,7 +8,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["price"]) || !isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -28,7 +28,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["name"]) || !isset($_POST["type"]) || !isset($_POST["description"]) || !isset($_POST["active_since"]) || !isset($_POST["active_until"]) || !isset($_POST["registration_open"]) || !isset($_POST["registration_close"]) || !isset($_POST["repeat_interval"]) || !isset($_POST["repeat_count"]) || !isset($_POST["repeat_start"]) || !isset($_POST["price"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -48,7 +48,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 

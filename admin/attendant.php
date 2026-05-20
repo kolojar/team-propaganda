@@ -8,7 +8,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["school"]) || !isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -28,7 +28,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -55,7 +55,7 @@ if (isset($_POST["action"])) {
             !isset($_POST["id_events"])
         ) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -89,7 +89,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
@@ -109,7 +109,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["id"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 

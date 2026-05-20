@@ -30,7 +30,7 @@ if (isset($_POST["action"])) {
         //Check if values set
         if (!isset($_POST["name"]) || !isset($_POST["surname"])) {
             http_response_code(400);
-            echo "Invalid usage of function - missing table column parameters";
+            echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 

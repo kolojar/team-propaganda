@@ -58,7 +58,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             if (!exists) {
                 changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
             } else if (changed) {
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValue() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValueRaw() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
             }
         }
 
@@ -98,7 +98,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             }
 
             //Send to server
-            const [ok, _] = await SendPOSTDataToServerAsync(postURL, data)
+            const [ok, reason] = await SendPOSTDataToServerAsync(postURL, data)
             //progress.CloseDialog()
             if (ok) {
                 SendToast("Uložení změn proběhlo úspěšně!", "Změny uloženy.", "ok")
@@ -113,7 +113,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             } else {
                 SendToast("Nelze uložit změny!", "Změny nemohly být uloženy.", "error")
                 progress.CloseDialog()
-                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.", true, true)
+                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason, true, true)
             }
         }
     })
