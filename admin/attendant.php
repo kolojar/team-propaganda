@@ -192,7 +192,7 @@ if (isset($_POST["action"])) {
         echo "<p>Zákonný zástupce: $parentName $parentSurname</p>";
         echo "<p>Email zákonného zástupce: <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<form-input icon='!school' id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
+        echo "<form-input icon='!school' id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button class='formButton purkynkaButton btnSave' form-icon='!save'></button>";

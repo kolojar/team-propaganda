@@ -1,5 +1,6 @@
 <?php
 require "../assets/config.php";
+require "./adminFunctions.php";
 //if (!isset($_SESSION["userId"])) {
 //    header("Location: ./loginForm.html");
 //    exit();
@@ -62,7 +63,8 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             if (!$stmt->execute()) {
                 http_response_code(400);
                 echo "Nepodařilo se uložit data k uživateli s id: $uid";
-            };
+            }
+            ;
         }
     }
     $stmt->prepare("INSERT INTO email_send_files_teamPropaganda (id_files, id_email_send) VALUES (?, ?)");
@@ -71,81 +73,88 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se uložit soubory k emailu.";
-        };
+        }
+        ;
     }
     $stmt->close();
     exit;
 }
-if (isset($_GET["isNILE"])) $isNILE = $_GET["isNILE"];
-else header("Location: ./accessDenied.php");
+if (isset($_GET["isNILE"]))
+    $isNILE = $_GET["isNILE"];
+else
+    header("Location: ./accessDenied.php");
 ?>
 
 <html>
 <style>
-    html {
-        margin: 8px;
-    }
-
-    * {
-        user-select: none;
-    }
-
     .y {
         color: #F4D572;
     }
 </style>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komunikace</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
 
 <body>
-    <!--<form id="form">-->
-    <fieldset id="users">
-        <table>
-            <tr>
-                <th>×</th>
-                <th>Jméno</th>
-                <th>E-mail</th>
-            </tr>
-            <?php
-            $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
-            $uid = $_GET["uid"];
-            while ($row = $res->fetch_object()) {
-                echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
-            }
-            ?>
-        </table>
-    </fieldset>
-    <input type="checkbox" id="checkall" name="checkall">
-    <label for="checkall">Vybrat všechny</label><br>
-    <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
-    <label for="subject">Předmět</label>
-    <input type="text" id="subject" name="subject" required><br>
-    <label for="message">Zpráva</label><br>
-    <textarea name="message" id="message" required></textarea><br>
-    <label for="templates">Předvolby</label>
-    <select id="templates">
-        <option value="none" id="option-none">nový</option>
-        <?php
-        $files = array_diff(scandir("../templates/"), array('.', '..'));
-        foreach ($files as $file) {
-            echo "<option value='$file' id='option-$file'>$file</option>";
-        }
-        ?>
-    </select><br>
-    <input type="checkbox" checked id="now" name="now">
-    <label for="now">Odeslat ihned</label><br>
-    <input type="date" id="date" name="date" disabled today>
-    <input type="number" id="hour" name="hour" min=0 max=23 value=12 disabled><br>
-    <div id="attachments">
+    <header>
+        <?php setupTitlebarAdmin($conn, "sendMail.php") ?>
+    </header>
+    <main>
+        <!--<form id="form">-->
+        <fieldset id="users">
+            <legend>Příjemci</legend>
+            <table>
+                <tr>
+                    <th>×</th>
+                    <th>Jméno</th>
+                    <th>E-mail</th>
+                </tr>
+                <?php
+                $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
+                $uid = $_GET["uid"];
+                while ($row = $res->fetch_object()) {
+                    echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
+                }
+                ?>
+            </table>
+            <input type="checkbox" id="checkall" name="checkall">
+            <label for="checkall">Vybrat všechny</label><br>
+            <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
+        </fieldset>
+        <fieldset>
+            <legend>Obsah zprávy</legend>
+            <datalist id='templatesList'>
+                <option value="none" id="option-none">Nový...</option>
+                <?php
+                $files = array_diff(scandir("../templates/"), array('.', '..'));
+                foreach ($files as $file) {
+                    echo "<option value='$file' id='option-$file'>$file</option>";
+                }
+                ?>
+            </datalist>
+            <form-input type='text' id='subject' label="Předmět"></form-input>
+            <form-input type='textarea' id='message' label="Zpráva"></form-input>
+            <form-input type='select' id='templates' list="templatesList" label="Předvolby / šablony"></form-input>
+            <input type="checkbox" checked id="now" name="now">
+            <label for="now">Odeslat ihned</label><br>
+            <form-input type='date' id='date' name="date" label="Datum odeslání" disabled></form-input>
+            <form-input type="number" id="hour" name="hour" min=0 max=23 value=12  label='Hodina odeslání' disabled></form-input>
+            <div id="attachments">
 
-    </div>
-    <button id="addAttachment" name="addAttachment">+</button>
-    <label for="addAttachment">Přidat přílohu</label>
-    <input type="submit" id="submit">
-    <!--</form>-->
+            </div>
+            <button id="addAttachment" form-icon='!attachment' class="purkynkaButton"><span>Přidat soubor</span></button>
+            <br>
+            <button type="submit" form-icon='!send' id="submit" class="purkynkaButton"><span>Odeslat</span></button>
+        </fieldset>
+        <!--</form>-->
+    </main>
     <script type="module">
         import {
             SendPOSTDataToServerAsync
@@ -160,8 +169,9 @@ else header("Location: ./accessDenied.php");
         let selectedTemplate = "none";
 
         document.getElementById("now").addEventListener("change", () => {
-            document.getElementById("date").disabled = (document.getElementById("date").disabled == true) ? false : true;
-            document.getElementById("hour").disabled = (document.getElementById("hour").disabled == true) ? false : true;
+            const disabled = document.getElementById("now").checked;
+            document.getElementById("date").disable(disabled);
+            document.getElementById("hour").disable(disabled);
         });
 
         document.getElementById("global").addEventListener("change", () => {
@@ -182,14 +192,14 @@ else header("Location: ./accessDenied.php");
             } else {
                 var request = new XMLHttpRequest();
                 request.open('GET', "./templates/" + template, true);
-                request.onload = function() {
+                request.onload = function () {
                     if (request.status >= 200 && request.status < 400) {
                         document.getElementById("message").value = request.responseText;
                     } else {
                         SendToast("Odpověď serveru", request.responseText, "error")
                     }
                 };
-                request.onerror = function() {
+                request.onerror = function () {
                     SendToast("Odpověď serveru", "connection error", "error")
                 };
                 request.send();
@@ -254,11 +264,11 @@ else header("Location: ./accessDenied.php");
             }
 
             const data = new FormData();
-            data.append("subject", document.getElementById("subject").value)
-            data.append("message", document.getElementById("message").value)
+            data.append("subject", document.getElementById("subject").getValue())
+            data.append("message", document.getElementById("message").getValue())
             if (files != undefined) data.append("files", JSON.stringify(files))
             if (!document.getElementById("now").checked) {
-                data.append("datetime", document.getElementById("date").value + " " + document.getElementById("hour").value)
+                data.append("datetime", document.getElementById("date").getValue() + " " + document.getElementById("hour").getValue())
             }
             if (document.getElementById("global").checked) {
                 data.append("global", true)
