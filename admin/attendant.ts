@@ -5,7 +5,7 @@ import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-SetupSaveCancelButtons(dialogManager,null,"./attendants.php","./attendant.php",urlSearchParams.get("user") as string)
+SetupSaveCancelButtons(dialogManager,null,"./attendants.php","./attendant.php",urlSearchParams.get("attendant") as string)
 
 //Make attendant change school field work
 const attendantSchool = document.getElementById("school") as HTMLFormInputElement

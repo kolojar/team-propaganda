@@ -37,6 +37,8 @@ if (isset($_POST["action"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemce</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -48,52 +50,39 @@ if (isset($_POST["action"])) {
 <body class="pageHolder">
     <header>
         <?php setupTitlebarAdmin($conn,"user.php") ?>
+        <datalist id="userRoles">
+            <option label="Správce systému" value="admin"></option>
+            <option label="Účetní" value="accountant"></option>
+            <option label="Uživatel" value="user"></option>
+        </datalist>
     </header>
     <main>
         <?php
-        //Get attendant info
-        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants_teamPropaganda WHERE id_attendants=? LIMIT 1");
-        $stmt->bind_param("i", $_GET["attendant"]);
+        //Get user info
+        $id = $_GET["user"];
+        $stmt = $conn->prepare("SELECT name, surname, email,role, isNILE, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
+        $stmt->bind_param("i", $_GET["user"]);
         $stmt->execute();
         $stmt->store_result();
-        $stmt->bind_result($name, $surname,$idSchool, $idParent);
+        $stmt->bind_result($name, $surname,$email,$role,$isNILE, $lastLogin);
         $stmt->fetch();
-
-        //Get attendant's school info
-        $stmt = $conn->prepare("SELECT schools.name, schools.address FROM schools_teamPropaganda WHERE schools.id_schools = ? LIMIT 1");
-        $stmt->bind_param("i", $idSchool);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($schoolName, $schoolAddress);
-        $stmt->fetch();
-
-        //Get attendant's parent info
-        $stmt = $conn->prepare("SELECT name,surname,email FROM users_teamPropaganda WHERE id_users = ? LIMIT 1");
-        $stmt->bind_param("i",  $idParent);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($parentName, $parentSurname, $parentEmail);
-        $stmt->fetch();
+        $lastLoginFormat = new DateTime($lastLogin)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
         //Print HTML
-        echo "<h1>Informace o zájemci: $name $surname</h1>";
-        echo "<form-input label='Křestní jméno:' class='attendantValidate' do-change-check='true' type='text' id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<br>";
-        echo "<form-input label='Přijmení:' class='attendantValidate' do-change-check='true' type='text' id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
-        echo "<br>";
+        echo "<h1>Informace o uživateli: $name $surname</h1>";
+        echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
+        echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
         //echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
-        echo "<p>Zákonný zástupce: $parentName $parentSurname</p>";
-        echo "<p>Email zákonného zástupce: <a href='mailto:$parentEmail'>$parentEmail</a></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<br>";
-        echo "<form-input label='Základní škola:' class='attendantValidate' type='select' do-change-check='true' id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
+        echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check='true' value-id='role' original-value='$role' value='$role' is-case-sensitive-list='false'></form-input>";
+        echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button id='btnSave' class='formButton formOkColor'>Uložit změny</button>";
-        echo "<button id='btnCancel' class='formButton formErrorColor'>Zrušit změny</button>";
-        echo "<a href='./attendants.php'><button class='formButton formInfoColor'>Zpět na seznam zájemců</button></a>";
-        echo "<a href='./school.php?school=$schoolId'><button class='formButton formInfoColor'>Zobrazit informace o škole</button></a>";
-        echo "<a href='./user.php?user=$idParent'><button class='formButton formInfoColor'>Zobrazit informace o zákonném zástupci</button></a>";
+        echo "<button id='btnSave' class='purkynkaButton' form-icon='!save'></button>";
+        echo "<button id='btnCancel' class='purkynkaButton' form-icon='!dontSave'></button>";
+        echo "<a href='./users.php'><button class='purkynkaButton' form-icon='!listTable'><span>Zpět na seznam uživatelů</span></button></a>";
+        echo "<a href='./attendants.php?parent=$id'><button class='purkynkaButton' form-icon='!highlightUsers'><span>Zvýraznit přidružené zájemce</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>

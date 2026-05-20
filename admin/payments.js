@@ -32,7 +32,7 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
             SendToast("Zadat platbu", "Platbu se nepodařilo zadat!", "error");
             return;
         }
-        SendToast("Zadat platbu", "Platbu uložena!", "ok");
+        SendToast("Zadat platbu", "Platba uložena!", "ok");
         setTimeout(() => {
             window.location.reload();
         }, 1000);

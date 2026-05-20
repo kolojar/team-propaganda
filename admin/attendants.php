@@ -9,6 +9,8 @@ require "./adminFunctions.php";
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemci</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -38,7 +40,7 @@ require "./adminFunctions.php";
             if ($stmt->num_rows > 0) {
                 $found = true;
                 //Echo header
-                echo "<h1>Registrovaní a zaplacení zájemci</h1>
+                echo "<h1>Registrovaní a zaplacení zájemci: " . $stmt->num_rows . "</h1>
                   <table>
                       <tr>
                           <th>Akce</th>
@@ -67,12 +69,11 @@ require "./adminFunctions.php";
                     //Put in table
                     echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
-                            <button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol=$variableSymbol>Odhlásit</button>
+                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>
                         </td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td> <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
                         <td>$classroomName</td>
                         <td>$schoolName → $schoolAddress</td>
                         <td>$registered</td>
@@ -96,7 +97,7 @@ require "./adminFunctions.php";
         if ($stmt->num_rows > 0) {
             $found = true;
             //Echo header
-            echo "<h1>Registrovaní a nezaplacení zájemci</h1>
+            echo "<h1>Registrovaní a nezaplacení zájemci: " . $stmt->num_rows . "</h1>
                   <table>
                   <tr>
                       <th>Akce</th>
@@ -124,12 +125,11 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow $highlightSchoolClass'>
                         <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
-                            <button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>
+                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>
                         </td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
                         <td>$classroomName</td>
                         <td>$schoolName → $schoolAddress</td>
                         <td>$registered</td>
@@ -175,8 +175,8 @@ require "./adminFunctions.php";
                         $parentEmail = "Není k dispozici";
                     }
                     $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                    if($paid != null) {
-                    $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    if ($paid != null) {
+                        $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                     } else {
                         $paid = "Nezaplaceno";
                     }
@@ -198,12 +198,16 @@ require "./adminFunctions.php";
                     //Put in table
                     echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol'>Odstranit</button>
+                            <button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol' form-icon='!delete'></button>
                         </td>
                         <td>$attendantFullName</td>
-                        <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
-                        <td>$reason</td>
+                        <td>$parentFullName</td>";
+                    if ($parentId != null) {
+                        echo "<td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>";
+                    } else {
+                        echo "<td>$parentEmail</td>";
+                    }
+                    echo "<td>$reason</td>
                         <td>$registered</td>
                         <td>$paid</td>
                         <td>$unregistered</td>

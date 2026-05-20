@@ -13,5 +13,14 @@
     "add": "./icons/add32.svg",
     "listTable": "./icons/listAlt32.svg",
     "saveAs": "./icons/saveAs32.svg",
-    "openFile": "./icons/fileOpen32.svg"
+    "openFile": "./icons/fileOpen32.svg",
+    "removePerson": "./icons/personRemove32.svg",
+    "addPayment": "./icons/creditScore32.svg",
+    "addNoPayment": "./icons/creditCardOff32.svg",
+    "refund": "./icons/redo32.svg",
+    "userName": "./icons/badge32.svg",
+    "userSurname": "./icons/badge32.svg",
+    "school": "./icons/school32.svg",
+    "parentInfo": "./icons/accountChildInvert32.svg",
+    "userRole": "./icons/identityPlatform32.svg"
 }

@@ -9,6 +9,8 @@ require "./adminFunctions.php";
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platby</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -79,7 +81,7 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formButtonInline purkynkaButton btnRefundTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice'>Vrátit platbu</button>
+                            <button class='purkynkaButton btnRefundTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice' icon='!refund'></button>
                         </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$eventPrice Kč</td>
@@ -147,8 +149,7 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button class='formButton formButtonInline purkynkaButton btnTableAddPayment' variableSymbol='$variableSymbol' unregistered=1>Platba dorazila</button>
-                            <button class='formButton formButtonInline purkynkaButton btnRemoveNotPaidTable' variableSymbol='$variableSymbol'>Platba nedorazila</button>
+                            <button class='purkynkaButton btnTableAddPayment' variableSymbol='$variableSymbol' unregistered='1' form-icon='!addPayment'>Platba dorazila</button><button class='purkynkaButton btnRemoveNotPaidTable' variableSymbol='$variableSymbol' form-icon='!addNoPayment'>Platba nedorazila</button>
                         </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$eventPrice Kč</td>
@@ -192,10 +193,9 @@ require "./adminFunctions.php";
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <button variableSymbol=$variableSymbol class='formButton formButtonInline purkynkaButton btnTableAddPayment' email='$parentEmail' id-events='$idevents'>Zaplatit</button></a>";
+                            <button variableSymbol=$variableSymbol class='purkynkaButton btnTableAddPayment' email='$parentEmail' id-events='$idevents' form-icon='!addPayment'></button></a>";
                 if ($result->role == "admin") {
-                    echo "  <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton'>Upravit</button></a>
-                            <button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol=$variableSymbol>Odhlásit</button>";
+                    echo "<a href='./attendant.php?attendant=$attendantId'><button form-icon='!edit' class='purkynkaButton'></button></a><button class='purkynkaButton btnUnregisterTable' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>";
                 }
                 echo "  </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
@@ -217,7 +217,7 @@ require "./adminFunctions.php";
             if ($stmt->num_rows > 0) {
                 $found = true;
                 echo "<h1>Zájemci, kterým byly vráceny peníze</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Datum vrácení</th>
                           <th>Variabilní symbol platby</th>
@@ -273,7 +273,7 @@ require "./adminFunctions.php";
                 $found = true;
                 //Echo header
                 echo "<h1>Zaplacení zájemci</h1>
-                  <table class='styledTable styledTableAuto'>
+                  <table>
                       <tr>
                           <th>Datum platby</th>
                           <th>Variabilní symbol platby</th>
@@ -287,8 +287,8 @@ require "./adminFunctions.php";
                     $stmt->bind_result($paid, $variableSymbol, $attendantName, $attendantSurname, $parentName, $parentSurname, $parentEmail);
                     $stmt->fetch();
                     $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                    $registered = new DateTime($registered)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                    $paid = new DateTime($paid)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
                     //Highlight
                     $highlightSchoolClass = "";

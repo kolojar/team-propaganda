@@ -6,15 +6,15 @@ require "./adminFunctions.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["email"]) || !isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["school"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["school"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Invalid usage of function - missing table column parameters";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, id_schools=? WHERE id_users=?");
-        $stmt->bind_param("sssii", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE attendants_teamPropaganda SET name=?, surname=?, id_schools=? WHERE id_attendants=?");
+        $stmt->bind_param("ssii", $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -159,6 +159,8 @@ if (isset($_POST["action"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemce</title>
     <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
@@ -175,45 +177,29 @@ if (isset($_POST["action"])) {
     <main>
         <?php
         //Get attendant info
-        $stmt = $conn->prepare("SELECT name,surname,id_schools, id_parent FROM attendants_teamPropaganda WHERE id_attendants=? LIMIT 1");
+        $stmt = $conn->prepare("SELECT a.name, a.surname, a.id_parent, a.id_schools, u.name, u.surname, u.email, s.name, s.address FROM attendants_teamPropaganda a JOIN users_teamPropaganda u ON a.id_parent = u.id_users JOIN schools_teamPropaganda s ON a.id_schools = s.id_schools WHERE a.id_attendants = ?;");
         $stmt->bind_param("i", $_GET["attendant"]);
         $stmt->execute();
         $stmt->store_result();
-        $stmt->bind_result($name, $surname, $idSchool, $idParent);
-        $stmt->fetch();
-
-        //Get attendant's school info
-        $stmt = $conn->prepare("SELECT name, address FROM schools_teamPropaganda WHERE id_schools = ? LIMIT 1");
-        $stmt->bind_param("i", $idSchool);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($schoolName, $schoolAddress);
-        $stmt->fetch();
-
-        //Get attendant's parent info
-        $stmt = $conn->prepare("SELECT name,surname,email FROM users_teamPropaganda WHERE id_users = ? LIMIT 1");
-        $stmt->bind_param("i", $idParent);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($parentName, $parentSurname, $parentEmail);
+        $stmt->bind_result($name, $surname, $parentId, $schoolId, $parentName, $parentSurname, $parentEmail, $schoolName, $schoolAddress);
         $stmt->fetch();
 
         //Print HTML
         echo "<h1>Informace o zájemci: $name $surname</h1>";
-        echo "<form-input label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
+        echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
         //echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         echo "<p>Zákonný zástupce: $parentName $parentSurname</p>";
-        echo "<p>Email zákonného zástupce: <a href='mailto:$parentEmail'>$parentEmail</a></p>";
+        echo "<p>Email zákonného zástupce: <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<form-input id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
+        echo "<form-input icon='!school' id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false' style='width: 100%'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button class='formButton purkynkaButton btnSave'>Uložit změny</button>";
-        echo "<button class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
-        echo "<a href='./attendants.php'><button class='formButton purkynkaButton'>Zpět na seznam zájemců</button></a>";
-        echo "<a href='./school.php?school=$schoolId'><button class='formButton purkynkaButton'>Zobrazit informace o škole</button></a>";
-        echo "<a href='./user.php?user=$idParent'><button class='formButton purkynkaButton'>Zobrazit informace o zákonném zástupci</button></a>";
+        echo "<button class='formButton purkynkaButton btnSave' form-icon='!save'></button>";
+        echo "<button class='formButton purkynkaButton btnCancel' form-icon='!dontSave'></button>";
+        echo "<a href='./attendants.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam zájemců</span></button></a>";
+        echo "<a href='./school.php?school=$schoolId'><button class='formButton purkynkaButton' form-icon='!school'><span>Zobrazit informace o škole</span></button></a>";
+        echo "<a href='./user.php?user=$parentId'><button class='formButton purkynkaButton' form-icon='!parentInfo'><span>Zobrazit informace o zákonném zástupci</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>
