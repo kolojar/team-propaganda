@@ -22,5 +22,6 @@
     "userSurname": "./icons/badge32.svg",
     "school": "./icons/school32.svg",
     "parentInfo": "./icons/accountChildInvert32.svg",
-    "userRole": "./icons/identityPlatform32.svg"
+    "userRole": "./icons/identityPlatform32.svg",
+    "email": "./icons/alternateEmail32.svg"
 }

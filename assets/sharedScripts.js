@@ -176,11 +176,11 @@ export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName)
             formData.set("action", "delete");
             formData.set("id", button.getAttribute(idAttributeName));
             //Send request
-            const [ok, _] = await SendPOSTDataToServerAsync(postURL, formData);
+            const [ok, reason] = await SendPOSTDataToServerAsync(postURL, formData);
             if (!ok) {
                 SendToast("Mazání dat", "Nelze smazat data", "error");
                 progress.CloseDialog();
-                await dialogManager.OpenAlert("Mazání dat", "Data nemohla být smazána, opakujte akci později.", true, true);
+                await dialogManager.OpenAlert("Mazání dat", "Data nemohla být smazána, opakujte akci později.<br>Důvod: " + reason, true, true);
                 return;
             }
             //All OK

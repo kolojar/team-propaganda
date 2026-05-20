@@ -24,7 +24,7 @@ function echoCheckAdminDelete(mysqli $conn, $role)
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["email"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
@@ -37,8 +37,8 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET  name=?, surname=?, role=? WHERE id_users=?");
-        $stmt->bind_param("sssi",  $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, role=? WHERE id_users=?");
+        $stmt->bind_param("ssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -46,6 +46,52 @@ if (isset($_POST["action"])) {
         } else {
             http_response_code(400);
             echo "Entry could not be updated.";
+            die();
+        }
+    } else  if ($_POST["action"] == "insert") {
+        //Check if values set
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["email"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+
+        //Make SQL Insert
+        $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, isNILE, role, lastLogin) VALUES (?,?,?,0,?,CURRENT_TIMESTAMP())");
+        $stmt->bind_param("ssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry inserted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be inserted.";
+            die();
+        }
+    } else if ($_POST["action"] == "delete") {
+        //Check if values set
+        if (!isset($_POST["id"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+
+        //Security check
+        $role = getUserRole($conn, $_POST["id"]);
+        if ($role != $_POST["role"]) {
+            echoCheckAdminDelete($conn, $role);
+        }
+
+        //Make SQL Update
+        $stmt = $conn->prepare("DELETE FROM users_teamPropaganda WHERE id_users=?");
+        $stmt->bind_param("i", $_POST["id"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry deleted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be deleted.";
             die();
         }
     } else {
@@ -85,11 +131,11 @@ if (isset($_POST["action"])) {
         $name = "";
         $surname = "";
         $email = "";
-        $role = "user";
+        $role = "";
         $isNILE = 0;
         $lastLogin = new DateTime()->format('Y-m-d H:i:s');
         $exists = "true";
-        if (isset($_GET["newClassroom"])) {
+        if (isset($_GET["newUser"])) {
             echo "<h1>Vytvořit nového uživatele</h1>";
             $exists = "false";
         } else {
@@ -106,8 +152,8 @@ if (isset($_POST["action"])) {
         //Print HTML
         echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
         echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
-        echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
-        //echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
+        //echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
+        echo "<form-input icon='!email' label='Email:' class='validate' do-change-check='true' type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
         echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check='true' value-id='role' original-value='$role' value='$role' is-case-sensitive-list='false'></form-input>";
         echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
