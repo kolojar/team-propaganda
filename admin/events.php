@@ -38,7 +38,7 @@ if (isset($_GET["selectSubevent"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin panel</title>
-    <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
+    
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>

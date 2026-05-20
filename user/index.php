@@ -14,7 +14,7 @@ if (isset($_SESSION["userId"])) {
     <title>Přihlásit se</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
-    <link rel="stylesheet" href="../formWebScripts/css/sharedStyle.css">
+    
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
