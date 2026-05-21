@@ -117,10 +117,10 @@ require '../assets/sharedFunctions.php';
                 while ($row = $res->fetch_assoc()) {
                     echo "<br>
                 <fieldset class='companyInfo' company='" . $row["id_companies"] . "'>
-                <legend>Informace o firmě: " . $row["name"] . ((isset($row["icon"])) ? " <img style='width: 5%; height: 5%;' src='data:image/jpeg;base64," . base64_encode($row["icon"]) . "'>" : "") . "</legend>
+                <legend>Informace o firmě: " . $row["name"] . ((isset($row["icon"])) ? " </legend><img style='width: 4vw; height: 4vw;' src='data:image/jpeg;base64," . base64_encode($row["icon"]) . "'>" : "</legend>") . "
+                <button class='formButton purkynkaButton' id='icon' company=" . $row["id_companies"] . ">Přidat/změnit logo firmy.</button>
+                <span>Musí být v poměru 1:1. Maximální velikost souboru: 16MB</span>
                 <form-input value-id='name' label='Jméno:' class='validate' type='text' do-change-check='true' value='" . $row["name"] . "' original-value='" . $row["name"] . "'></form-input>
-                <form-input value-id='icon' name='icon' label='Logo firmy:' class='validate' type='file' value='' original-value=''></form-input><br>
-                <span>Musí být ve velikosti 1:1. Maximální velikost souboru: 16MB</span>
                 <form-input value-id='short_info' label='Krátký popis:' class='validate' type='text' do-change-check='true' min-len='300' value='" . $row["short_info"] . "' original-value='" . $row["short_info"] . "'></form-input>
                 <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check='true' value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>";
 

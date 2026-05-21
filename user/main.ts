@@ -2,7 +2,7 @@ import { SetupSaveCancelButtons } from "../assets/sharedScripts.js"
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js"
 import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js"
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js"
-
+const urlSearchParams = new URLSearchParams(window.location.search)
 localStorage.setItem("formLanguage", "cs")
 const dialogManager = new FormDialogManager()
 SetupSaveCancelButtons(dialogManager, "userInfo", ".", "./user.php", "-")
@@ -34,7 +34,7 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
         await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true)
         return
     }
-    window.open("../verify.php","_blank");
+    window.open("../verify.php", "_blank");
     await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
     window.location.reload()
 })
@@ -73,6 +73,25 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         await dialogManager.OpenAlert("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.", true, true)
     })
 }
+
+document.getElementById("icon")?.addEventListener("click", async (e) => {
+    let file = await dialogManager.OpenPrompt<null | any>("Logo", "Vyberte soubor. Musí být v poměru 1:1.", null, "file")
+    if (file && file[0]) {
+        SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
+        let data = new FormData()
+        data.append('files[]', file[0]);
+        data.append("id", (e.target as HTMLButtonElement).getAttribute("company") as string)
+        let [ok, res] = await SendPOSTDataToServerAsync("./company.php", data);
+        if (ok) {
+            SendToast("Odpověď serveru", res, "ok");
+            window.location.reload()
+        } else SendToast("Odpověď serveru", res, "error")
+    } else {
+        SendToast("Nahrávání souboru", "Soubor se nepodařilo nahrát", "error")
+        return;
+    }
+
+})
 
 //Make attendant change school field work
 const getSchoolsStart = async () => {

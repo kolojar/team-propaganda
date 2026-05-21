@@ -7,7 +7,12 @@ session_start();
 //    exit;
 //}
 
-$isNILE = 2;
+if (isset($_GET["isNILE"])) {
+    $isNILE = $_GET["isNILE"];
+} else {
+    header("Location: ./accessDenied.php");
+    die;
+}
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -34,8 +39,8 @@ $isNILE = 2;
     <main>
         <?php
         if (isset($_GET["file"]) && is_dir("../files/" . $_GET["file"])) {
-            echo "<h1>Zobrazení složky: ".$_GET["file"] . "</h1>";
-            ?><br>
+            echo "<h1>Zobrazení složky: " . $_GET["file"] . "</h1>";
+        ?><br>
             <table>
                 <tr>
                     <th>Akce</th>
@@ -57,10 +62,10 @@ $isNILE = 2;
                 }
                 ?>
             </table>
-            <?php
+        <?php
             echo "<button class='purkynkaButton' onclick=\"window.location.href='./fs.php'\">Zpět</button>";
         } else {
-            ?>
+        ?>
             <div class="formButtonBoxHolder">
                 <div class="formJustifyLeft" style="align-items: center">
                     <h1 style="margin-bottom: 0px; margin-top: 4px;">Prohlížení souborů</h1>
@@ -88,7 +93,7 @@ $isNILE = 2;
                 }
                 ?>
             </table>
-            <?php
+        <?php
         }
         ?>
     </main>

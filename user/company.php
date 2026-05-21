@@ -15,14 +15,8 @@ if (isset($_POST["action"])) {
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
-        if (isset($_POST["icon"]) && $_POST["icon"] != null) {
-            $icon = file_get_contents(str_replace(["\\\\", "\\"], "/", $_POST["icon"]));
-            $stmt = $conn->prepare("UPDATE companies_teamPropaganda SET name=?, short_info=?, long_info=?, icon=? WHERE id_companies=?");
-            $stmt->bind_param("ssssi", $_POST["name"], $_POST["short_info"], $_POST["long_info"], $icon, $_POST["id"]);
-        } else {
-            $stmt = $conn->prepare("UPDATE companies_teamPropaganda SET name=?, short_info=?, long_info=? WHERE id_companies=?");
-            $stmt->bind_param("sssi", $_POST["name"], $_POST["short_info"], $_POST["long_info"], $_POST["id"]);
-        }
+        $stmt = $conn->prepare("UPDATE companies_teamPropaganda SET name=?, short_info=?, long_info=? WHERE id_companies=?");
+        $stmt->bind_param("sssi", $_POST["name"], $_POST["short_info"], $_POST["long_info"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -38,4 +32,16 @@ if (isset($_POST["action"])) {
         die();
     }
 }
-
+if (isset($_FILES["files"])) {
+    $fcont = file_get_contents($_FILES["files"]["tmp_name"][0]);
+    $stmt = $conn->prepare("UPDATE companies_teamPropaganda SET icon=? WHERE id_companies=?");
+    $stmt->bind_param("si", $fcont, $_POST["id"]);
+    if ($stmt->execute()) {
+        echo "Soubor uložen.";
+        die;
+    } else {
+        http_response_code(400);
+        echo "Soubor se nepovedlo uložit.";
+        die;
+    }
+}

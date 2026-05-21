@@ -1,8 +1,9 @@
-var _a;
+var _a, _b;
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
+const urlSearchParams = new URLSearchParams(window.location.search);
 localStorage.setItem("formLanguage", "cs");
 const dialogManager = new FormDialogManager();
 SetupSaveCancelButtons(dialogManager, "userInfo", ".", "./user.php", "-");
@@ -67,6 +68,26 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         await dialogManager.OpenAlert("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.", true, true);
     });
 }
+(_b = document.getElementById("icon")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", async (e) => {
+    let file = await dialogManager.OpenPrompt("Logo", "Vyberte soubor. Musí být v poměru 1:1.", null, "file");
+    if (file && file[0]) {
+        SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok");
+        let data = new FormData();
+        data.append('files[]', file[0]);
+        data.append("id", e.target.getAttribute("company"));
+        let [ok, res] = await SendPOSTDataToServerAsync("./company.php", data);
+        if (ok) {
+            SendToast("Odpověď serveru", res, "ok");
+            window.location.reload();
+        }
+        else
+            SendToast("Odpověď serveru", res, "error");
+    }
+    else {
+        SendToast("Nahrávání souboru", "Soubor se nepodařilo nahrát", "error");
+        return;
+    }
+});
 //Make attendant change school field work
 const getSchoolsStart = async () => {
     const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false, true, true);
