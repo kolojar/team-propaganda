@@ -88,7 +88,27 @@ if (isset($_POST["action"])) {
             echo "Entry could not be created.";
             die();
         }
-    } else {
+    } else if ($_POST["action"] == "removeClassroom") {
+        //Check if values set
+        if (!isset($_POST["id"]) || !isset($_POST["classroom"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+
+        //Make SQL Delete
+        $stmt = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda WHERE id_subevents=? AND id_classrooms=?");
+        $stmt->bind_param("ii", $_POST["id"],$_POST["classroom"]);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo "Entry deleted.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be deleted.";
+            die();
+        }
+    }else {
         http_response_code(400);
         echo "Neplatné použití funkce - neplatná akce";
         die();
@@ -120,17 +140,18 @@ if (isset($_POST["action"])) {
         $startTimeDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
         $endTimeDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
         $exists = "true";
+        $attendantsCount = 0;
         if (isset($_GET["newSubevent"])) {
             echo "<h1>Vytvořit novou podudálost</h1>";
             $exists = "false";
             $eventId = $_GET["event"];
         } else {
             //Get subevent info
-            $stmt = $conn->prepare("SELECT id_events, date, start_time, end_time FROM subevents_teamPropaganda WHERE id_subevents = ?;");
+            $stmt = $conn->prepare("SELECT s.id_events, s.date, s.start_time, s.end_time, COUNT(ra.id_attendants) FROM subevents_teamPropaganda s LEFT JOIN registered_attendants_teamPropaganda ra ON s.id_events = ra.id_events AND ra.paid IS NOT NULL WHERE s.id_subevents = ?;");
             $stmt->bind_param("i", $_GET["subevent"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB);
+            $stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB, $attendantsCount);
             $stmt->fetch();
 
         }
@@ -164,6 +185,10 @@ if (isset($_POST["action"])) {
         echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
         echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
         echo "<form-input label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
+        
+        //Select classrooms
+        $placesToSitTotal = 0;
+        $placesToSitUsedTotal = 0;
         if ($exists == "true") {
             //Get info about active classrooms for event
             $stmt3 = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.variable_symbol), COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms WHERE cs.id_subevents = ?;");
@@ -171,6 +196,8 @@ if (isset($_POST["action"])) {
             $stmt3->execute();
             $stmt3->store_result();
             $echoHeader = true;
+
+            //Echo HTML info
             if ($stmt3->num_rows > 0) {
                 for ($i = 0; $i < $stmt3->num_rows; $i++) {
                     $stmt3->bind_result($idClassroom, $classroomName, $placesToSit, $variableSymbols, $placesToSitUsed);
@@ -183,19 +210,34 @@ if (isset($_POST["action"])) {
                         echo "<ul>";
                         $echoHeader = false;
                     }
+                    $placesToSitTotal += $placesToSit;
+                    $placesToSitUsedTotal += $placesToSitUsed;
                     echo "<li>";
                     echo "<span>$classroomName → $placesToSit míst, obsazeno: $placesToSitUsed</span>";
                     echo "<button class='purkynkaButton deleteClassroom' form-icon='!delete' classroom='$idClassroom'></button>";
                     echo "</li>";
                 }
                 echo "</ul>";
-            }
+                }
             if ($echoHeader) {
                 echo "<p>Žádné aktivní učebny.</p>";
             }
         } else {
             echo "<p>Učebny je možné nastavit až po vytvoření.</p>";
         }
+
+        //Calculate needed places
+        if($placesToSitUsedTotal > $attendantsCount) {
+            $attendantsCount = $placesToSitUsedTotal;
+        }
+        $freePlaces = $placesToSitTotal - $attendantsCount;
+        if($freePlaces >= 0) {
+            echo "<p id='freeSpacesCount' ok='1'>Počet volných míst v učebnách: " . $freePlaces . "</p>";
+        } else {
+            echo "<p id='freeSpacesCount' ok='0'>Na událost je nedostatečný počet míst v učebnách: " . abs($freePlaces) . "</p>";
+        }
+
+        //Echo HTML buttons
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";

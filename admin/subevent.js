@@ -1,4 +1,4 @@
-var _a;
+var _a, _b;
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
@@ -72,4 +72,37 @@ date.validate();
         window.location.reload();
     }, 1000);
 });
+//Setup remove classroom
+for (const btn of document.getElementsByClassName("deleteClassroom")) {
+    btn.addEventListener("click", async () => {
+        //Confirm deletion
+        if (!await dialogManager.OpenConfirm("Odebrat učebnu", "Opravdu chcete odebrat učebnu?", true, true)) {
+            SendToast("Odebrat učebnu", "Odebrání učebny bylo zrušeno.", "info");
+            return;
+        }
+        //Send POST to server
+        const progress = dialogManager.ShowProgress("Odebrat učebnu", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
+        const formData = new FormData();
+        formData.set("action", "removeClassroom");
+        formData.set("id", urlSearchParams.get("subevent"));
+        formData.set("classroom", btn.getAttribute("classroom"));
+        const [ok1, resp1] = await SendPOSTDataToServerAsync("./subevent.php", formData);
+        if (!ok1) {
+            progress.CloseDialog();
+            SendToast("Nelze odebrat učebnu!", "Změny nemohly být uloženy.", "error");
+            await dialogManager.OpenAlert("Odebrat učebnu", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + resp1, true, true);
+            return;
+        }
+        //All OK
+        SendToast("Odebrání učebny proběhlo úspěšně!", "Změny uloženy.", "ok");
+        //progress.SetMessage(0,"Změny uloženy")
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    });
+}
+//Add Toast for not enought places
+if (((_b = document.getElementById("freeSpacesCount")) === null || _b === void 0 ? void 0 : _b.getAttribute("ok")) != "1") {
+    SendToast("Nedostatečný počet míst v učebnách", "Na tuto podudálost chybí místa v učebnách, přidejte prosím další.<br>Po vyřešení problému bude možné žáky automaticky rozřadit do učeben.", "warn");
+}
 //# sourceMappingURL=subevent.js.map
