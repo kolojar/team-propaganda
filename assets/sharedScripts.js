@@ -88,7 +88,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
                 }
                 else if (inputElement.getType() == "file") {
                     console.log("file");
-                    data.append(inputElement.getAttribute("value-id"), inputElement.getValueRaw());
+                    data.append(inputElement.getAttribute("value-id"), inputElement.getAttribute("file"));
                 }
                 else {
                     data.append(inputElement.getAttribute("value-id"), inputElement.getValue());

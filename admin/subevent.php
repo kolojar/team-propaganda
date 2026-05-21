@@ -12,7 +12,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE subevents SET date=?,start_time=?,end_time=? WHERE id_subevents=?");
+        $stmt = $conn->prepare("UPDATE subevents_teamPropaganda SET date=?,start_time=?,end_time=? WHERE id_subevents=?");
         $stmt->bind_param("sssi", $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -32,7 +32,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO subevents(id_events,date,start_time, end_time) VALUES (?,?,?,?)");
+        $stmt = $conn->prepare("INSERT INTO subevents_teamPropaganda(id_events,date,start_time, end_time) VALUES (?,?,?,?)");
         $stmt->bind_param("isss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -52,7 +52,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Delete
-        $stmt = $conn->prepare("DELETE FROM subevents WHERE id_subevents=?");
+        $stmt = $conn->prepare("DELETE FROM subevents_teamPropaganda WHERE id_subevents=?");
         $stmt->bind_param("i", $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
@@ -63,9 +63,34 @@ if (isset($_POST["action"])) {
             echo "Entry could not be deleted.";
             die();
         }
+    } else if ($_POST["action"] == "addClassroom") {
+        //Check if values set
+        if (!isset($_POST["id"]) || !isset($_POST["classroom"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+
+        //Make SQL Insert
+        $stmt = $conn->prepare("INSERT IGNORE INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
+        $stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]);
+        if ($stmt->execute()) {
+            if ($stmt->affected_rows == 0) {
+                http_response_code(400);
+                echo "Učebna již přidána.";
+                die();
+            }
+            http_response_code(201);
+            echo "Entry created.";
+            die();
+        } else {
+            http_response_code(400);
+            echo "Entry could not be created.";
+            die();
+        }
     } else {
         http_response_code(400);
-        echo "Invalid usage of function - invalid action";
+        echo "Neplatné použití funkce - neplatná akce";
         die();
     }
 }
@@ -134,16 +159,54 @@ if (isset($_POST["action"])) {
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
         
         //Create HTML
+        echo "<fieldset>";
+        echo "<legend>Nastavení podudálosi</legend>";
         echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
         echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
         echo "<form-input label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
+        if ($exists == "true") {
+            //Get info about active classrooms for event
+            $stmt3 = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.variable_symbol), COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms WHERE cs.id_subevents = ?;");
+            $stmt3->bind_param("i", $_GET["subevent"]);
+            $stmt3->execute();
+            $stmt3->store_result();
+            $echoHeader = true;
+            if ($stmt3->num_rows > 0) {
+                for ($i = 0; $i < $stmt3->num_rows; $i++) {
+                    $stmt3->bind_result($idClassroom, $classroomName, $placesToSit, $variableSymbols, $placesToSitUsed);
+                    $stmt3->fetch();
+                    if ($echoHeader) {
+                        if ($idClassroom == null) {
+                            continue;
+                        }
+                        echo "<p>Aktivní učebny k této podudálosti:</p>";
+                        echo "<ul>";
+                        $echoHeader = false;
+                    }
+                    echo "<li>";
+                    echo "<span>$classroomName → $placesToSit míst, obsazeno: $placesToSitUsed</span>";
+                    echo "<button class='purkynkaButton deleteClassroom' form-icon='!delete' classroom='$idClassroom'></button>";
+                    echo "</li>";
+                }
+                echo "</ul>";
+            }
+            if ($echoHeader) {
+                echo "<p>Žádné aktivní učebny.</p>";
+            }
+        } else {
+            echo "<p>Učebny je možné nastavit až po vytvoření.</p>";
+        }
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
         echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
+        if ($exists == "true") {
+            echo "<button id='addClassroom' class='formButton purkynkaButton'>Přidat učebnu</button>";
+            echo "<button id='copyClassroom' class='formButton purkynkaButton'>Kopírovat nastavení učeben z jiné podudálosti</button>";
+        }
         echo "<a href='./events.php'><button class='formButton purkynkaButton'>Zpět na seznam události</button></a>";
         echo "</div>";
-        echo "</div>";
+        echo "</div></fieldset>";
         ?>
     </main>
     <footer>

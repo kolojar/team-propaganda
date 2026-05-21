@@ -70,7 +70,7 @@ if (isset($_POST["action"])) {
         die();
     } else {
         http_response_code(400);
-        echo "Invalid usage of function - invalid action parameter";
+        echo "Neplatné použití funkce - neplatná akce parameter";
         die();
     }
 } else {

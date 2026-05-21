@@ -15,7 +15,7 @@ if (isset($_GET["action"])) {
         die();
     } else {
         http_response_code(400);
-        echo "Invalid usage of function - invalid action";
+        echo "Neplatné použití funkce - neplatná akce";
         die();
     }
 }

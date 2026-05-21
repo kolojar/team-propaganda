@@ -2,6 +2,44 @@
 session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
+
+if (isset($_POST["action"])) {
+    if ($_POST["action"] == "getFunctionalClassrooms") {
+        //Make SQL Select
+        $stmt = $conn->prepare("SELECT id_classrooms, name, places_to_sit FROM classrooms_teamPropaganda WHERE is_functional = 1;");
+        if (!$stmt->execute()) {
+            http_response_code(400);
+            echo "Entry could not be fetched";
+            die();
+        }
+        if (!$stmt->store_result()) {
+            http_response_code(400);
+            echo "Entry could not be fetched";
+            die();
+        }
+
+        //Fetch all classrooms
+        $jsonRecords = [];
+        for ($i = 0; $i < $stmt->num_rows; $i++) {
+            $stmt->bind_result($id, $name, $placesToSit);
+            $stmt->fetch();
+            $jsonRecords[] = [
+                "id" => $id,
+                "name" => $name,
+                "placesToSit" => $placesToSit,
+            ];
+        }
+
+        //Generate JSON
+        http_response_code(201);
+        echo json_encode($jsonRecords);
+        die();
+    } else {
+        http_response_code(400);
+        echo "Neplatné použití funkce - neplatná akce";
+        die();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +51,7 @@ require "./adminFunctions.php";
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin panel</title>
-    
+
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
