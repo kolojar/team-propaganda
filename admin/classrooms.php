@@ -6,7 +6,7 @@ require "./adminFunctions.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "getFunctionalClassrooms") {
         //Make SQL Select
-        $stmt = $conn->prepare("SELECT id_classrooms, name, places_to_sit FROM classrooms_teamPropaganda WHERE is_functional = 1;");
+        $stmt = $conn->prepare("SELECT id_classrooms, name, places_to_sit FROM classrooms_teamPropaganda;");
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Entry could not be fetched";
@@ -67,27 +67,24 @@ if (isset($_POST["action"])) {
                 <th>Akce</th>
                 <th>Název učebny</th>
                 <th>Počet míst k sezení</th>
-                <th>Je aktivní</th>
                 <th>Poznámka</th>
             </tr>
             <?php
             //Request classrooms
-            $stmt = $conn->prepare("SELECT id_classrooms, name,placesToSit, isFunctional,  note FROM classrooms_teamPropaganda");
+            $stmt = $conn->prepare("SELECT id_classrooms, name,places_to_sit,  note FROM classrooms_teamPropaganda");
             $stmt->execute();
             $stmt->store_result();
 
             //List all classrooms in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $name, $placesToSit, $isFunctional, $note);
+                $stmt->bind_result($id, $name, $placesToSit, $note);
                 $stmt->fetch();
-                $isFunctionalString = $isFunctional == 1 ? "Ano" : "Ne";
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
                             <a href='./classroom.php?classroom=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
                         </td>
                         <td>$name</td>
                         <td>$placesToSit</td>
-                        <td>$isFunctionalString</td>
                         <td>$note</td>
                     </tr>";
             }

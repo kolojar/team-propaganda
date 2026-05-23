@@ -24,7 +24,7 @@ require '../assets/sharedFunctions.php';
 <body class="pageHolder">
     <header>
         <?php
-        $_SESSION["userId"] = 7;
+        $_SESSION["userId"] = 6;
         setupTitlebarUser($conn)
         ?>
     </header>

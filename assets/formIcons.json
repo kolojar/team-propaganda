@@ -27,5 +27,6 @@
     "attachment": "./icons/attachFile32.svg",
     "send": "./icons/send32.svg",
     "openView": "./icons/preview32.svg",
-    "closeView": "./icons/previewOff32.svg"
+    "closeView": "./icons/previewOff32.svg",
+    "relocate": "./icons/moveLocation32.svg"
 }

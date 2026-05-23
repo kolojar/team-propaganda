@@ -6,15 +6,15 @@ require "./adminFunctions.php";
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"]) || !isset($_POST["note"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["note"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE classrooms_teamPropaganda SET name=?, placesToSit=?,isFunctional=?, note=? WHERE id_classrooms=?");
-        $stmt->bind_param("siisi", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"], $_POST["id"]);
+        $stmt = $conn->prepare("UPDATE classrooms_teamPropaganda SET name=?, places_to_sit=?, note=? WHERE id_classrooms=?");
+        $stmt->bind_param("sisi", $_POST["name"], $_POST["placesToSit"],  $_POST["note"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry updated.";
@@ -26,15 +26,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "insert") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["isFunctional"]) || !isset($_POST["note"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["placesToSit"]) || !isset($_POST["note"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO classrooms_teamPropaganda(name,placesToSit,isFunctional,note) VALUES (?, ?,?, ?)");
-        $stmt->bind_param("siis", $_POST["name"], $_POST["placesToSit"], $_POST["isFunctional"], $_POST["note"]);
+        $stmt = $conn->prepare("INSERT INTO classrooms_teamPropaganda(name,places_to_sit,note) VALUES (?,?,?)");
+        $stmt->bind_param("sis", $_POST["name"], $_POST["placesToSit"], $_POST["note"]);
         if ($stmt->execute()) {
             http_response_code(201);
             echo "Entry created.";
