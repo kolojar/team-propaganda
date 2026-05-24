@@ -31,8 +31,8 @@ $accessLevels = array(
     "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
     "payments.php" => new accessLevel(array("admin", "accountant"), false, false, true, true, "Platby"),
     "presets.php" => new accessLevel(array("admin"), false, false, true, true, "Šablony"),
-    "fs.php" => new accessLevel(array("admin"), false,false,true,true,"Soubory"),
-    "sendMail.php" => new accessLevel(array("admin"), false,false,true,true,"Komunikace"),
+    "fs.php" => new accessLevel(array("admin"), false, false, true, true, "Soubory"),
+    "sendMail.php" => new accessLevel(array("admin"), false, false, true, true, "Komunikace"),
     "event.php" => new accessLevel(array("admin"), false),
     "subevent.php" => new accessLevel(array("admin"), false),
     "user.php" => new accessLevel(array("admin"), false),
@@ -68,10 +68,10 @@ class titlebarSetupResult
     public readonly bool $allowView;
     //public readonly bool $allowEdit;
     public string $role;
-    public readonly int | null $eventId;
-    public readonly int | null $subeventId;
+    public readonly int|null $eventId;
+    public readonly int|null $subeventId;
 
-    public function __construct(string $message, bool $allowView, int | null $eventId, int | null $subeventId /*$allowEdit*/)
+    public function __construct(string $message, bool $allowView, int|null $eventId, int|null $subeventId /*$allowEdit*/)
     {
         $this->allowView = $allowView;
         //$this->allowEdit = $allowEdit;
@@ -94,7 +94,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     //Check access level
     if (!checkAccess($page, $role)) {
         header("Location: ./accessDenied.php");
-        $result = new titlebarSetupResult("", false,null,null);
+        $result = new titlebarSetupResult("", false, null, null);
         $result->role = $role;
         return $result;
     }
@@ -137,35 +137,31 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
 {
     //Check if already redirected due to noEventId
     if (isset($_GET["noEventId"])) {
-        return new titlebarSetupResult("NENÍ", true,null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null);
     }
 
     //Check if event cookie exist and refresh it
     if (!isset($_COOKIE["adminEventId"])) {
         if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
-            return new titlebarSetupResult("NENÍ", false,null,null);
+            return new titlebarSetupResult("NENÍ", false, null, null);
         }
         setSubeventId("");
-        return new titlebarSetupResult("NENÍ", true,null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null);
     }
     setEventId($_COOKIE["adminEventId"]);
 
     //Check if event exists
     $name = 0;
     $stmt = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=?;");
-    $stmt->bind_param("i", $_COOKIE["adminEventId"]);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($name);
-    if (!$stmt->fetch() || $name == "") {
+    if (!$stmt->bind_param("i", $_COOKIE["adminEventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name) || !$stmt->fetch() || !$stmt->close() || $name == "") {
         if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
-            return new titlebarSetupResult("NENÍ", false,null,null);
+            return new titlebarSetupResult("NENÍ", false, null, null);
         }
         setEventId("");
         setSubeventId("");
-        return new titlebarSetupResult("NENÍ", true,null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null);
     }
 
     //Check if already redirected due to noSubeventId
@@ -177,28 +173,24 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
     if (!isset($_COOKIE["adminSubeventId"])) {
         if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
-            return new titlebarSetupResult($name, false,$_COOKIE["adminEventId"],null);
+            return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null);
         }
-        return new titlebarSetupResult($name, true,$_COOKIE["adminEventId"],null);
+        return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null);
     }
     setSubeventId($_COOKIE["adminSubeventId"]);
 
     //Check if subevent exists
     $date = "";
     $stmt = $conn->prepare("SELECT date FROM subevents_teamPropaganda WHERE id_subevents=?;");
-    $stmt->bind_param("i", $_COOKIE["adminSubeventId"]);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($date);
-    if (!$stmt->fetch() || $date == "") {
+    if (!$stmt->bind_param("i", $_COOKIE["adminSubeventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($date) || !$stmt->fetch() || !$stmt->close() || $date == "") {
         if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
-            return new titlebarSetupResult($name, false,$_COOKIE["adminEventId"],null);
+            return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null);
         }
         setSubeventId("");
-        return new titlebarSetupResult($name, true,$_COOKIE["adminEventId"],null);
+        return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null);
     }
 
     //All OK
-    return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format("d. m. Y"), true,$_COOKIE["adminEventId"],$_COOKIE["adminSubeventId"]);
+    return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format("d. m. Y"), true, $_COOKIE["adminEventId"], $_COOKIE["adminSubeventId"]);
 }
