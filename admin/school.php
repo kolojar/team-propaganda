@@ -14,14 +14,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE schools_teamPropaganda SET name=?, address=? WHERE id_schools=?");
-        $stmt->bind_param("ssi", $_POST["name"], $_POST["address"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ssi", $_POST["name"], $_POST["address"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Škola upravena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Škola nemohla být upravena.";
             die();
         }
     } else if ($_POST["action"] == "insert") {
@@ -34,14 +33,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("INSERT INTO schools_teamPropaganda(name,address) VALUES (?, ?)");
-        $stmt->bind_param("ss", $_POST["name"], $_POST["address"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ss", $_POST["name"], $_POST["address"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Škola přidána.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Škola nemohla být přidána.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -54,14 +52,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM schools_teamPropaganda WHERE id_schools=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Škola odstraněna.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Škola nemohla být odstraněna.";
             die();
         }
     } else {
@@ -81,14 +78,13 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informace o škole</title>
-    
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"school.php") ?>
+        <?php setupTitlebarAdmin($conn, "school.php") ?>
     </header>
     <main>
         <?php
@@ -100,12 +96,12 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             //Get school info
-            $stmt = $conn->prepare("SELECT name,address FROM schools_teamPropaganda WHERE id_schools = ? LIMIT 1");
-            $stmt->bind_param("i", $_GET["school"]);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($name, $address);
-            $stmt->fetch();
+            $stmt = $conn->prepare("SELECT name,address FROM schools_teamPropaganda WHERE id_schools = ?");
+            if (!$stmt->bind_param("i", $_GET["school"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $address) || !$stmt->fetch() || !$stmt->close()) {
+                echo "<h1>Nelze získat informace o škole.</h1>";
+                echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+                die();
+            }
             echo "<h1>Informace o škole: $name → $address</h1>";
         }
 

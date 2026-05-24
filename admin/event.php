@@ -110,7 +110,7 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start, price FROM events_teamPropaganda WHERE id_events = ?;");
-            if (!$stmt->bind_param("i", $_GET["event"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB, $price) || !$stmt->fetch() || !$stmt->close()) {
+            if (!$stmt->bind_param("i", $_GET["event"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB, $price) || !$stmt->fetch() || !$stmt->close()) {
                 echo "<h1>Nelze získat informace o události.</h1>";
                 echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
                 die();

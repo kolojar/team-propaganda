@@ -19,37 +19,45 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"users.php") ?>
+        <?php setupTitlebarAdmin($conn, "users.php") ?>
     </header>
     <main>
-        <h1>Uživatelé</h1>
-        <table>
-            <tr>
-                <th>Akce</th>
-                <th>Jméno a přijmení</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Naposledy přihlášen</th>
-            </tr>
-            <?php
-            ////Get highlighted schools
-            //$highlightSchools = [];
-            //if(isset($_GET['schools'])) {
-            //    $highlightSchools = explode(',',$_GET["schools"]);
-            //}
-            
-            //Request users
-            $stmt = $conn->prepare(
-                "SELECT id_users, name,surname, email,role,lastLogin FROM users_teamPropaganda",
-            );
-            $stmt->execute();
-            $stmt->store_result();
+        <?php
+        ////Get highlighted schools
+        //$highlightSchools = [];
+        //if(isset($_GET['schools'])) {
+        //    $highlightSchools = explode(',',$_GET["schools"]);
+        //}
+        
+        //Request users
+        $stmt = $conn->prepare("SELECT id_users, name,surname, email,role,lastLogin FROM users_teamPropaganda", );
+        if (!$stmt->execute() || !$stmt->store_result()) {
+            echo "<h1>Nelze získat informace o uživatelích.</h1>";
+        } else if ($stmt->num_rows > 0) {
+            //Echo header
+            echo "<h1>Uživatelé</h1>";
+            echo "<table>";
+            echo "<tr>";
+            echo "<th>Akce</th>";
+            echo "<th>Jméno a přijmení</th>";
+            echo "<th>Email</th>";
+            echo "<th>Role</th>";
+            echo "<th>Naposledy přihlášen</th>";
+            echo "</tr>";
 
             //List all users in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $name, $surname, $email, $role, $lastLogin);
-                $stmt->fetch();
-                $lastLoginFormat =  DateTime::createFromFormat('Y-m-d H:i:s', $lastLogin)->format("d. m. Y H:i:s");
+                if (!$stmt->bind_result($id, $name, $surname, $email, $role, $lastLogin) || !$stmt->fetch()) {
+                    $id = null;
+                    $name = "CHYBA";
+                    $surname = "CHYBA";
+                    $email = "CHYBA";
+                    $role = "CHYBA";
+                    $lastLogin = "CHYBA";
+                    $lastLoginFormat = "CHYBA";
+                } else {
+                    $lastLoginFormat = DateTime::createFromFormat('Y-m-d H:i:s', $lastLogin)->format("d. m. Y H:i:s");
+                }
 
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
@@ -63,10 +71,15 @@ require "./adminFunctions.php";
                         <td>$lastLoginFormat</td>
                     </tr>";
             }
-            ?>
-        </table>
+            echo "</table>";
+            $stmt->close();
+        } else {
+            echo "<h1>Žádní uživatelé nejsou k dispozici.</h1>";
+            $stmt->close();
+        }
+        ?>
     </main>
-    <footer>        
+    <footer>
         <div class="formButtonBox">
             <a href="./user.php?newUser=1"><button form-icon="!add" class="purkynkaButton"><span>Vytvořit nového uživatele</span></button></a>
         </div>
@@ -75,4 +88,5 @@ require "./adminFunctions.php";
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type='module' src='../assets/sharedScripts.js'></script>
 <script type="module" src="./users.js"></script>
+
 </html>

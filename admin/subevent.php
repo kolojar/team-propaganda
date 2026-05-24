@@ -33,83 +33,96 @@ class classroomInfo
 function classroomOrdererInsert(mysqli $conn, $valuesToInsert)
 {
     //Do Insert
-    $stmt4 = $conn->prepare("INSERT INTO attendants_presence_teamPropaganda(id_subevents, variable_symbol, id_classrooms) VALUES (?, ?, ?)");
-    if (!$stmt4->bind_param("iii", $_POST["id"], $variableSymbol, $classroom)) {
+    $stmt = $conn->prepare("INSERT INTO attendants_presence_teamPropaganda(id_subevents, variable_symbol, id_classrooms) VALUES (?, ?, ?)");
+    if (!$stmt->bind_param("iii", $_POST["id"], $variableSymbol, $classroom)) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
     if (!$conn->begin_transaction()) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
     for ($i = 0; $i < count($valuesToInsert); $i += 2) {
         $variableSymbol = $valuesToInsert[$i];
         $classroom = $valuesToInsert[$i + 1];
-        if (!$stmt4->execute()) {
+        if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nebylo možno přiřadit zájemce do učebny.";
+            $stmt->close();
             die();
         }
     }
     if (!$conn->commit()) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
+    $stmt->close();
 }
 
 function classroomOrdererUpdate(mysqli $conn, $valuesToUpdate)
 {
     //Do Update
-    $stmt5 = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = ? WHERE id_subevents = ? AND variable_symbol = ?");
-    if (!$stmt5->bind_param("iii", $classroom, $_POST["id"], $variableSymbol)) {
+    $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = ? WHERE id_subevents = ? AND variable_symbol = ?");
+    if (!$stmt->bind_param("iii", $classroom, $_POST["id"], $variableSymbol)) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
     if (!$conn->begin_transaction()) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
     for ($i = 0; $i < count($valuesToUpdate); $i += 2) {
         $variableSymbol = $valuesToUpdate[$i];
         $classroom = $valuesToUpdate[$i + 1];
-        if (!$stmt5->execute()) {
+        if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nebylo možno přiřadit zájemce do učebny.";
+            $stmt->close();
             die();
         }
     }
     if (!$conn->commit()) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
+        $stmt->close();
         die();
     }
+    $stmt->close();
 }
 
 function classroomOrderer(mysqli $conn, $variableSymbolToSchools)
 {
     //Get classrooms
-    $stmt2 = $conn->prepare("SELECT cs.id_classrooms, c.places_to_sit, COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON cs.id_classrooms = ap.id_classrooms AND cs.id_subevents = ap.variable_symbol WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms;");
-    if (!$stmt2->bind_param("i", $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result()) {
+    $stmt = $conn->prepare("SELECT cs.id_classrooms, c.places_to_sit, COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON cs.id_classrooms = ap.id_classrooms AND cs.id_subevents = ap.variable_symbol WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms;");
+    if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
         http_response_code(400);
         echo "Nepodařilo se načíst seznam učeben.";
+        $stmt->close();
         die();
     }
 
     //Add to array
     $classrooms = [];
-    for ($i = 0; $i < $stmt2->num_rows; $i++) {
-        if (!$stmt2->bind_result($classroom, $placesToSit, $usedPlaces) || !$stmt2->fetch()) {
+    for ($i = 0; $i < $stmt->num_rows; $i++) {
+        if (!$stmt->bind_result($classroom, $placesToSit, $usedPlaces) || !$stmt->fetch()) {
             http_response_code(400);
             echo "Nepodařilo se načíst seznam studentů.";
+            $stmt->close();
             die();
         }
         $classrooms[] = new classroomInfo($classroom, $placesToSit, $usedPlaces);
     }
+    $stmt->close();
 
     //Check if there are classrooms
     if (count($classrooms) == 0) {
@@ -162,14 +175,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE subevents_teamPropaganda SET date=?,start_time=?,end_time=? WHERE id_subevents=?");
-        $stmt->bind_param("sssi", $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("sssi", $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Podudálost upravena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Podudálost nemohla být upravena.";
             die();
         }
     } else if ($_POST["action"] == "insert") {
@@ -182,14 +194,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO subevents_teamPropaganda(id_events,date,start_time, end_time) VALUES (?,?,?,?)");
-        $stmt->bind_param("isss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("isss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry created.";
+            echo "Podudálost vytvořena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be created.";
+            echo "Podudálost nemohla být vytvořena.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -202,14 +213,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM subevents_teamPropaganda WHERE id_subevents=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Podudálost odstraněna.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Podudálost nemohla být odstraněna.";
             die();
         }
     } else if ($_POST["action"] == "addClassroom") {
@@ -221,35 +231,32 @@ if (isset($_POST["action"])) {
         }
 
         //Check if in table
-        $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
-        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch()) {
+        $stmt = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
+        if (!$stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($count) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o učebně.";
-            $stmt2->close();
             die();
         }
         if ($count > 0) {
             http_response_code(400);
             echo "Učebna již přidána.";
-            $stmt2->close();
             die();
         }
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
-        $stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             if ($stmt->affected_rows == 0) {
                 http_response_code(400);
                 echo "Učebna již přidána.";
                 die();
             }
             http_response_code(201);
-            echo "Entry created.";
+            echo "Učebna přidána.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be created.";
+            echo "Učebna nemohla být přidána.";
             die();
         }
     } else if ($_POST["action"] == "removeClassroom") {
@@ -261,8 +268,8 @@ if (isset($_POST["action"])) {
         }
 
         //Move attendants
-        $stmt4 = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms=NULL WHERE id_classrooms=? AND id_subevents=?;");
-        if (!$stmt4->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt4->execute()) {
+        $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms=NULL WHERE id_classrooms=? AND id_subevents=?;");
+        if (!$stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se změnit učebnu.";
             die();
@@ -270,14 +277,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda WHERE id_subevents=? AND id_classrooms=?");
-        $stmt->bind_param("ii", $_POST["id"], $_POST["classroom"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ii", $_POST["id"], $_POST["classroom"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Učebna odebrána.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Učebna nemohla být odebrána.";
             die();
         }
     } else if ($_POST["action"] == "moveClassroom") {
@@ -290,7 +296,7 @@ if (isset($_POST["action"])) {
 
         //Get info about new classroom
         $stmt = $conn->prepare("SELECT c.places_to_sit, cs.id_classrooms IS NOT NULL FROM classrooms_teamPropaganda c LEFT JOIN classrooms_subevents_teamPropaganda cs ON c.id_classrooms = cs.id_classrooms AND cs.id_subevents = ? WHERE c.id_classrooms = ?;");
-        if (!$stmt->bind_param("ii", $_POST["id"], $_POST["target_classroom"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows == 0 || !$stmt->bind_result($placesToSitTarget, $exists) || !$stmt->fetch()) {
+        if (!$stmt->bind_param("ii", $_POST["id"], $_POST["target_classroom"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows == 0 || !$stmt->bind_result($placesToSitTarget, $exists) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se získat informace o cílové učebně.";
             die();
@@ -302,8 +308,8 @@ if (isset($_POST["action"])) {
         }
 
         //Get info about current classroom
-        $stmt2 = $conn->prepare("SELECT places_to_sit FROM classrooms_teamPropaganda WHERE id_classrooms = ?;");
-        if (!$stmt2->bind_param("i", $_POST["source_classroom"]) || !$stmt2->execute() || !$stmt2->store_result() || $stmt2->num_rows == 0 || !$stmt2->bind_result($placesToSitSource) || !$stmt2->fetch()) {
+        $stmt = $conn->prepare("SELECT places_to_sit FROM classrooms_teamPropaganda WHERE id_classrooms = ?;");
+        if (!$stmt->bind_param("i", $_POST["source_classroom"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows == 0 || !$stmt->bind_result($placesToSitSource) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se získat informace o zdrojové učebně.";
             die();
@@ -315,24 +321,24 @@ if (isset($_POST["action"])) {
         }
 
         //Check if in table
-        $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
-        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch()) {
+        $stmt = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
+        if (!$stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($count) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o učebně.";
-            $stmt2->close();
+            $stmt->close();
             die();
         }
         if ($count > 0) {
             http_response_code(400);
-            $stmt2->close();
+            $stmt->close();
             echo "Učebna již přidána.";
             die();
         }
 
         //Add target classroom
-        $stmt3 = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
-        if ($stmt3->bind_param("ii", $_POST["target_classroom"], $_POST["id"]) && $stmt3->execute()) {
-            if ($stmt3->affected_rows == 0) {
+        $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
+        if ($stmt->bind_param("ii", $_POST["target_classroom"], $_POST["id"]) && $stmt->execute() || !$stmt->close()) {
+            if ($stmt->affected_rows == 0) {
                 http_response_code(400);
                 echo "Učebna již přidána.";
                 die();
@@ -344,23 +350,22 @@ if (isset($_POST["action"])) {
         }
 
         //Move attendants
-        $stmt4 = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms=? WHERE id_classrooms=? AND id_subevents=?;");
-        if (!$stmt4->bind_param("iii", $_POST["target_classroom"], $_POST["source_classroom"], $_POST["id"]) || !$stmt4->execute()) {
+        $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms=? WHERE id_classrooms=? AND id_subevents=?;");
+        if (!$stmt->bind_param("iii", $_POST["target_classroom"], $_POST["source_classroom"], $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se změnit učebnu.";
             die();
         }
 
         //Delete old classroom
-        $stmt5 = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda WHERE id_subevents=? AND id_classrooms=?");
-        $stmt5->bind_param("ii", $_POST["id"], $_POST["source_classroom"]);
-        if ($stmt5->execute()) {
+        $stmt = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda WHERE id_subevents=? AND id_classrooms=?");
+        if (!$stmt->bind_param("ii", $_POST["id"], $_POST["source_classroom"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(201);
             echo "Žáci přesunuti do nové učebny.";
             die();
         } else {
             http_response_code(400);
-            echo "Stará učebna nemohla být odstraněna.";
+            echo "Původní učebna nemohla být odstraněna.";
             die();
         }
     } else if ($_POST["action"] == "sortAttendants") {
@@ -379,6 +384,7 @@ if (isset($_POST["action"])) {
             if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
                 http_response_code(400);
                 echo "Nepodařilo se načíst seznam studentů.";
+                $stmt->close();
                 die();
             }
 
@@ -387,10 +393,12 @@ if (isset($_POST["action"])) {
                 if (!$stmt->bind_result($variableSymbol, $school, $isInTable) || !$stmt->fetch()) {
                     http_response_code(400);
                     echo "Nepodařilo se načíst seznam studentů.";
+                    $stmt->close();
                     die();
                 }
                 $variableSymbolToSchools[] = new variableSymbolInfo($variableSymbol, $school, $isInTable == 1);
             }
+            $stmt->close();
         } else {
             //Get all variable symbols
             $variableSymbols = [];
@@ -408,6 +416,7 @@ if (isset($_POST["action"])) {
                 if (!$stmt->bind_param("i" . str_repeat("i", count($variableSymbols)), $_POST["id"], ...$variableSymbols) || !$stmt->execute() || !$stmt->store_result()) {
                     http_response_code(400);
                     echo "Nepodařilo se načíst seznam studentů.";
+                    $stmt->close();
                     die();
                 }
 
@@ -416,10 +425,12 @@ if (isset($_POST["action"])) {
                     if (!$stmt->bind_result($variableSymbol, $school, $isInTable) || !$stmt->fetch()) {
                         http_response_code(400);
                         echo "Nepodařilo se načíst seznam studentů.";
+                        $stmt->close();
                         die();
                     }
                     $variableSymbolToSchools[] = new variableSymbolInfo($variableSymbol, $school, $isInTable == 1);
                 }
+                $stmt->close();
             }
         }
 
@@ -432,8 +443,8 @@ if (isset($_POST["action"])) {
 
         //Clear classrooms when force
         if ($_POST["force"] == "1") {
-            $stmt3 = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = NULL WHERE id_subevents = ?;");
-            if (!$stmt3->bind_param("i", $_POST["id"]) || !$stmt3->execute()) {
+            $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = NULL WHERE id_subevents = ?;");
+            if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || $stmt->close()) {
                 http_response_code(400);
                 echo "Nepodařilo se načíst odebrat zájemce z učeben.";
                 die();
@@ -460,6 +471,7 @@ if (isset($_POST["action"])) {
         if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
             http_response_code(400);
             echo "Nepodařilo se načíst seznam studentů.";
+            $stmt->close();
             die();
         }
 
@@ -468,11 +480,13 @@ if (isset($_POST["action"])) {
             if (!$stmt->bind_result($variableSymbol, $isInTable) || !$stmt->fetch()) {
                 http_response_code(400);
                 echo "Nepodařilo se načíst seznam studentů.";
+                $stmt->close();
                 die();
             }
             $order[] = $variableSymbol;
             $variableSymbolToIsInTable[$variableSymbol] = $isInTable == 1;
         }
+        $stmt->close();
 
         //Check if has something to do
         if (count($variableSymbolToIsInTable) == 0) {
@@ -482,50 +496,54 @@ if (isset($_POST["action"])) {
         }
 
         //Clear classrooms
-        $stmt3 = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = NULL WHERE id_subevents = ?;");
-        if (!$stmt3->bind_param("i", $_POST["id"]) || !$stmt3->execute()) {
+        $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = NULL WHERE id_subevents = ?;");
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se odebrat zájemce z učeben.";
             die();
         }
 
         //Delete classrooms
-        $stmt4 = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda cs WHERE cs.id_subevents = ?;");
-        if (!$stmt4->bind_param("i", $_POST["id"]) || !$stmt4->execute()) {
+        $stmt = $conn->prepare("DELETE FROM classrooms_subevents_teamPropaganda cs WHERE cs.id_subevents = ?;");
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se načíst odebrat zájemce z učeben.";
             die();
         }
 
         //Copy source classrooms
-        $stmt5 = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) SELECT cs.id_classrooms, ? FROM classrooms_subevents_teamPropaganda cs WHERE cs.id_subevents = ?;");
-        if (!$stmt5->bind_param("ii", $_POST["id"], $_POST["source_id"]) || !$stmt5->execute()) {
+        $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) SELECT cs.id_classrooms, ? FROM classrooms_subevents_teamPropaganda cs WHERE cs.id_subevents = ?;");
+        if (!$stmt->bind_param("ii", $_POST["id"], $_POST["source_id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nepodařilo se okopírovat seznam učeben ze zdrojové události.";
             die();
         }
 
         //Copy classrooms to attendants
-        $stmt6 = $conn->prepare("SELECT variable_symbol, id_classrooms FROM attendants_presence_teamPropaganda WHERE id_subevents = ?;");
-        if (!$stmt6->bind_param("i", $_POST["source_id"]) || !$stmt6->execute() || !$stmt6->store_result()) {
+        $stmt = $conn->prepare("SELECT variable_symbol, id_classrooms FROM attendants_presence_teamPropaganda WHERE id_subevents = ?;");
+        if (!$stmt->bind_param("i", $_POST["source_id"]) || !$stmt->execute() || !$stmt->store_result()) {
             http_response_code(400);
             echo "Nepodařilo se získat seznam zájemců k učebnám ze zdrojové události.";
+            $stmt->close();
             die();
         }
         $variableSymbolToClassrooms = [];
-        for ($i = 0; $i < $stmt6->num_rows; $i++) {
-            if (!$stmt6->bind_result($variableSymbol, $classroomId) || !$stmt6->fetch()) {
+        for ($i = 0; $i < $stmt->num_rows; $i++) {
+            if (!$stmt->bind_result($variableSymbol, $classroomId) || !$stmt->fetch()) {
                 http_response_code(400);
                 echo "Nepodařilo se získat seznam zájemců k učebnám ze zdrojové události.";
+                $stmt->close();
                 die();
             }
             if ($variableSymbolToIsInTable[$variableSymbol] == null) {
                 http_response_code(400);
                 echo "Zájemce není přihlášen na tuto akci.";
+                $stmt->close();
                 die();
             }
             $variableSymbolToClassrooms[$variableSymbol] = $classroomId;
         }
+        $stmt->close();
 
         //Sort
         $valuesToInsert = [];
@@ -586,23 +604,12 @@ if (isset($_POST["action"])) {
             $eventId = $_GET["event"];
         } else {
             //Get subevent info
-            $stmt = $conn->prepare("SELECT s.id_events, s.date, s.start_time, s.end_time, COUNT(ra.id_attendants) FROM subevents_teamPropaganda s LEFT JOIN registered_attendants_teamPropaganda ra ON s.id_events = ra.id_events AND ra.paid IS NOT NULL WHERE s.id_subevents = ?;");
-            $stmt->bind_param("i", $_GET["subevent"]);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB, $attendantsCount);
-            $stmt->fetch();
-
-        }
-
-        //Get event info
-        $stmt2 = $conn->prepare("SELECT name,registration_close,active_until FROM events_teamPropaganda WHERE id_events = ?;");
-        $stmt2->bind_param("i", $eventId);
-        $stmt2->execute();
-        $stmt2->store_result();
-        $stmt2->bind_result($name, $registrationCloseDB, $activeUntilDB);
-        $stmt2->fetch();
-        if (!isset($_GET["newSubevent"])) {
+            $stmt = $conn->prepare("SELECT s.id_events, s.date, s.start_time, s.end_time, COUNT(ra.id_attendants), e.name, e.registration_close,e.active_until FROM subevents_teamPropaganda s JOIN events_teamPropaganda e ON s.id_events = e.id_events LEFT JOIN registered_attendants_teamPropaganda ra ON s.id_events = ra.id_events AND ra.paid IS NOT NULL WHERE s.id_subevents = ?;");
+            if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB, $attendantsCount, $eventName, $registrationCloseDB, $activeUntilDB) || !$stmt->fetch() || !$stmt->close() || $eventId == null) {
+                echo "<h1>Nelze získat informace o podudálosti.</h1>";
+                echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+                die();
+            }
             $dateFormated = new DateTime($dateDB)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
             echo "<h1>Informace o události: $name → $dateFormated </h1>";
             echo "<i>Nedoporučuje se upravovat již proběhlé události, mohl by nastat chaos.</i><br>";
@@ -647,39 +654,48 @@ if (isset($_POST["action"])) {
             $placesToSitUsedTotal = 0;
             if ($exists == "true") {
                 //Get info about attendants without classroom
-                $stmt4 = $conn->prepare("SELECT  ap.id_subevents IS NOT NULL as in_table, GROUP_CONCAT(ra.id_attendants), COUNT(ra.id_attendants) FROM registered_attendants_teamPropaganda ra LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND ap.id_subevents = ? WHERE ap.id_classrooms IS NULL AND ra.id_events = ? GROUP BY in_table;");
-                $stmt4->bind_param("ii", $_GET["subevent"], $eventId);
-                $stmt4->execute();
-                $stmt4->store_result();
                 $totalCountWithoutClassroom = 0;
                 $attendantsWithoutClassroomInTable = "";
                 $attendantsWithoutClassroomNotInTable = "";
-                for ($i = 0; $i < $stmt4->num_rows; $i++) {
-                    $stmt4->bind_result($inTable, $attendantsWithoutClassroom, $countWithoutClassroom);
-                    $stmt4->fetch();
-                    $totalCountWithoutClassroom += $countWithoutClassroom;
-                    if ($inTable == 1) {
-                        $attendantsWithoutClassroomInTable = $attendantsWithoutClassroom;
-                    } else {
-                        $attendantsWithoutClassroomNotInTable = $attendantsWithoutClassroom;
+                $stmt = $conn->prepare("SELECT  ap.id_subevents IS NOT NULL as in_table, GROUP_CONCAT(ra.id_attendants), COUNT(ra.id_attendants) FROM registered_attendants_teamPropaganda ra LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND ap.id_subevents = ? WHERE ap.id_classrooms IS NULL AND ra.id_events = ? GROUP BY in_table;");
+                if (!$stmt->bind_param("ii", $_GET["subevent"], $eventId) || !$stmt->execute() || !$stmt->store_result()) {
+                    $stmt->close();
+                    echo "<p id='withoutClassroom' count='0' not-in-table='' in-table=''><b>Nelze získat informace o žácích mimo učebnu.</b></p>";
+                } else {
+                    for ($i = 0; $i < $stmt->num_rows; $i++) {
+                        if (!$stmt->bind_result($inTable, $attendantsWithoutClassroom, $countWithoutClassroom) || !$stmt->fetch()) {
+                            $inTable = 0;
+                            $attendantsWithoutClassroom = "";
+                            $countWithoutClassroom = "";
+                        }
+                        $totalCountWithoutClassroom += $countWithoutClassroom;
+                        if ($inTable == 1) {
+                            $attendantsWithoutClassroomInTable = $attendantsWithoutClassroom;
+                        } else {
+                            $attendantsWithoutClassroomNotInTable = $attendantsWithoutClassroom;
+                        }
                     }
+                    $stmt->close();
+
+                    //Put to HTML
+                    echo "<p id='withoutClassroom' count='$totalCountWithoutClassroom' not-in-table='$attendantsWithoutClassroomNotInTable' in-table='$attendantsWithoutClassroomInTable'>Počet zájemců bez učebny: $totalCountWithoutClassroom</p>";
                 }
 
-                //Put to HTML
-                echo "<p id='withoutClassroom' count='$totalCountWithoutClassroom' not-in-table='$attendantsWithoutClassroomNotInTable' in-table='$attendantsWithoutClassroomInTable'>Počet zájemců bez učebny: $totalCountWithoutClassroom</p>";
-
                 //Get info about active classrooms for event
-                $stmt3 = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.variable_symbol), COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON (ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms) WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms, c.name, c.places_to_sit;");
-                $stmt3->bind_param("i", $_GET["subevent"]);
-                $stmt3->execute();
-                $stmt3->store_result();
-                $echoHeader = true;
-
-                //Echo HTML info
-                if ($stmt3->num_rows > 0) {
-                    for ($i = 0; $i < $stmt3->num_rows; $i++) {
-                        $stmt3->bind_result($idClassroom, $classroomName, $placesToSit, $variableSymbols, $placesToSitUsed);
-                        $stmt3->fetch();
+                $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.variable_symbol), COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON (ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms) WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms, c.name, c.places_to_sit;");
+                if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result()) {
+                    echo "<p>Nelze získat aktivní učebny.</p>";
+                    $stmt->close();
+                } else if ($stmt->num_rows > 0) {
+                    $echoHeader = true;
+                    for ($i = 0; $i < $stmt->num_rows; $i++) {
+                        if (!$stmt->bind_result($idClassroom, $classroomName, $placesToSit, $variableSymbols, $placesToSitUsed) || !$stmt->fetch()) {
+                            $idClassroom = null;
+                            $classroomName = "CHYBA";
+                            $placesToSit = 0;
+                            $variableSymbols = "";
+                            $placesToSitUsed = 0;
+                        }
                         if ($echoHeader) {
                             if ($idClassroom == null) {
                                 continue;
@@ -697,6 +713,7 @@ if (isset($_POST["action"])) {
                         echo "</li>";
                     }
                     echo "</ul>";
+                    $stmt->close();
                 }
                 if ($echoHeader) {
                     echo "<p>Žádné aktivní učebny.</p>";

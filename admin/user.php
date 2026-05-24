@@ -10,10 +10,11 @@ function echoCheckAdminDelete(mysqli $conn, $role)
         return;
     }
     $stmt = $conn->prepare("SELECT COUNT(id_users) FROM users_teamPropaganda WHERE role='admin';");
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($count);
-    $stmt->fetch();
+    if (!$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($count) || !$stmt->fetch() || !$stmt->close()) {
+        http_response_code(400);
+        echo "Nelze zjisit stav uživatelů.";
+        die();
+    }
     if ($count <= 1) {
         http_response_code(400);
         echo "Nelze odebrat posledního správce systému.";
@@ -38,17 +39,16 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, role=? WHERE id_users=?");
-        $stmt->bind_param("ssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Uživatel upraven.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Nebylo možno upravit uživatele.";
             die();
         }
-    } else  if ($_POST["action"] == "insert") {
+    } else if ($_POST["action"] == "insert") {
         //Check if values set
         if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["email"])) {
             http_response_code(400);
@@ -58,14 +58,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, isNILE, role, lastLogin) VALUES (?,?,?,0,?,CURRENT_TIMESTAMP())");
-        $stmt->bind_param("ssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry inserted.";
+            echo "Uživatel vytvořen.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be inserted.";
+            echo "Uživatel nemohl být vytvořen.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -84,14 +83,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("DELETE FROM users_teamPropaganda WHERE id_users=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Uživatel odstraněn.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Uživatel nemohl být odstraněn.";
             die();
         }
     } else {
@@ -140,11 +138,11 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             $stmt = $conn->prepare("SELECT name, surname, email,role, isNILE, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
-            $stmt->bind_param("i", $_GET["user"]);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($name, $surname, $email, $role, $isNILE, $lastLogin);
-            $stmt->fetch();
+            if (!$stmt->bind_param("i", $_GET["user"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $surname, $email, $role, $isNILE, $lastLogin) || !$stmt->fetch() || !$stmt->close()) {
+                echo "<h1>Nelze získat informace o uživateli.</h1>";
+                echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+                die();
+            }
             $lastLoginFormat = new DateTime($lastLogin)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
             echo "<h1>Informace o uživateli: $name $surname</h1>";
         }

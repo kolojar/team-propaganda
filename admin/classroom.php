@@ -98,7 +98,7 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             $stmt = $conn->prepare("SELECT name, places_to_sit, note FROM `classrooms_teamPropaganda` WHERE id_classrooms = ?;");
-            if (!$stmt->bind_param("i", $_GET["classroom"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $placesToSit,  $note) || !$stmt->fetch() || !$stmt->close()) {
+            if (!$stmt->bind_param("i", $_GET["classroom"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $placesToSit,  $note) || !$stmt->fetch() || !$stmt->close()) {
                 echo "<h1>Nelze získat informace o učebně.</h1>";
                 echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
                 die();
