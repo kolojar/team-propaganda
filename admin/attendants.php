@@ -13,14 +13,14 @@ require "./adminFunctions.php";
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemci</title>
-    
+
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
 <body class="pageHolder">
     <header>
-        <?php $result = setupTitlebarAdmin($conn, "attendants.php") ?>
+        <?php $result = setupTitlebarAdmin($conn, "attendants.php"); ?>
     </header>
     <main>
         <?php
@@ -33,8 +33,10 @@ require "./adminFunctions.php";
         $found = false;
         //Request paid attendants
         if ($result->role == "admin") {
-            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools JOIN classrooms_teamPropaganda AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
-            $stmt->bind_param("i", $_COOKIE["adminEventId"]);
+            $resultEventId = $result->eventId;
+            $resultSubeventId = $result->subeventId;
+            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
+            $stmt->bind_param("ii", $resultSubeventId, $resultEventId);
             $stmt->execute();
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
@@ -60,6 +62,14 @@ require "./adminFunctions.php";
                     $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                     $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
+                    //Classroom name field
+                    $classroomNameText = $classroomName;
+                    if ($result->subeventId == null) {
+                        $classroomNameText = "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
+                    } else if ($classroomId == null) {
+                        $classroomNameText = "<a href='./subevent.php?subevent=$result->subeventId'>Zařaďte žáka automaticky do učebny</a>";
+                    }
+
                     //Highlight
                     $highlightSchoolClass = "";
                     if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
@@ -74,7 +84,7 @@ require "./adminFunctions.php";
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
                         <td> <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
-                        <td>$classroomName</td>
+                        <td>$classroomNameText</td>
                         <td>$schoolName → $schoolAddress</td>
                         <td>$registered</td>
                         <td>$paid</td>
@@ -90,8 +100,8 @@ require "./adminFunctions.php";
         //}
         
         //Request not paid attendants
-        $stmt = $conn->prepare("SELECT ra.registered,ra.variable_symbol, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ra.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools JOIN classrooms_teamPropaganda AS c ON ra.id_classrooms = c.id_classrooms WHERE ra.paid IS NULL AND ra.id_events = ?;");
-        $stmt->bind_param("i", $_COOKIE["adminEventId"]);
+        $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NULL AND ra.id_events = ?;");
+        $stmt->bind_param("ii", $resultSubeventId, $resultEventId);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
@@ -116,6 +126,14 @@ require "./adminFunctions.php";
                 $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
                 $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
+                //Classroom name field
+                $classroomNameText = $classroomName;
+                if ($result->subeventId == null) {
+                    $classroomNameText = "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
+                } else if ($classroomId == null) {
+                    $classroomNameText = "<a href='./payments.php?variableSymbol=$variableSymbol'>Čeká na platbu</a>";
+                }
+
                 //Highlight
                 $highlightSchoolClass = "";
                 if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
@@ -130,7 +148,7 @@ require "./adminFunctions.php";
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
                         <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
-                        <td>$classroomName</td>
+                        <td>$classroomNameText</td>
                         <td>$schoolName → $schoolAddress</td>
                         <td>$registered</td>
                     </tr>";

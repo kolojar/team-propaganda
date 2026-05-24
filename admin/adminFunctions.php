@@ -67,14 +67,17 @@ class titlebarSetupResult
     public readonly string $message;
     public readonly bool $allowView;
     //public readonly bool $allowEdit;
-
     public string $role;
+    public readonly int | null $eventId;
+    public readonly int | null $subeventId;
 
-    public function __construct($message, $allowView /*$allowEdit*/)
+    public function __construct(string $message, bool $allowView, int | null $eventId, int | null $subeventId /*$allowEdit*/)
     {
         $this->allowView = $allowView;
         //$this->allowEdit = $allowEdit;
         $this->message = $message;
+        $this->eventId = $eventId;
+        $this->subeventId = $subeventId;
     }
 }
 
@@ -91,7 +94,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     //Check access level
     if (!checkAccess($page, $role)) {
         header("Location: ./accessDenied.php");
-        $result = new titlebarSetupResult("", false);
+        $result = new titlebarSetupResult("", false,null,null);
         $result->role = $role;
         return $result;
     }
@@ -134,17 +137,17 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
 {
     //Check if already redirected due to noEventId
     if (isset($_GET["noEventId"])) {
-        return new titlebarSetupResult("NENÍ", true);
+        return new titlebarSetupResult("NENÍ", true,null,null);
     }
 
     //Check if event cookie exist and refresh it
     if (!isset($_COOKIE["adminEventId"])) {
         if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
-            return new titlebarSetupResult("NENÍ", false);
+            return new titlebarSetupResult("NENÍ", false,null,null);
         }
         setSubeventId("");
-        return new titlebarSetupResult("NENÍ", true);
+        return new titlebarSetupResult("NENÍ", true,null,null);
     }
     setEventId($_COOKIE["adminEventId"]);
 
@@ -158,25 +161,25 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
     if (!$stmt->fetch() || $name == "") {
         if ($accessLevel->needsEvent) {
             header("Location: ./events.php?noEventId=1");
-            return new titlebarSetupResult("NENÍ", false);
+            return new titlebarSetupResult("NENÍ", false,null,null);
         }
         setEventId("");
         setSubeventId("");
-        return new titlebarSetupResult("NENÍ", true);
+        return new titlebarSetupResult("NENÍ", true,null,null);
     }
 
     //Check if already redirected due to noSubeventId
     if (isset($_GET["noSubeventId"])) {
-        return new titlebarSetupResult($name, true);
+        return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null);
     }
 
     //Check if event subcookie exist and refresh it
     if (!isset($_COOKIE["adminSubeventId"])) {
         if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
-            return new titlebarSetupResult($name, false);
+            return new titlebarSetupResult($name, false,$_COOKIE["adminEventId"],null);
         }
-        return new titlebarSetupResult($name, true);
+        return new titlebarSetupResult($name, true,$_COOKIE["adminEventId"],null);
     }
     setSubeventId($_COOKIE["adminSubeventId"]);
 
@@ -190,12 +193,12 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
     if (!$stmt->fetch() || $date == "") {
         if ($accessLevel->needsSubEvent) {
             header("Location: ./events.php?noSubeventId=1");
-            return new titlebarSetupResult($name, false);
+            return new titlebarSetupResult($name, false,$_COOKIE["adminEventId"],null);
         }
         setSubeventId("");
-        return new titlebarSetupResult($name, true);
+        return new titlebarSetupResult($name, true,$_COOKIE["adminEventId"],null);
     }
 
     //All OK
-    return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format("d. m. Y"), true);
+    return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format("d. m. Y"), true,$_COOKIE["adminEventId"],$_COOKIE["adminSubeventId"]);
 }
