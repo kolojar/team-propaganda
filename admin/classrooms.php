@@ -16,13 +16,13 @@ if (isset($_POST["action"])) {
         //Fetch all classrooms
         $jsonRecords = [];
         for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $name, $placesToSit);
-            $stmt->fetch();
-            $jsonRecords[] = [
-                "id" => $id,
-                "name" => $name,
-                "placesToSit" => $placesToSit,
-            ];
+            if ($stmt->bind_result($id, $name, $placesToSit) && $stmt->fetch()) {
+                $jsonRecords[] = [
+                    "id" => $id,
+                    "name" => $name,
+                    "placesToSit" => $placesToSit,
+                ];
+            }
         }
 
         //Generate JSON
@@ -63,7 +63,7 @@ if (isset($_POST["action"])) {
         if (!$stmt->execute() || !$stmt->store_result()) {
             echo "<h1>Nelze získat seznam učeben.</h1>";
             echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
-            $stmt->free_result();
+            $stmt->close();
             die();
         }
 

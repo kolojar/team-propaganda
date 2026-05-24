@@ -10,21 +10,16 @@ if (isset($_SESSION["userId"])) {
 if (isset($_POST["password"]) && isset($_POST["email"])) {
     $pass = hash("sha256", $_POST["password"]);
     $stmt = $conn->prepare("SELECT id_users FROM `password_user_teamPropaganda` NATURAL JOIN users_teamPropaganda WHERE password = ? AND email = ?");
-    $stmt->bind_param("ss", $pass, $_POST["email"]);
-    if (!$stmt->execute()) {
+    if (!$stmt->bind_param("ss", $pass, $_POST["email"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($_SESSION["userId"]) || !$stmt->close()) {
         http_response_code(400);
         echo "Nepodařilo se získat data z databáze.";
         die;
     }
-    $stmt->store_result();
-    $stmt->bind_result($_SESSION["userId"]);
     if (!isset($_SESSION["user"])) {
         http_response_code(400);
         echo "Nesprávný email nebo heslo.";
         die;
     }
-
-
     die;
 }
 
@@ -35,10 +30,12 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Přihlásit se k admin panelu</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body class="formBackground" form-box-holder>
@@ -88,7 +85,7 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                         setTimeout(async () => {
                             await dialogManager.OpenAlert("Přihlásit se", "Komunikace se serverem se nezdařila, zkuste to prosím znovu a později.")
                             window.location.reload()
-                        }, 2000)
+                        }, 1000)
                     }
                 }
                 else {
@@ -96,7 +93,7 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                     setTimeout(async () => {
                         await dialogManager.OpenAlert("Přihlásit se", "Zadány neplané údaje, zkuste to prosím znovu.")
                         window.location.reload()
-                    }, 2000)
+                    }, 1000)
                 }
             }
         }

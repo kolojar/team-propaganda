@@ -14,14 +14,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE events_teamPropaganda SET name=?,type=?,description=?,active_since=?,active_until=?,registration_open=?,registration_close=?,repeat_interval=?,repeat_count=?,repeat_start=?,price=? WHERE id_events=?");
-        $stmt->bind_param("sssssssiisii", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"],$_POST["price"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("sssssssiisii", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["price"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Událost upravena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Událost nemohla být aktualizována.";
             die();
         }
     } else if ($_POST["action"] == "insert") {
@@ -34,14 +33,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO events_teamPropaganda(name,type,description,active_since,active_until,registration_open,registration_close,repeat_interval,repeat_count,repeat_start,price) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-        $stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["price"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("sssssssiisi", $_POST["name"], $_POST["type"], $_POST["description"], $_POST["active_since"], $_POST["active_until"], $_POST["registration_open"], $_POST["registration_close"], $_POST["repeat_interval"], $_POST["repeat_count"], $_POST["repeat_start"], $_POST["price"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry created.";
+            echo "Událost vytvořena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be created.";
+            echo "Událost nemohla být vytvořena.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -54,14 +52,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM events_teamPropaganda WHERE id_events=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Událost odstraněna.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Událost nemohla být odstraněna.";
             die();
         }
     } else {
@@ -77,22 +74,22 @@ if (isset($_POST["action"])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Událost</title>
-    
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn,"event.php") ?>
+        <?php setupTitlebarAdmin($conn, "event.php") ?>
     </header>
     <main>
         <datalist id="typeTypes">
             <option value="kurzy" label="Kurzy"></option>
             <option value="prijimacky" label="Přijmačky nanečisto"></option>
-            <option value="dod" label="Dny otevřených dveří"></option>
             <option value="denFirem" label="Den firem"></option>
         </datalist>
         <?php
@@ -113,11 +110,11 @@ if (isset($_POST["action"])) {
             $exists = "false";
         } else {
             $stmt = $conn->prepare("SELECT name, type, description, active_since, active_until, registration_open, registration_close, repeat_interval, repeat_count, repeat_start, price FROM events_teamPropaganda WHERE id_events = ?;");
-            $stmt->bind_param("i", $_GET["event"]);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB, $price);
-            $stmt->fetch();
+            if (!$stmt->bind_param("i", $_GET["event"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $type, $description, $activeSinceDB, $activeUntilDB, $registrationOpenDB, $registrationCloseDB, $repeatInterval, $repeatCount, $repeatStartDB, $price) || !$stmt->fetch() || !$stmt->close()) {
+                echo "<h1>Nelze získat informace o události.</h1>";
+                echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+                die();
+            }
             echo "<h1>Informace o události: $name</h1>";
         }
         $activeSince = DateTime::createFromFormat('Y-m-d H:i:s', $activeSinceDB)->format(JS_TIME_FORMAT);

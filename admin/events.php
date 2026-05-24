@@ -16,15 +16,16 @@ if (isset($_POST["action"])) {
         //Fetch all subevents
         $jsonRecords = [];
         for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $date);
-            $stmt->fetch();
-            $jsonRecords[] = [
-                "id" => $id,
-                "date" => $date,
-            ];
+            if ($stmt->bind_result($id, $date) && $stmt->fetch()) {
+                $jsonRecords[] = [
+                    "id" => $id,
+                    "date" => $date,
+                ];
+            }
         }
 
         //Generate JSON
+        $stmt->close();
         http_response_code(201);
         echo json_encode($jsonRecords);
         die();
@@ -83,128 +84,158 @@ if (isset($_GET["selectSubevent"])) {
         <?php
         //Get event ID
         $eventId = "";
+        $resultSubeventId = $result->subeventId;
         if (isset($_COOKIE["adminEventId"])) {
             $eventId = $_COOKIE["adminEventId"];
         } else if (isset($_COOKIE["adminSubEventId"])) {
-            $stmtGetId = $conn->prepare("SELECT id_events FROM subevents_teamPropaganda WHERE id_subevents=? LIMIT 1;");
-            $stmtGetId->bind_param("i", $_COOKIE["adminSubEventId"]);
-            $stmtGetId->execute();
-            $stmtGetId->store_result();
-            $stmtGetId->bind_result($eventId);
-            $stmtGetId->fetch();
+            $stmt = $conn->prepare("SELECT id_events FROM subevents_teamPropaganda WHERE id_subevents=? LIMIT 1;");
+            if (!$stmt->bind_param("i", $resultSubeventId) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($eventId) || !$stmt->fetch() || !$stmt->close()) {
+                echo "<h1>Chyba při načítání událostí a podudálostí</h1>";
+                die();
+            }
         }
 
         //Get event name
         setcookie("adminEventId", $eventId);
         $eventName = "";
-        $stmtGetName = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=? LIMIT 1;");
-        $stmtGetName->bind_param("i", $eventId);
-        $stmtGetName->execute();
-        $stmtGetName->store_result();
-        $stmtGetName->bind_result($eventName);
-        $stmtGetName->fetch();
-
-        if ($eventName != "") {
-            echo "<h1>Dostupné podudálosti pro událost: $eventName</h1>";
-            echo "<table>";
-            echo "<tr>";
-            echo "<th>Akce</th>";
-            echo "<th>Datum</th>";
-            echo "<th>Čas zahájení</th>";
-            echo "<th>Čas ukončení</th>";
-            echo "</tr>";
-
+        $stmt = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=? LIMIT 1;");
+        if ($stmt->bind_param("i", $eventId) && $stmt->execute() && $stmt->store_result() && $stmt->bind_result($eventName) && $stmt->fetch()) {
             //Request subevents
+            $stmt->close();
             $stmt = $conn->prepare("SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE id_events=?;");
-            $stmt->bind_param("i", $eventId);
-            $stmt->execute();
-            $stmt->store_result();
-
-            //List all subevents in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $date, $startTime, $endTime);
-                $stmt->fetch();
-                $date = DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                echo "<tr class='clickHighlightRow'>";
-                echo "<td class='formButtonBoxTable'>";
-                echo "<a href='./events.php?selectSubevent=$id'><button form-icon='!openView' class='purkynkaButton'><span>Otevřít podpohled</span></button></a>";
-                if ($result->role == "admin") {
-                    echo "<a href='./subevent.php?subevent=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>";
-                    echo "<button form-icon='!delete' class='purkynkaButton btnTableDelete' subevent=$id></button>";
-                }
-                echo "</td>";
-                echo "<td>$date</td>";
-                echo "<td>$startTime</td>";
-                echo "<td>$endTime</td>";
+            if (!$stmt->bind_param("i", $eventId) || !$stmt->execute() || !$stmt->store_result()) {
+                echo "<h1>Nelze získat seznam podudálostí.</h1>";
+            } else if ($stmt->num_rows == 0) {
+                echo "<h1>Nejsou k dispozici žádné podudálosti.</h1>";
+            } else {
+                //Generate HTML
+                echo "<h1>Dostupné podudálosti pro událost: $eventName</h1>";
+                echo "<table>";
+                echo "<tr>";
+                echo "<th>Akce</th>";
+                echo "<th>Datum</th>";
+                echo "<th>Čas zahájení</th>";
+                echo "<th>Čas ukončení</th>";
                 echo "</tr>";
+
+                //List all subevents in table
+                for ($i = 0; $i < $stmt->num_rows; $i++) {
+                    if (!$stmt->bind_result($id, $date, $startTime, $endTime) || !$stmt->fetch()) {
+                        $id = null;
+                        $date = "CHYBA";
+                        $startTime = "CHYBA";
+                        $endTime = "CHYBA";
+                    } else {
+                        $date = DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                        $startTime = DateTime::createFromFormat('H:i:s', $startTime)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                        $endTime = DateTime::createFromFormat('H:i:s', $endTime)->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    }
+                    echo "<tr class='clickHighlightRow'>";
+                    echo "<td class='formButtonBoxTable'>";
+                    echo "<a href='./events.php?selectSubevent=$id'><button form-icon='!openView' class='purkynkaButton'><span>Otevřít podpohled</span></button></a>";
+                    if ($result->role == "admin") {
+                        echo "<a href='./subevent.php?subevent=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>";
+                        echo "<button form-icon='!delete' class='purkynkaButton btnTableDelete' subevent=$id></button>";
+                    }
+                    echo "</td>";
+                    echo "<td>$date</td>";
+                    echo "<td>$startTime</td>";
+                    echo "<td>$endTime</td>";
+                    echo "</tr>";
+                }
+                echo "</table>";
             }
-            echo "</table>";
+
+            //Echo buttons
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             if ($result->role == "admin") {
                 echo "<a href='./subevent.php?newSubevent=1&event=$eventId'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit podudálost</span></button></a>";
             }
-            echo "<a href='./events.php?action=clearSubevent'><button  form-icon='!closeView' class='purkynkaButton'><span>Zavřít podpohled</span></button></a>";
+            if($resultSubeventId != null) {
+                echo "<a href='./events.php?action=clearSubevent'><button  form-icon='!closeView' class='purkynkaButton'><span>Zavřít podpohled</span></button></a>";
+            }
+            echo "<a href='./events.php?action=clearEvent'><button form-icon='!closeView' class='purkynkaButton'><span>Zavřít pohled</span></button></a>";
             echo "</div>";
             echo "</div>";
+            $stmt->close();
+        } else {
+            $stmt->close();
         }
-        echo "<h1>Dostupné události</h1>";
-        echo "<table>";
-        echo "<tr>";
-        echo "<th>Akce</th>";
-        echo "<th>Název</th>";
-        echo "<th>Druh</th>";
-        echo "<th>Je aktivní</th>";
-        echo "<th>Je registrace aktivní</th>";
-        echo "<th>Počet přihlášených</th>";
-        echo "</tr>";
 
         //Request events
         $stmt = $conn->prepare("SELECT id_events, name, type, active_since, active_until, registration_open, registration_close FROM events_teamPropaganda;");
-        $stmt->execute();
-        $stmt->store_result();
-
-        //List all events in table
-        for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $name, $type, $activeSince, $activeUntil, $registrationOpen, $registrationClose);
-            $stmt->fetch();
-            $currentDate = new DateTime();
-            $activeSinceDate = new DateTime($activeSince);
-            $activeUntilDate = new DateTime($activeUntil);
-            $isActive = "Ne";
-            $isRegistrationActive = "Ne";
-            if ($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
-                $isActive = "Ano";
-            }
-            $registrationOpenDate = new DateTime($registrationOpen);
-            $registrationCloseDate = new DateTime($registrationClose);
-            if ($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
-                $isRegistrationActive = "Ano";
-            }
-            echo "<tr class='clickHighlightRow'>";
-            echo "<td class='formButtonBoxTable'>";
-            echo "<a href='./events.php?selectEvent=$id'><button form-icon='!openView' class='purkynkaButton'><span>Otevřít pohled</span></button></a>";
-            if ($result->role == "admin") {
-                echo "<a href='./event.php?event=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>";
-                echo "<button form-icon='!delete' class='purkynkaButton btnTableDelete' event=$id></button>";
-            }
-            echo "</td>";
-            echo "<td>$name</td>";
-            echo "<td>$type</td>";
-            echo "<td>$isActive</td>";
-            echo "<td>$isRegistrationActive</td>";
-            echo "<td>?</td>";
+        if (!$stmt->execute() || !$stmt->store_result()) {
+            echo "<h1>Nelze získat seznam událostí.</h1>";
+        } else if ($stmt->num_rows == 0) {
+            echo "<h1>Nejsou k dispozici žádné události</h1>";
+        } else {
+            echo "<h1>Dostupné události</h1>";
+            echo "<table>";
+            echo "<tr>";
+            echo "<th>Akce</th>";
+            echo "<th>Název</th>";
+            echo "<th>Druh</th>";
+            echo "<th>Je aktivní</th>";
+            echo "<th>Je registrace aktivní</th>";
+            echo "<th>Počet přihlášených</th>";
             echo "</tr>";
+
+            //List all events in table
+            for ($i = 0; $i < $stmt->num_rows; $i++) {
+                if (!$stmt->bind_result($id, $name, $type, $activeSince, $activeUntil, $registrationOpen, $registrationClose) || !$stmt->fetch()) {
+                    $id = null;
+                    $name = "CHYBA";
+                    $type = "CHYBA";
+                    $activeSince = "CHYBA";
+                    $activeUntil = "CHYBA";
+                    $registrationOpen = "CHYBA";
+                    $registrationClose = "CHYBA";
+                    $isActive = "CHYBA";
+                    $isRegistrationActive = "CHYBA";
+                } else {
+                    $currentDate = new DateTime();
+                    $activeSinceDate = new DateTime($activeSince);
+                    $activeUntilDate = new DateTime($activeUntil);
+                    $registrationOpenDate = new DateTime($registrationOpen);
+                    $registrationCloseDate = new DateTime($registrationClose);
+
+                    $isActive = "Ne";
+                    $isRegistrationActive = "Ne";
+                    if ($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
+                        $isActive = "Ano";
+                    }
+                    if ($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
+                        $isRegistrationActive = "Ano";
+                    }
+                }
+                echo "<tr class='clickHighlightRow'>";
+                echo "<td class='formButtonBoxTable'>";
+                echo "<a href='./events.php?selectEvent=$id'><button form-icon='!openView' class='purkynkaButton'><span>Otevřít pohled</span></button></a>";
+                if ($result->role == "admin") {
+                    echo "<a href='./event.php?event=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>";
+                    echo "<button form-icon='!delete' class='purkynkaButton btnTableDelete' event=$id></button>";
+                }
+                echo "</td>";
+                echo "<td>$name</td>";
+                echo "<td>$type</td>";
+                echo "<td>$isActive</td>";
+                echo "<td>$isRegistrationActive</td>";
+                echo "<td>?</td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+
+            //Echo buttons
+            $stmt->close();
+            echo "<div class='formButtonBoxHolder'>";
+            echo "<div class='formButtonBox'>";
+            if ($result->role == "admin") {
+                echo "<a href='./event.php?newEvent=1'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit událost</span></button></a>";
+            }
+            echo "</div>";
+            echo "</div>";
         }
-        echo "</table>";
-        echo "<div class='formButtonBoxHolder'>";
-        echo "<div class='formButtonBox'>";
-        if ($result->role == "admin") {
-            echo "<a href='./event.php?newEvent=1'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit událost</span></button></a>";
-        }
-        echo "<a href='./events.php?action=clearEvent'><button form-icon='!closeView' class='purkynkaButton'><span>Zavřít pohled</span></button></a>";
-        echo "</div>";
-        echo "</div>";
         ?>
 
     </main>

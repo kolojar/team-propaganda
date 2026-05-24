@@ -207,14 +207,14 @@ function verify(string $email)
                     setTimeout(async () => {
                         await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                         window.location.reload()
-                    }, 2000)
+                    }, 1000)
                 }
             } else {
                 SendToast("Odpověď serveru", res, "error");
                 setTimeout(async () => {
                     await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                     window.location.reload()
-                }, 2000)
+                }, 1000)
             }
         };
     </script>
