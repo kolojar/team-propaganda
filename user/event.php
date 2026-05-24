@@ -93,7 +93,7 @@ if (isset($_POST["action"])) {
         }
     } else {
         http_response_code(400);
-        echo "Invalid usage of function - missing action parameter";
+        echo "Neplatné použití funkce - neplatná akc";
         die();
     }
 }

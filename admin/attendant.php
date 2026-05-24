@@ -14,14 +14,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE attendants_teamPropaganda SET name=?, surname=?, id_schools=? WHERE id_attendants=?");
-        $stmt->bind_param("ssii", $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ssii", $_POST["name"], $_POST["surname"], $_POST["school"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Zájemce upraven.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Zájemce nemohl být upraven.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -34,14 +33,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("DELETE FROM unregistered_attendants_teamPropaganda WHERE variable_symbol=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Zájemce odstraněn.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Zájemce nemohl být odstraněn.";
             die();
         }
     } else if ($_POST["action"] == "addPayment") {
@@ -65,8 +63,7 @@ if (isset($_POST["action"])) {
             $table = "unregistered_attendants_teamPropaganda";
         }
         $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,bank_account=? WHERE variable_symbol=?;");
-        $stmt->bind_param("ssi", $_POST["paid"], $_POST["bank_account"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("ssi", $_POST["paid"], $_POST["bank_account"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             $res = $conn->query("SELECT price FROM `events_teamPropaganda` WHERE id_events = " . $_POST["id_events"])->fetch_assoc();
             $message = file_get_contents("../assets/PaymentOk.html");
             $message = str_replace("\${variable_symbol}", str_pad($_POST["id"], 10, "0", STR_PAD_LEFT), $message);
@@ -78,11 +75,11 @@ if (isset($_POST["action"])) {
             echo "\n\n$message\n\n";
             sendMail($_POST["email"], "Platba potvrzena.", $message);
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Platba přidána.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Platba nemohla být přidána.";
             die();
         }
     } else if ($_POST["action"] == "removePayment") {
@@ -95,14 +92,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE unregistered_attendants_teamPropaganda SET refunded = CURRENT_TIMESTAMP() WHERE variable_symbol = ?;");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Platba odebrána.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Platba nemohla být odebrána.";
             die();
         }
     } else if ($_POST["action"] == "unregister") {
@@ -115,31 +111,25 @@ if (isset($_POST["action"])) {
 
         //Get SQL info
         $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if (!$stmt->execute()) {
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
-            echo "Entry could not be SELECTed.";
+            echo "Nelze získat informace o zájemci.";
             die();
         }
-        $stmt->store_result();
-        $stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid);
-        $stmt->fetch();
 
         //Insert SQL entry
         $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
-        $stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]);
-        if (!$stmt->execute()) {
+        if (!$stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
-            echo "Entry could not be INSERTed.";
+            echo "Nelze vložit informace o odhlášení zájemce.";
             die();
         }
 
         //Delete SQL entry
         $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if (!$stmt->execute()) {
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
-            echo "Entry could not be DELETEd.";
+            echo "Nelze odebrat přihlášeného zájemce.";
             die();
         } else {
             http_response_code(201);
@@ -148,7 +138,7 @@ if (isset($_POST["action"])) {
         }
     } else {
         http_response_code(400);
-        echo "Invalid usage of function - missing action parameter";
+        echo "Neplatné použití funkce - neplatná akc";
         die();
     }
 }
@@ -163,7 +153,7 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zájemce</title>
-    
+
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -172,17 +162,17 @@ if (isset($_POST["action"])) {
     <header>
         <?php
         setupTitlebarAdmin($conn, "attendant.php")
-        ?>
+            ?>
     </header>
     <main>
         <?php
         //Get attendant info
         $stmt = $conn->prepare("SELECT a.name, a.surname, a.id_parent, a.id_schools, u.name, u.surname, u.email, s.name, s.address FROM attendants_teamPropaganda a JOIN users_teamPropaganda u ON a.id_parent = u.id_users JOIN schools_teamPropaganda s ON a.id_schools = s.id_schools WHERE a.id_attendants = ?;");
-        $stmt->bind_param("i", $_GET["attendant"]);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($name, $surname, $parentId, $schoolId, $parentName, $parentSurname, $parentEmail, $schoolName, $schoolAddress);
-        $stmt->fetch();
+        if (!$stmt->bind_param("i", $_GET["attendant"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $surname, $parentId, $schoolId, $parentName, $parentSurname, $parentEmail, $schoolName, $schoolAddress) || !$stmt->fetch() || !$stmt->close()) {
+            echo "<h1>Nelze získat informace o zájemci.</h1>";
+            echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+            die();
+        }
 
         //Print HTML
         echo "<h1>Informace o zájemci: $name $surname</h1>";

@@ -222,14 +222,16 @@ if (isset($_POST["action"])) {
 
         //Check if in table
         $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
-        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch() || !$stmt2->free_result()) {
+        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch()) {
             http_response_code(400);
             echo "Nelze získat informace o učebně.";
+            $stmt2->close();
             die();
         }
         if ($count > 0) {
             http_response_code(400);
             echo "Učebna již přidána.";
+            $stmt2->close();
             die();
         }
 
@@ -314,13 +316,15 @@ if (isset($_POST["action"])) {
 
         //Check if in table
         $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
-        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch() || !$stmt2->free_result()) {
+        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch()) {
             http_response_code(400);
             echo "Nelze získat informace o učebně.";
+            $stmt2->close();
             die();
         }
         if ($count > 0) {
             http_response_code(400);
+            $stmt2->close();
             echo "Učebna již přidána.";
             die();
         }
