@@ -28,5 +28,7 @@
     "send": "./icons/send32.svg",
     "openView": "./icons/preview32.svg",
     "closeView": "./icons/previewOff32.svg",
-    "relocate": "./icons/moveLocation32.svg"
+    "relocate": "./icons/moveLocation32.svg",
+    "copy": "./icons/contentCopy32.svg",
+    "shuffle": "./icons/shuffle32.svg"
 }

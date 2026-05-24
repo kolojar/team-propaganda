@@ -3,6 +3,37 @@ session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
 
+if (isset($_POST["action"])) {
+    if ($_POST["action"] == "getRelatedSubevents") {
+        //Make SQL Select
+        $stmt = $conn->prepare("SELECT s1.id_subevents, s1.date FROM subevents_teamPropaganda s1 JOIN subevents_teamPropaganda s2 ON s1.id_events = s2.id_events WHERE s2.id_subevents = ? ORDER BY s1.date;");
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
+            http_response_code(400);
+            echo "Entry could not be fetched";
+            die();
+        }
+
+        //Fetch all subevents
+        $jsonRecords = [];
+        for ($i = 0; $i < $stmt->num_rows; $i++) {
+            $stmt->bind_result($id, $date);
+            $stmt->fetch();
+            $jsonRecords[] = [
+                "id" => $id,
+                "date" => $date,
+            ];
+        }
+
+        //Generate JSON
+        http_response_code(201);
+        echo json_encode($jsonRecords);
+        die();
+    } else {
+        http_response_code(400);
+        echo "Neplatné použití funkce - neplatná akce";
+        die();
+    }
+}
 if (isset($_GET["action"])) {
     if ($_GET["action"] == "clearEvent") {
         setEventId("");

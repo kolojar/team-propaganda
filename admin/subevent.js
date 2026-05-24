@@ -1,4 +1,4 @@
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e;
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
@@ -159,11 +159,11 @@ for (const btn of document.getElementsByClassName("moveClassroom")) {
 if (((_c = document.getElementById("withoutClassroom")) === null || _c === void 0 ? void 0 : _c.getAttribute("count")) != "0") {
     SendToast("Žáci mimo učebny", "V této podudálosti jsou žáci mimo učebny.<br>Prosím, rozřaďte je.", "warn");
 }
-//Setup add classroom
+//Setup sort attendants
 (_d = document.getElementById("sortAttendants")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", async () => {
     var _a, _b;
     const force = await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Přejete si provést změnu pro VŠECHNY, tedy i již rozřazené, zájemce?", true, true);
-    if (!await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Opravdu chcete pokračovat?", true, true)) {
+    if (!await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Opravdu chcete pokračovat?<br>Rozřazení ovlivní " + (force ? "VŠECHNY zájemce." : "POUZE zájemce BEZ UČEBNY."), true, true)) {
         SendToast("Rozřadit zájemce do učeben", "Rozřazení bylo zrušeno.", "info");
         return;
     }
@@ -183,6 +183,59 @@ if (((_c = document.getElementById("withoutClassroom")) === null || _c === void 
         return;
     }
     SendToast("Rozřazení zájemců do učeben proběhlo úspěšně!", "Změny uloženy.", "ok");
+    //progress.SetMessage(0,"Změny uloženy")
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+});
+//Setup sort attendants
+(_e = document.getElementById("copySettings")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", async () => {
+    //Fetch all subevents
+    const progress1 = dialogManager.ShowProgress("Získávání seznamu podudálostí", "Probíhá získávání seznamu podudálostí, čekejte prosím...", () => { }, 0, false, true, true);
+    const formData1 = new FormData();
+    formData1.set("action", "getRelatedSubevents");
+    formData1.set("id", urlSearchParams.get("subevent"));
+    const [ok1, resp1] = await SendPOSTDataToServerAsync("./events.php", formData1);
+    if (!ok1) {
+        SendToast("Nelze získat seznam podudálostí!", "Nepodařilo se získat seznam podudálostí.", "error");
+        progress1.CloseDialog();
+        await dialogManager.OpenAlert("Získávání seznamu podudálostí", "Nelze získat seznam podudálostí, opakujte akci později.<br>Důvod: " + resp1);
+        return;
+    }
+    //Process subevents
+    const subevents = new Map();
+    let i = 0;
+    for (const subevent of JSON.parse(resp1)) {
+        i++;
+        if (subevent.id != urlSearchParams.get("subevent")) {
+            subevents.set(i + ". → " + new Date(subevent.date).toLocaleDateString(), subevent.id);
+        }
+    }
+    progress1.CloseDialog();
+    if (subevents.size == 0) {
+        SendToast("Nelze kopírovat nastavení rozřazení!", "Nejsou k dispozici žádné další podudálosti u této události.", "error");
+        return;
+    }
+    //Get subevent
+    const subevent = await dialogManager.OpenSelect("Kopírovat nastavení rozřazení", "Vyberte, ze které podudálosti chcete zkopírovat nastavení?", null, subevents, true, true);
+    if (subevent == null) {
+        SendToast("Kopírovat nastavení rozřazení", "Kopírování bylo zrušeno.", "info");
+        return;
+    }
+    //Send request to add classroom
+    const progress2 = dialogManager.ShowProgress("Kopírovat nastavení rozřazení", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
+    const formData2 = new FormData();
+    formData2.set("action", "copySettings");
+    formData2.set("id", urlSearchParams.get("subevent"));
+    formData2.set("source_id", subevent.toString());
+    const [ok2, resp2] = await SendPOSTDataToServerAsync("./subevent.php", formData2);
+    if (!ok2) {
+        SendToast("Nelze kopírovat nastavení rozřazení!", "Změny nemohly být uloženy.", "error");
+        progress2.CloseDialog();
+        await dialogManager.OpenAlert("Kopírovat nastavení rozřazení", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + resp2, true, true);
+        return;
+    }
+    SendToast("Kopírování nastavení rozřazení proběhlo úspěšně!", "Změny uloženy.", "ok");
     //progress.SetMessage(0,"Změny uloženy")
     setTimeout(() => {
         window.location.reload();

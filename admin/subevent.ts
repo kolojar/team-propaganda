@@ -138,8 +138,8 @@ for (const btn of document.getElementsByClassName("moveClassroom")) {
 
         //Confirm move
         const nextLine = btn.getAttribute("count") == "0" ? "" : "Pozor, v učebně jsou umístěni zájemci: " + btn.getAttribute("count") + "x<br>"
-        const selectValue = await dialogManager.OpenSelect("Přemístit žáky do jiné učebny", nextLine + "Vyberte prosím novou učebnu ze seznamu.",null, classrooms, true, true)
-        if(selectValue == null) {
+        const selectValue = await dialogManager.OpenSelect("Přemístit žáky do jiné učebny", nextLine + "Vyberte prosím novou učebnu ze seznamu.", null, classrooms, true, true)
+        if (selectValue == null) {
             SendToast("Přemístit žáky do jiné učebny", "Přemístění bylo zrušeno.", "info")
             return
         }
@@ -173,10 +173,10 @@ if (document.getElementById("withoutClassroom")?.getAttribute("count") != "0") {
     SendToast("Žáci mimo učebny", "V této podudálosti jsou žáci mimo učebny.<br>Prosím, rozřaďte je.", "warn")
 }
 
-//Setup add classroom
+//Setup sort attendants
 document.getElementById("sortAttendants")?.addEventListener("click", async () => {
     const force = await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Přejete si provést změnu pro VŠECHNY, tedy i již rozřazené, zájemce?", true, true)
-    if (!await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Opravdu chcete pokračovat?", true, true)) {
+    if (!await dialogManager.OpenConfirm("Rozřadit zájemce do učeben", "Opravdu chcete pokračovat?<br>Rozřazení ovlivní " + (force ? "VŠECHNY zájemce." : "POUZE zájemce BEZ UČEBNY."), true, true)) {
         SendToast("Rozřadit zájemce do učeben", "Rozřazení bylo zrušeno.", "info")
         return
     }
@@ -188,7 +188,7 @@ document.getElementById("sortAttendants")?.addEventListener("click", async () =>
     formData2.set("id", urlSearchParams.get("subevent") as string)
     formData2.set("force", force ? "1" : "0")
     formData2.set("not_in_table", document.getElementById("withoutClassroom")?.getAttribute("not-in-table") as string)
-    formData2.set("in_table", document.getElementById("withoutClassroom")?.getAttribute("in-table") as string )
+    formData2.set("in_table", document.getElementById("withoutClassroom")?.getAttribute("in-table") as string)
     const [ok2, resp2] = await SendPOSTDataToServerAsync("./subevent.php", formData2)
     if (!ok2) {
         SendToast("Nelze rozřadit zájemce do učeben!", "Změny nemohly být uloženy.", "error")
@@ -197,6 +197,63 @@ document.getElementById("sortAttendants")?.addEventListener("click", async () =>
         return
     }
     SendToast("Rozřazení zájemců do učeben proběhlo úspěšně!", "Změny uloženy.", "ok")
+    //progress.SetMessage(0,"Změny uloženy")
+    setTimeout(() => {
+        window.location.reload()
+    }, 1000)
+})
+
+//Setup sort attendants
+document.getElementById("copySettings")?.addEventListener("click", async () => {
+    //Fetch all subevents
+    const progress1 = dialogManager.ShowProgress("Získávání seznamu podudálostí", "Probíhá získávání seznamu podudálostí, čekejte prosím...", () => { }, 0, false, true, true)
+    const formData1 = new FormData()
+    formData1.set("action", "getRelatedSubevents");
+    formData1.set("id", urlSearchParams.get("subevent") as string);
+    const [ok1, resp1] = await SendPOSTDataToServerAsync("./events.php", formData1)
+    if (!ok1) {
+        SendToast("Nelze získat seznam podudálostí!", "Nepodařilo se získat seznam podudálostí.", "error")
+        progress1.CloseDialog()
+        await dialogManager.OpenAlert("Získávání seznamu podudálostí", "Nelze získat seznam podudálostí, opakujte akci později.<br>Důvod: " + resp1)
+        return
+    }
+
+    //Process subevents
+    const subevents = new Map<string, number>()
+    let i = 0;
+    for (const subevent of JSON.parse(resp1)) {
+        i++;
+        if(subevent.id != urlSearchParams.get("subevent")) {
+            subevents.set(i + ". → " + new Date(subevent.date).toLocaleDateString(), subevent.id)
+        }
+    }
+    progress1.CloseDialog()
+    if(subevents.size == 0) {
+        SendToast("Nelze kopírovat nastavení rozřazení!", "Nejsou k dispozici žádné další podudálosti u této události.", "error")
+        return
+    } 
+
+    //Get subevent
+    const subevent = await dialogManager.OpenSelect("Kopírovat nastavení rozřazení", "Vyberte, ze které podudálosti chcete zkopírovat nastavení?", null, subevents, true, true)
+    if (subevent == null) {
+        SendToast("Kopírovat nastavení rozřazení", "Kopírování bylo zrušeno.", "info")
+        return
+    }
+
+    //Send request to add classroom
+    const progress2 = dialogManager.ShowProgress("Kopírovat nastavení rozřazení", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
+    const formData2 = new FormData()
+    formData2.set("action", "copySettings")
+    formData2.set("id", urlSearchParams.get("subevent") as string)
+    formData2.set("source_id", subevent.toString())
+    const [ok2, resp2] = await SendPOSTDataToServerAsync("./subevent.php", formData2)
+    if (!ok2) {
+        SendToast("Nelze kopírovat nastavení rozřazení!", "Změny nemohly být uloženy.", "error")
+        progress2.CloseDialog()
+        await dialogManager.OpenAlert("Kopírovat nastavení rozřazení", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + resp2, true, true)
+        return
+    }
+    SendToast("Kopírování nastavení rozřazení proběhlo úspěšně!", "Změny uloženy.", "ok")
     //progress.SetMessage(0,"Změny uloženy")
     setTimeout(() => {
         window.location.reload()
