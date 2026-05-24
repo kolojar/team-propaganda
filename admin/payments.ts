@@ -44,7 +44,7 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
 
 for (const button of document.getElementsByClassName("btnRefundTable")) {
     button.addEventListener("click", () => {
-        dialogManager.ShowConfirm("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "\nVariabilní symbol: " + button.getAttribute("variableSymbol") + "\nČástka: " + button.getAttribute("price") + " Kč", async (refund: boolean) => {
+        dialogManager.ShowConfirm("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "<br>Variabilní symbol: " + button.getAttribute("variableSymbol") + "<br>Částka: " + button.getAttribute("price") + " Kč", async (refund: boolean) => {
             if (!refund) {
                 SendToast("Vrátit platbu", "Vrácení platby bylo zrušeno.", "info")
                 return

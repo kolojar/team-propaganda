@@ -46,7 +46,7 @@ btnPay?.addEventListener("click", async () => {
             window.location.reload()
         } else {
             SendToast("Zaplatit", "Informace o zaplacení nemohly být uloženy.", "error")
-            await dialogManager.OpenAlert("Zaplatit", "Informace o zaplacení nemohly být uloženy.\nProsíme, pokud jste pladbu již odeslali, aby jste počkali několik dní.\nPokud se platba nezapočítá do několika dní, kontaktujte nás.", true, true)
+            await dialogManager.OpenAlert("Zaplatit", "Informace o zaplacení nemohly být uloženy.<br>Prosíme, pokud jste pladbu již odeslali, aby jste počkali několik dní.<br>Pokud se platba nezapočítá do několika dní, kontaktujte nás.", true, true)
         }
     }).AllowSelect(true)
 })
