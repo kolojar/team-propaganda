@@ -15,7 +15,7 @@ function setupTitlebarUser(mysqli $conn)
             <h1 class='headerName' onclick='window.location.href = \"./index.php\"'>$name $surname</h1>
         </div>
         <div class='formButtonBox formJustifyRight'>
-            <a href='../logoff.php'><button class='formButton purkynkaButton'>Odhlásit se</button></a>
+            <a href='./logout.php'><button class='formButton purkynkaButton'>Odhlásit se</button></a>
         </div>
     </div>";
 }
@@ -85,4 +85,4 @@ function checkIfParentMatches2(mysqli $conn, string $variableSymbol): bool
     }
     return $getId == $_SESSION["userId"];
 }
-?>
+

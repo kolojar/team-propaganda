@@ -1,4 +1,4 @@
-var _a, _b;
+var _a, _b, _c;
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
@@ -87,6 +87,35 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         SendToast("Nahrávání souboru", "Soubor se nepodařilo nahrát", "error");
         return;
     }
+});
+(_c = document.getElementById("addNew")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", async (e) => {
+    let data = new FormData();
+    data.append("action", "getCompanyDays");
+    data.append("id", e.target.getAttribute("comp"));
+    let [ok, res] = await SendPOSTDataToServerAsync("./user.php", data);
+    if (!ok) {
+        SendToast("Odpověď serveru", res, "error");
+        return;
+    }
+    let resp = JSON.parse(res);
+    let options = new Map();
+    for (let row of resp) {
+        let date = row[1].split("-");
+        options.set(`${date[2]}. ${date[1]}. ${date[0]}`, row[0]);
+    }
+    let companyDayId = await dialogManager.OpenSelect("Den firem", "<b style='color: red;'>Tento výběr je závazný.</b>", null, options);
+    if (companyDayId == null)
+        return;
+    let data2 = new FormData();
+    data2.append("action", "addCD");
+    data2.append("idCD", companyDayId);
+    data2.append("id", e.target.getAttribute("comp"));
+    let [ok2, res2] = await SendPOSTDataToServerAsync("./user.php", data2);
+    if (!ok2) {
+        SendToast("Odpověď serveru", res2, "error");
+    }
+    else
+        SendToast("Odpověď serveru", res2, "ok");
 });
 //Make attendant change school field work
 const getSchoolsStart = async () => {

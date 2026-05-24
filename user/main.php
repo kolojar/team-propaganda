@@ -1,7 +1,8 @@
 <?php
 session_start();
+$_SESSION["userId"] = 7;
 if (!isset($_SESSION["userId"])) {
-    header("Location: ./index.php");
+    header("Location: ./");
     exit();
 }
 require '../assets/config.php';
@@ -24,7 +25,6 @@ require '../assets/sharedFunctions.php';
 <body class="pageHolder">
     <header>
         <?php
-        $_SESSION["userId"] = 6;
         setupTitlebarUser($conn)
         ?>
     </header>
@@ -130,8 +130,8 @@ require '../assets/sharedFunctions.php';
                     if ($comp->num_rows > 0) {
                         echo "<span>Data dní firem - kliknutím na modrý název zobrazíte podrobnosti:</span><ul>";
                         while ($cd = $comp->fetch_assoc()) {
-                            echo "<li><a href='./event.php?cd=" . $cd["id_company_days"] . "'>" . $cd["description"] . "</a>";
-                            echo "<span> → " . $date = new DateTime($cd["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL) . "</span>";
+                            echo "<li><a href='./event.php?cd=" . $cd["id_company_days"] . "'>" . $date = new DateTime($cd["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                            echo " → " . $cd["description"] . "</a>";
                             echo "</li>";
                         }
                         echo "</ul>";
@@ -142,7 +142,7 @@ require '../assets/sharedFunctions.php';
                     //Buttons
                     echo "<div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>
-                    <button class='formButton purkynkaButton'>Přihlásit na další akce</button>
+                    <button class='formButton purkynkaButton' id='addNew' comp=" . $row["id_companies"] . ">Přihlásit na další akce</button>
                 </div>
                 <div class='formButtonBox formJustifyRight'>
                     <button class='formButton purkynkaButton btnCancel'>Zrušit provedené změny</button>

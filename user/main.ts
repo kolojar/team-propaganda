@@ -92,6 +92,34 @@ document.getElementById("icon")?.addEventListener("click", async (e) => {
     }
 
 })
+document.getElementById("addNew")?.addEventListener("click", async (e) => {
+    let data = new FormData()
+    data.append("action", "getCompanyDays")
+    data.append("id", (e.target as HTMLButtonElement).getAttribute("comp") as string)
+    let [ok, res] = await SendPOSTDataToServerAsync("./user.php", data);
+    if (!ok) {
+        SendToast("Odpověď serveru", res, "error")
+        return;
+    }
+    let resp = JSON.parse(res);
+    let options = new Map();
+    for (let row of resp) {
+        let date = row[1].split("-");
+        options.set(`${date[2]}. ${date[1]}. ${date[0]}`, row[0])
+    }
+    let companyDayId = await dialogManager.OpenSelect("Den firem", "<b style='color: red;'>Tento výběr je závazný.</b>", null, options)
+    if (companyDayId == null) return;
+    let data2 = new FormData()
+    data2.append("action", "addCD");
+    data2.append("idCD", companyDayId as string);
+    data2.append("id", (e.target as HTMLButtonElement).getAttribute("comp") as string);
+    let [ok2, res2] = await SendPOSTDataToServerAsync("./user.php", data2);
+
+    if (!ok2) {
+        SendToast("Odpověď serveru", res2, "error")
+    } else { SendToast("Odpověď serveru", res2, "ok"); window.location.reload() }
+})
+
 
 //Make attendant change school field work
 const getSchoolsStart = async () => {

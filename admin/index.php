@@ -10,14 +10,18 @@ if (isset($_SESSION["userId"])) {
 if (isset($_POST["password"]) && isset($_POST["email"])) {
     $pass = hash("sha256", $_POST["password"]);
     $stmt = $conn->prepare("SELECT id_users FROM `password_user_teamPropaganda` NATURAL JOIN users_teamPropaganda WHERE password = ? AND email = ?");
-    if (!$stmt->bind_param("ss", $pass, $_POST["email"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($_SESSION["userId"]) || !$stmt->close()) {
+    if (!$stmt->bind_param("ss", $pass, $_POST["email"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($_SESSION["userId"]) || !$stmt->fetch() || !$stmt->close()) {
         http_response_code(400);
         echo "Nepodařilo se získat data z databáze.";
         die;
     }
-    if (!isset($_SESSION["user"])) {
+    if (!isset($_SESSION["userId"])) {
         http_response_code(400);
         echo "Nesprávný email nebo heslo.";
+        die;
+    } else {
+        http_response_code(201);
+        echo "Přihlášení bylo úspěšné.";
         die;
     }
     die;
@@ -56,7 +60,8 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
             SendPOSTDataToServerAsync
         } from "../formWebScripts/js/serverComunication.js";
         import {
-            SendToast, SetWaitStatusForms
+            SendToast,
+            SetWaitStatusForms
         } from "../formWebScripts/js/formScript.js";
         import {
             FormDialogManager
@@ -64,7 +69,9 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
 
         const dialogManager = new FormDialogManager();
         let sent = false
-        document.getElementById("form").addEventListener("submit", (e) => { sendToPHP(e) });
+        document.getElementById("form").addEventListener("submit", (e) => {
+            sendToPHP(e)
+        });
         async function sendToPHP(e) {
             e.preventDefault();
             if (!sent) {
@@ -77,18 +84,16 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                 const [ok, res] = await SendPOSTDataToServerAsync("./index.php", data);
 
                 if (ok) {
-                    if (res == "vpoho") {
+                    if (res == "Přihlášení bylo úspěšné.") {
                         window.location.href = "./admin.php";
-                    }
-                    else {
+                    } else {
                         SendToast("Odpověď serveru", res, "error");
                         setTimeout(async () => {
                             await dialogManager.OpenAlert("Přihlásit se", "Komunikace se serverem se nezdařila, zkuste to prosím znovu a později.")
                             window.location.reload()
                         }, 1000)
                     }
-                }
-                else {
+                } else {
                     SendToast("Odpověď serveru", res, "error")
                     setTimeout(async () => {
                         await dialogManager.OpenAlert("Přihlásit se", "Zadány neplané údaje, zkuste to prosím znovu.")
@@ -97,7 +102,9 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                 }
             }
         }
-        document.getElementById("email").addEventListener("change", () => { sent = false })
+        document.getElementById("email").addEventListener("change", () => {
+            sent = false
+        })
     </script>
     <script type="module" src="../formWebScripts/js/formScript.js"></script>
 </body>

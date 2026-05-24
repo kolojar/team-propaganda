@@ -153,6 +153,6 @@ wifi
 - [ ] company days insert event on creation
 - [ ] new table company days companies
     - [ ] insert to it
-- [ ] icon adding in user/main.php (formscript problem)
+- [X] icon adding in user/main.php (formscript problem)
 - [ ] user/event.php not completed
 
