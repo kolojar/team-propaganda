@@ -89,7 +89,7 @@ if (isset($_GET["selectSubevent"])) {
         if (isset($_COOKIE["adminEventId"])) {
             $eventId = $_COOKIE["adminEventId"];
         } else if (isset($_COOKIE["adminSubEventId"])) {
-            $stmt = $conn->prepare("SELECT id_events FROM subevents_teamPropaganda WHERE id_subevents=? LIMIT 1;");
+            $stmt = $conn->prepare("SELECT id_events FROM subevents_teamPropaganda WHERE id_subevents=?;");
             if (!$stmt->bind_param("i", $resultSubeventId) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($eventId) || !$stmt->fetch() || !$stmt->close()) {
                 echo "<h1>Chyba při načítání událostí a podudálostí</h1>";
                 die();
@@ -97,7 +97,6 @@ if (isset($_GET["selectSubevent"])) {
         }
 
         //Get event name
-        setcookie("adminEventId", $eventId);
         $eventName = "";
         $stmt = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=? LIMIT 1;");
         if ($stmt->bind_param("i", $eventId) && $stmt->execute() && $stmt->store_result() && $stmt->bind_result($eventName) && $stmt->fetch()) {
