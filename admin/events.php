@@ -53,6 +53,7 @@ if (isset($_GET["action"])) {
 }
 if (isset($_GET["selectEvent"])) {
     setEventId($_GET["selectEvent"]);
+    setSubeventId("");
     header("Location: ./events.php");
     die();
 }
