@@ -220,8 +220,21 @@ if (isset($_POST["action"])) {
             die();
         }
 
+        //Check if in table
+        $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
+        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch() || !$stmt2->free_result()) {
+            http_response_code(400);
+            echo "Nelze získat informace o učebně.";
+            die();
+        }
+        if ($count > 0) {
+            http_response_code(400);
+            echo "Učebna již přidána.";
+            die();
+        }
+
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT IGNORE INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
+        $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
         $stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]);
         if ($stmt->execute()) {
             if ($stmt->affected_rows == 0) {
@@ -299,8 +312,21 @@ if (isset($_POST["action"])) {
             die();
         }
 
+        //Check if in table
+        $stmt2 = $conn->prepare("SELECT COUNT(id_classrooms) FROM classrooms_subevents_teamPropaganda WHERE id_classrooms = ? AND id_subevents = ?");
+        if (!$stmt2->bind_param("ii", $_POST["classroom"], $_POST["id"]) || !$stmt2->execute() || !$stmt2->store_result() || !$stmt2->bind_result($count) || !$stmt2->fetch() || !$stmt2->free_result()) {
+            http_response_code(400);
+            echo "Nelze získat informace o učebně.";
+            die();
+        }
+        if ($count > 0) {
+            http_response_code(400);
+            echo "Učebna již přidána.";
+            die();
+        }
+
         //Add target classroom
-        $stmt3 = $conn->prepare("INSERT IGNORE INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
+        $stmt3 = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
         if ($stmt3->bind_param("ii", $_POST["target_classroom"], $_POST["id"]) && $stmt3->execute()) {
             if ($stmt3->affected_rows == 0) {
                 http_response_code(400);
