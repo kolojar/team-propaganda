@@ -154,7 +154,9 @@ if (isset($_POST["action"])) {
         echo "<form-input icon='!email' label='Email:' class='validate' do-change-check='true' type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
         echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check='true' value-id='role' original-value='$role' value='$role' is-case-sensitive-list='false'></form-input>";
-        echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
+        if ($exists == "true") {
+            echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
+        }
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button class='purkynkaButton btnSave' form-icon='!save' exists='$exists'></button>";
