@@ -7,14 +7,9 @@ if (isset($_POST["action"])) {
     if ($_POST["action"] == "getFunctionalClassrooms") {
         //Make SQL Select
         $stmt = $conn->prepare("SELECT id_classrooms, name, places_to_sit FROM classrooms_teamPropaganda;");
-        if (!$stmt->execute()) {
+        if (!$stmt->execute() || !$stmt->store_result()) {
             http_response_code(400);
-            echo "Entry could not be fetched";
-            die();
-        }
-        if (!$stmt->store_result()) {
-            http_response_code(400);
-            echo "Entry could not be fetched";
+            echo "Nelze získat informace o učebnách.";
             die();
         }
 
@@ -31,6 +26,7 @@ if (isset($_POST["action"])) {
         }
 
         //Generate JSON
+        $stmt->close();
         http_response_code(201);
         echo json_encode($jsonRecords);
         die();
@@ -61,25 +57,31 @@ if (isset($_POST["action"])) {
         <?php setupTitlebarAdmin($conn, "classrooms.php") ?>
     </header>
     <main>
-        <h1>Všechny dostupné učebny v databázi</h1>
-        <table>
-            <tr>
-                <th>Akce</th>
-                <th>Název učebny</th>
-                <th>Počet míst k sezení</th>
-                <th>Poznámka</th>
-            </tr>
-            <?php
-            //Request classrooms
-            $stmt = $conn->prepare("SELECT id_classrooms, name,places_to_sit,  note FROM classrooms_teamPropaganda");
-            $stmt->execute();
-            $stmt->store_result();
+        <?php
+        //Request classrooms
+        $stmt = $conn->prepare("SELECT id_classrooms, name,places_to_sit,  note FROM classrooms_teamPropaganda");
+        if (!$stmt->execute() || !$stmt->store_result()) {
+            echo "<h1>Nelze získat seznam učeben.</h1>";
+            echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+            $stmt->free_result();
+            die();
+        }
 
-            //List all classrooms in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                $stmt->bind_result($id, $name, $placesToSit, $note);
-                $stmt->fetch();
-                echo "<tr class='clickHighlightRow'>
+        //Generate HTML
+        echo "<h1>Všechny dostupné učebny v databázi</h1>";
+        echo "<table>";
+        echo "<tr>";
+        echo "<th>Akce</th>";
+        echo "<th>Název učebny</th>";
+        echo "<th>Počet míst k sezení</th>";
+        echo "<th>Poznámka</th>";
+        echo "</tr>";
+
+        //List all classrooms in table
+        for ($i = 0; $i < $stmt->num_rows; $i++) {
+            $stmt->bind_result($id, $name, $placesToSit, $note);
+            $stmt->fetch();
+            echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
                             <a href='./classroom.php?classroom=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
                         </td>
@@ -87,8 +89,9 @@ if (isset($_POST["action"])) {
                         <td>$placesToSit</td>
                         <td>$note</td>
                     </tr>";
-            }
-            ?>
+        }
+        $stmt->free_result();
+        ?>
         </table>
         <a href='./classroom.php?newClassroom=1'><button class='formButton purkynkaButton' form-icon="!add"><span>Vytvořit učebnu</span></button></a>
     </main>

@@ -14,14 +14,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE classrooms_teamPropaganda SET name=?, places_to_sit=?, note=? WHERE id_classrooms=?");
-        $stmt->bind_param("sisi", $_POST["name"], $_POST["placesToSit"],  $_POST["note"], $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("sisi", $_POST["name"], $_POST["placesToSit"], $_POST["note"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Učebna upravena.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Učebna nemohla být upravena.";
             die();
         }
     } else if ($_POST["action"] == "insert") {
@@ -34,14 +33,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO classrooms_teamPropaganda(name,places_to_sit,note) VALUES (?,?,?)");
-        $stmt->bind_param("sis", $_POST["name"], $_POST["placesToSit"], $_POST["note"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("sis", $_POST["name"], $_POST["placesToSit"], $_POST["note"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry created.";
+            echo "Učebna vytvořena";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be created.";
+            echo "Učebna nemohla být vytvořena.";
             die();
         }
     } else if ($_POST["action"] == "delete") {
@@ -54,14 +52,13 @@ if (isset($_POST["action"])) {
 
         //Make SQL Delete
         $stmt = $conn->prepare("DELETE FROM classrooms_teamPropaganda WHERE id_classrooms=?");
-        $stmt->bind_param("i", $_POST["id"]);
-        if ($stmt->execute()) {
+        if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry deleted.";
+            echo "Učebna odstraněna.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be deleted.";
+            echo "Učebna nemohla být odstraněna.";
             die();
         }
     } else {
@@ -81,7 +78,6 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Učebna</title>
-    
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -101,12 +97,12 @@ if (isset($_POST["action"])) {
             echo "<h1>Vytvořit novou učebnu</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, placesToSit, isFunctional, note FROM `classrooms_teamPropaganda` WHERE id_classrooms = ?;");
-            $stmt->bind_param("i", $_GET["classroom"]);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($name, $placesToSit, $isFunctional, $note);
-            $stmt->fetch();
+            $stmt = $conn->prepare("SELECT name, places_to_sit, note FROM `classrooms_teamPropaganda` WHERE id_classrooms = ?;");
+            if (!$stmt->bind_param("i", $_GET["classroom"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $placesToSit,  $note) || !$stmt->fetch() || !$stmt->close()) {
+                echo "<h1>Nelze získat informace o učebně.</h1>";
+                echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+                die();
+            }
             echo "<h1>Informace o učebně: $name</h1>";
         }
         $isFunctionalString = $isFunctional == 1 ? "true" : "false";
@@ -114,7 +110,6 @@ if (isset($_POST["action"])) {
         //Create HTML
         echo "<form-input label='Název učebny:' class='classroomValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
         echo "<form-input label='Počet míst k sezení:' class='classroomValidate' do-change-check='$exists' type='number' value-id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<form-toggle labelBefore='Je učebna aktivní: ' class='classroomValidate' offColorClass='formErrorColor' onColorClass='formOkColor' original-value='$isFunctionalString' value='$isFunctionalString' value-id='isFunctional'></form-toggle><br>";
         echo "<form-input label='Poznámka:' class='classroomValidate' do-change-check='$exists' type='textarea' value-id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
