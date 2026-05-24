@@ -245,16 +245,19 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
-        if ($stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
+        if ($stmt->bind_param("ii", $_POST["classroom"], $_POST["id"]) && $stmt->execute()) {
             if ($stmt->affected_rows == 0) {
                 http_response_code(400);
                 echo "Učebna již přidána.";
+                $stmt->close();
                 die();
             }
+            $stmt->close();
             http_response_code(201);
             echo "Učebna přidána.";
             die();
         } else {
+            $stmt->close();
             http_response_code(400);
             echo "Učebna nemohla být přidána.";
             die();
@@ -337,13 +340,17 @@ if (isset($_POST["action"])) {
 
         //Add target classroom
         $stmt = $conn->prepare("INSERT INTO classrooms_subevents_teamPropaganda(id_classrooms, id_subevents) VALUES (?,?)");
-        if ($stmt->bind_param("ii", $_POST["target_classroom"], $_POST["id"]) && $stmt->execute() || !$stmt->close()) {
+        if ($stmt->bind_param("ii", $_POST["target_classroom"], $_POST["id"]) && $stmt->execute()) {
             if ($stmt->affected_rows == 0) {
+                $stmt->close();
                 http_response_code(400);
                 echo "Učebna již přidána.";
                 die();
+            } else {
+                $stmt->close();
             }
         } else {
+            $stmt->close();
             http_response_code(400);
             echo "Nepodařilo se přidat učebnu.";
             die();
