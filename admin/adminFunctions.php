@@ -51,6 +51,7 @@ $accessLevels = array(
     "subevent.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "companyDay.php" => new accessLevel(userType::NILE, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "user.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "map.php" => new accessLevel(userType::NILE, accessLevelEventNeedence::NEEDS_COMPANY_DAY, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Mapa"),
     "events.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::RIGHT, "Správa událostí"),
     "users.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Správa uživatelů"),
     "logout.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ANY), accessLevelTitlebarButton::RIGHT, "Odhlásit se"),

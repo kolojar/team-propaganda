@@ -1,5 +1,6 @@
 <?php
 require "../assets/config.php";
+require "./adminFunctions.php";
 session_start();
 if (!isset($_SESSION["adminId"])) {
     //header("location: ../adminLogin.php")
@@ -128,116 +129,127 @@ if (isset($_POST["sitePos"])) {
             transform: translate(-50%, -50%);
         }
     </style>
+    <meta charset="UTF-8">
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Správa mapy dne firem</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
+    <link rel="stylesheet" href="../assets/style.css">
 
 </head>
+<header>
+    <?php 
+    $result = setupTitlebarAdmin($conn, "map.php");
+    $companyDaysId = $result->companyDayId;
+    ?>
+</header>
 
 <body>
-    <?php
-    $floor = 0;
-    if (isset($_GET["floor"])) {
-        $floor = $_GET["floor"];
-    }
-    echo "<img id='map' src='./assets/map$floor.jpg' style='width: 80%; height: auto; display: block;' class='map'>";
-
-    $sites = $conn->query("SELECT * FROM sites_teamPropaganda NATURAL RIGHT JOIN companies_teamPropaganda");
-    $offset = 15;
-    while ($site = $sites->fetch_assoc()) {
-        echo "<button class='";
-        if ($site["isClass"] == null) {
-            echo "site round";
-        } else {
-            echo "site square";
-        }
-        echo "' id='" . $site["id_sites"] . "'";
-
-        if ($site["posX"] != 0 && $site["posY"] != 0) {
-            echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "' floor='" . $site["floor"] . "'";
-        }
-        if ($site["electricity"]) {
-            echo "style=' background-color: #00FF00;";
-        } else {
-            echo "style=' background-color: #FF0000;";
-        }
-        echo "transform: translate(-50%, -50%);'>";
-        if ($site["icon"] != null) {
-            echo '<img class="icon" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
-        }
-        echo "</button>";
-        $offset += 10;
-    }
-    ?>
-
-
-    <div class="formCenter" style="width:20%; height: 10%; float: right; margin-top: 2%;">
-        <button id="save" class="formButton formOkColor">Uložit plánek</button>
-    </div>
-    <div class="panel">
+    <main style="position: relative;">
         <?php
-        if ($floor < 4) echo '<button class="arrow-btn" id="upBtn">↑</button>';
-        echo '<div class="display" id="floorDisplay">' . $floor . '</div>';
-        if ($floor > 0) echo '<button class="arrow-btn" id="downBtn">↓</button>';
-        ?></div>
+        $floor = 0;
+        if (isset($_GET["floor"])) {
+            $floor = $_GET["floor"];
+        }
+        echo "<img id='map' src='../assets/maps/map$floor.jpg' style='width: 80%; height: auto; display: block;' class='map'>";
+
+        $sites = $conn->query("SELECT * FROM sites_teamPropaganda NATURAL RIGHT JOIN companies_teamPropaganda WHERE id_company_days=" . $companyDaysId);
+        $offset = 15;
+        while ($site = $sites->fetch_assoc()) {
+            echo "<div class='";
+            if ($site["isClass"] == null) {
+                echo "site round";
+            } else {
+                echo "site square";
+            }
+            echo "' id='" . $site["id_sites"] . "'";
+
+            if ($site["posX"] != 0 && $site["posY"] != 0) {
+                echo "data-pct-x='" . $site["posX"] . "' data-pct-y='" . $site["posY"] . "' floor='" . $site["floor"] . "'";
+            }
+            if ($site["electricity"]) {
+                echo "style=' background-color: #00FF00;";
+            } else {
+                echo "style=' background-color: #FF0000;";
+            }
+            echo "transform: translate(-50%, -50%);'>";
+            if ($site["icon"] != null) {
+                echo '<img class="icon" src="data:image/jpeg;base64,' . base64_encode($site["icon"]) . '" >';
+            }
+            echo "</div>";
+            $offset += 10;
+        }
+        ?>
+
+
+        <div class="formCenter" style="width:20%; height: 10%; float: right; margin-top: 2%;">
+
+        </div>
+    </main>
+    <footer>
+        <div class="formButtonBoxHolder">
+            <?php echo "<h1 style='display: inline'>Patro: $floor</h1>"; ?>
+            <div class="formButtonBox">
+                <?php
+                $disabled = $floor > 0 ? "" : "disabled";
+                echo '<button class="purkynkaButton" id="downBtn" ' . $disabled . '>↓</button>';
+                $disabled = $floor < 4 ? "" : "disabled";
+                echo '<button class="purkynkaButton" id="upBtn" ' . $disabled . '>↑</button>';
+                ?>
+            </div>
+            <div class="formButtonBox formJustifyRight">
+                <button id="save" class="purkynkaButton">Uložit plánek</button>
+            </div>
+        </div>
+    </footer>
     <script type="module">
         import {
             SendPOSTDataToServerAsync
         } from "../formWebScripts/js/serverComunication.js";
         import {
-            SendToast
+            SendToast, MakeElementDraggable, DraggableElement
         } from "../formWebScripts/js/formScript.js";
         let get = new URLSearchParams(window.location.search)
 
         for (let site of document.getElementsByClassName("site")) {
-            site.addEventListener("mousedown", (e) => {
-                e.preventDefault()
-                dragStart(site)
-            })
-            site.addEventListener("touchstart", (e) => {
-                e.preventDefault()
-                dragStart(site)
-            })
-            site.addEventListener("mouseup", (e) => {
-                dragEnd()
-            })
-            site.addEventListener("touchend", (e) => {
-                dragEnd()
-            })
+            MakeElementDraggable(site, null, true)
         }
-        let elementToMove = null;
-
-        function dragStart(element) {
-            //console.log(element)
-            elementToMove = element
-            elementToMove.style.zIndex = "10"
-        }
-
-        function dragEnd() {
-            if (elementToMove.style.left > window.innerWidth * 0.8) {
-
-            }
-            elementToMove.style.zIndex = "0"
-            elementToMove = null
-        }
-
-        let lastMousePosition = {
-            x: 0,
-            y: 0
-        }
-        document.getElementsByTagName("html").item(0).addEventListener("mousemove", (e) => {
-            dragMove(e)
-        })
-        document.getElementsByTagName("html").item(0).addEventListener("touchmove", (e) => {
-            dragMove(e)
-        })
-
-        function dragMove(event) {
-            lastMousePosition.x = event.clientX + scrollX
-            lastMousePosition.y = event.clientY + scrollY
-            if (elementToMove != null) {
-                elementToMove.style.top = lastMousePosition.y + "px"
-                elementToMove.style.left = lastMousePosition.x + "px"
-            }
-        }
+        //let elementToMove = null;
+        //
+        //function dragStart(element) {
+        //    //console.log(element)
+        //    elementToMove = element
+        //    elementToMove.style.zIndex = "10"
+        //}
+        //
+        //function dragEnd() {
+        //    if (elementToMove.style.left > window.innerWidth * 0.8) {
+        //
+        //    }
+        //    elementToMove.style.zIndex = "0"
+        //    elementToMove = null
+        //}
+        //
+        //let lastMousePosition = {
+        //    x: 0,
+        //    y: 0
+        //}
+        //document.getElementsByTagName("html").item(0).addEventListener("mousemove", (e) => {
+        //    dragMove(e)
+        //})
+        //document.getElementsByTagName("html").item(0).addEventListener("touchmove", (e) => {
+        //    dragMove(e)
+        //})
+        //
+        //function dragMove(event) {
+        //    lastMousePosition.x = event.clientX + scrollX
+        //    lastMousePosition.y = event.clientY + scrollY
+        //    if (elementToMove != null) {
+        //        elementToMove.style.top = lastMousePosition.y + "px"
+        //        elementToMove.style.left = lastMousePosition.x + "px"
+        //    }
+        //}
 
         document.getElementById("save").addEventListener("click", async (e) => {
             let data = new FormData();
@@ -318,7 +330,7 @@ if (isset($_POST["sitePos"])) {
                 let floor = get.get("floor")
                 if (!floor) floor = 0
 
-                window.location.href = "./adminmap.php?floor=" + (Number(floor) + 1)
+                window.location.href = "?floor=" + (Number(floor) + 1)
             })
         }
 
@@ -326,7 +338,7 @@ if (isset($_POST["sitePos"])) {
             document.getElementById("downBtn").addEventListener("click", () => {
                 let floor = get.get("floor")
                 if (!floor) floor = 0
-                window.location.href = "./adminmap.php?floor=" + (floor - 1)
+                window.location.href = "?floor=" + (floor - 1)
             })
         }
 
