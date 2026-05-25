@@ -120,7 +120,8 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     <th>E-mail</th>
                 </tr>
                 <?php
-                $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
+                logToConsole($userType->toString());
+                $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'USER';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE type='" . $userType->toString() . "' AND role='USER';");
                 $uid = $_GET["uid"];
                 while ($row = $res->fetch_object()) {
                     echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";

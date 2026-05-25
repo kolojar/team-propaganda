@@ -120,7 +120,7 @@ if (isset($_POST["action"])) {
             <option label="Uživatel" value="USER"></option>
         </datalist>
         <datalist id="userTypes">
-            <option label="Obecný / Univezální (výchozí)" value="GENERIC"></option>
+            <option label="Obecný / Univezální" value="GENERIC"></option>
             <option label="Kurzy a přijímačky (KLAL)" value="KLAL"></option>
             <option label="Den firem (NILE)" value="NILE"></option>
         </datalist>

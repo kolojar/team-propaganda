@@ -1,13 +1,14 @@
 <?php
-function setupTitlebarUser(mysqli $conn)
+function setupTitlebarUser(mysqli $conn): userRoleType
 {
     //Get name of current user
-    $stmt = $conn->prepare("SELECT name, surname FROM users_teamPropaganda WHERE id_users=?");
-    $stmt->bind_param("i", $_SESSION["userId"]);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($name, $surname);
-    $stmt->fetch();
+    $stmt = $conn->prepare("SELECT name, surname, role,type FROM users_teamPropaganda WHERE id_users=?");
+    $error = false;
+    if (!$stmt->bind_param("i", $_SESSION["userId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $surname,$role, $type) || !$stmt->fetch() || !$stmt->close()) {
+        $name = "Neznámý";
+        $surname = "uživatel";
+        $error = true;
+    }
 
     //Make HTML
     echo "<div class='formButtonBoxHolder' style='margin-top: 0px;'>
@@ -18,6 +19,11 @@ function setupTitlebarUser(mysqli $conn)
             <a href='./logout.php'><button class='formButton purkynkaButton'>Odhlásit se</button></a>
         </div>
     </div>";
+    if ($error) {
+        die();
+    }
+
+    return new userRoleType(userRole::{$role}, userType::{$type});
 }
 
 function echoCheckIfParentMatches(mysqli $conn, string $attendantId)

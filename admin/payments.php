@@ -107,7 +107,7 @@ require "./adminFunctions.php";
                         <td>$unregistered</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$reason</td>
                     </tr>";
             }
@@ -192,7 +192,7 @@ require "./adminFunctions.php";
                         <td>$unregistered</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$reason</td>
                     </tr>";
             }
@@ -251,7 +251,7 @@ require "./adminFunctions.php";
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$registered</td>
                     </tr>";
             }
@@ -322,7 +322,7 @@ require "./adminFunctions.php";
                         <td>$eventPrice Kč</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                     </tr>";
                 }
                 echo "</table>";
@@ -379,7 +379,7 @@ require "./adminFunctions.php";
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                     </tr>";
                 }
                 echo "</table>";

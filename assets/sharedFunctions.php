@@ -12,10 +12,18 @@ enum userType
     case NILE;
     function getIsNILE(): int
     {
-        return match($this) {
+        return match ($this) {
             self::GENERIC => 2,
             self::KLAL => 0,
             self::NILE => 1,
+        };
+    }
+    function toString(): string
+    {
+        return match ($this) {
+            self::GENERIC => "GENERIC",
+            self::KLAL => "KLAL",
+            self::NILE => "NILE",
         };
     }
 }
