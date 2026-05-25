@@ -49,6 +49,7 @@ $accessLevels = array(
     "sendMail.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Komunikace"),
     "event.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "subevent.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "companyDay.php" => new accessLevel(userType::NILE, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "user.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "users.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Správa uživatelů"),
     "events.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::RIGHT, "Správa událostí"),
@@ -101,30 +102,42 @@ class titlebarSetupResult
         $this->companyDayId = $companyDayId;
     }
 
-    public function checkType(userType $targetType,bool $useIdsOnGeneric = false): bool {
+    public function checkType(userType $targetType, bool $useIdsOnGeneric = false): bool
+    {
         $type = $this->getUserType($useIdsOnGeneric);
-        if($type == userType::GENERIC) {
+        if ($type == userType::GENERIC) {
             return true;
         } else {
             return $type == $targetType;
         }
     }
 
-    public function getUserType(bool $useIdsOnGeneric): userType {
-        if($this->roleType->type == userType::GENERIC) {
-            if(!$useIdsOnGeneric) {
+    public function getUserType(bool $useIdsOnGeneric = false): userType
+    {
+        if ($this->roleType->type == userType::GENERIC) {
+            if (!$useIdsOnGeneric) {
                 return userType::GENERIC;
             }
-            if($this->eventId != null || $this->subeventId != null) {
+            if ($this->eventId != null || $this->subeventId != null) {
                 return userType::KLAL;
             }
-            if($this->companyDayId != null) {
+            if ($this->companyDayId != null) {
                 return userType::NILE;
             }
             return userType::GENERIC;
         }
         return $this->roleType->type;
     }
+}
+
+function checkGenericCompatibility(titlebarSetupResult $result,userType $eventType): bool {
+    if (($result->eventId != null || $result->subeventId != null) && $eventType == userType::NILE) {
+       return false;
+    }
+    if ($result->companyDayId != null && $eventType == userType::KLAL) {
+       return false;
+    }
+    return true;
 }
 
 function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
@@ -140,14 +153,31 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     //Check access level
     if (!checkAccess($page, $roleType)) {
         header("Location: ./accessDenied.php");
-        $result = new titlebarSetupResult("", false, null, null,null);
+        $result = new titlebarSetupResult("", false, null, null, null);
         $result->roleType = $roleType;
         return $result;
     }
 
-    //Prepare HTML
-    $result = setupTitlebarAdminAction($conn, $accessLevels[$page]);
+    //Check actions
+    $accessLevel = $accessLevels[$page];
+    $result = setupTitlebarAdminAction($conn, $accessLevel);
     $result->roleType = $roleType;
+
+    //Check for invalid combinations
+    if (($result->eventId != null || $result->subeventId != null) && $result->getUserType() == userType::NILE) {
+        header("Location: ./events.php?invalidCombination=1");
+        return new titlebarSetupResult("NENÍ", false, null, null, null);
+    }
+    if ($result->companyDayId != null && $result->getUserType() == userType::KLAL) {
+        header("Location: ./events.php?invalidCombination=1");
+        return new titlebarSetupResult("NENÍ", false, null, null, null);
+    }
+    if (!checkGenericCompatibility($result, $accessLevel->eventType)) {
+        header("Location: ./accessDenied.php");
+        return new titlebarSetupResult("NENÍ", false, null, null, null);
+    }
+
+    //Prepare HTML
     echo '<h1> Akce: ' . $result->message . '</h1>';
     echo "<div class='formButtonBoxHolder'>";
 
@@ -156,7 +186,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     $buttonsRightHtml = "";
     foreach ($accessLevels as $key => $value) {
         if ($value->titlebarButton != accessLevelTitlebarButton::NONE) {
-            if (checkAccess($key, $roleType)) {
+            if (checkAccess($key, $roleType) && checkGenericCompatibility($result, $value->eventType)) {
                 $text = $value->titlebarButtonText;
                 $colorClass = $page == $key ? "purkynkaButtonGreen" : "";
                 $line = "<a href='$key'><button class='formButton purkynkaButton $colorClass'>$text</button></a>";
@@ -183,23 +213,23 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
 {
     //Check if already redirected due to noEventId
     if (isset($_GET["noEventId"])) {
-        return new titlebarSetupResult("NENÍ", true, null, null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null, null);
     }
 
     //Check if already redirected due to noCompanyDayId
     if (isset($_GET["noCompanyDayId"])) {
-        return new titlebarSetupResult("NENÍ", true, null, null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null, null);
     }
 
     //Check if already redirected due to invalidCombination
     if (isset($_GET["invalidCombination"])) {
-        return new titlebarSetupResult("NEPLATNÁ KOMBINACE", true, null, null,null);
+        return new titlebarSetupResult("NEPLATNÁ KOMBINACE", true, null, null, null);
     }
 
     //Check for invalid combinations
     if ((isset($_COOKIE["adminEventId"]) || isset($_COOKIE["adminSubeventId"])) && isset($_COOKIE["adminCompanyDayId"])) {
         header("Location: ./events.php?invalidCombination=1");
-        return new titlebarSetupResult("NENÍ", false, null, null,null);
+        return new titlebarSetupResult("NENÍ", false, null, null, null);
     }
 
     //Check if event cookie exist and refresh it
@@ -211,25 +241,25 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
         if (!$stmt->bind_param("i", $_COOKIE["adminEventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name) || !$stmt->fetch() || !$stmt->close() || $name == "") {
             if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_EVENT || $accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
                 header("Location: ./events.php?noEventId=1");
-                return new titlebarSetupResult("NENÍ", false, null, null,null);
+                return new titlebarSetupResult("NENÍ", false, null, null, null);
             }
             setEventId("");
             setSubeventId("");
-            return new titlebarSetupResult("NENÍ", true, null, null,null);
+            return new titlebarSetupResult("NENÍ", true, null, null, null);
         }
 
         //Check if already redirected due to noSubeventId
         if (isset($_GET["noSubeventId"])) {
-            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null,null);
+            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null, null);
         }
 
         //Check if event subcookie exist and refresh it
         if (!isset($_COOKIE["adminSubeventId"])) {
             if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
                 header("Location: ./events.php?noSubeventId=1");
-                return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null,null);
+                return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null, null);
             }
-            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null,null);
+            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null, null);
         }
         setSubeventId($_COOKIE["adminSubeventId"]);
 
@@ -239,14 +269,14 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
         if (!$stmt->bind_param("i", $_COOKIE["adminSubeventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($date) || !$stmt->fetch() || !$stmt->close() || $date == "") {
             if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
                 header("Location: ./events.php?noSubeventId=1");
-                return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null,null);
+                return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null, null);
             }
             setSubeventId("");
-            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null,null);
+            return new titlebarSetupResult($name, true, $_COOKIE["adminEventId"], null, null);
         }
 
         //All OK
-        return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL), true, $_COOKIE["adminEventId"], $_COOKIE["adminSubeventId"],null);
+        return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL), true, $_COOKIE["adminEventId"], $_COOKIE["adminSubeventId"], null);
     } else if (isset($_COOKIE["adminCompanyDayId"])) {
         //Check if company day cookie exist and refresh it
         setCompanyDayId($_COOKIE["adminCompanyDayId"]);
@@ -256,29 +286,29 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
         if (!$stmt->bind_param("i", $_COOKIE["adminCompanyDayId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $date) || !$stmt->fetch() || !$stmt->close() || $name == "") {
             if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_COMPANY_DAY) {
                 header("Location: ./events.php?noCompanyDayId=1");
-                return new titlebarSetupResult("NENÍ", false, null, null,null);
+                return new titlebarSetupResult("NENÍ", false, null, null, null);
             } else {
                 setCompanyDayId("");
-                return new titlebarSetupResult("NENÍ", true, null, null,null);
+                return new titlebarSetupResult("NENÍ", true, null, null, null);
             }
         } else {
             //All OK
-            return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL), true, null,null, $_COOKIE["adminCompanyDayId"]);
+            return new titlebarSetupResult($name . " → " . DateTime::createFromFormat('Y-m-d', $date)->format(STANDARD_CZECH_DATE_FORMAT_FULL), true, null, null, $_COOKIE["adminCompanyDayId"]);
         }
     } else {
         if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_EVENT) {
             header("Location: ./events.php?noEventId=1");
-            return new titlebarSetupResult("NENÍ", false, null, null,null);
+            return new titlebarSetupResult("NENÍ", false, null, null, null);
         } else if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
             header("Location: ./events.php?noSubeventId=1");
-            return new titlebarSetupResult("NENÍ", false,$_COOKIE["adminEventId"], null,null);
+            return new titlebarSetupResult("NENÍ", false, $_COOKIE["adminEventId"], null, null);
         } else if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_COMPANY_DAY) {
             header("Location: ./events.php?noCompanyDayId=1");
-            return new titlebarSetupResult("NENÍ", false, null, null,null);
+            return new titlebarSetupResult("NENÍ", false, null, null, null);
         }
         setEventId("");
         setSubeventId("");
         setCompanyDayId("");
-        return new titlebarSetupResult("NENÍ", true, null, null,null);
+        return new titlebarSetupResult("NENÍ", true, null, null, null);
     }
 }

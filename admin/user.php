@@ -2,7 +2,6 @@
 session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
-require "../assets/sharedFunctions.php";
 
 function echoCheckAdminDelete(mysqli $conn, $role)
 {

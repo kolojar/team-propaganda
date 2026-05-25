@@ -30,7 +30,6 @@ session_start();
         <?php
         $result = setupTitlebarAdmin($conn, "fs.php");
         $userType = $result->getUserType(true);
-        logToConsole($userType->getIsNILE());
         $isNILE = $userType->getIsNILE();
         if ($isNILE == -1) {
             header("Location: ./accessDenied.php");

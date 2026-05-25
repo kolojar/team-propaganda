@@ -2,7 +2,6 @@
 session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
-require "../assets/sharedFunctions.php";
 
 if (isset($_POST["action"])) {
     try {
@@ -89,7 +88,7 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn, "event.php") ?>
+        <?php setupTitlebarAdmin($conn, "companyDay.php") ?>
     </header>
     <main>
         <?php

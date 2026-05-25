@@ -101,7 +101,7 @@ if (isset($_GET["selectCompanyDay"])) {
     <main>
         <?php
         //Get event ID
-        if ($result->roleType->type == userType::GENERIC || $result->roleType->type == userType::KLAL) {
+        if ($result->getUserType() == userType::GENERIC || $result->getUserType() == userType::KLAL) {
             $eventId = "";
             $resultSubeventId = $result->subeventId;
             $resultCompanyDayId = $result->companyDayId;
