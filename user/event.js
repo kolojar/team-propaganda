@@ -1,4 +1,4 @@
-var _a;
+var _a, _b;
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
@@ -71,6 +71,22 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     else {
         SendToast("Odhlásit zájemce z akce", "Zájemce nemohl být odhlášen.", "error");
         await dialogManager.OpenAlert("Odhlásit zájemce z akce", "Informace o odhlášení nemohly být uloženy, opakujte akci později.", true, true);
+    }
+});
+(_b = document.getElementById("btnRemoveCD")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", async (e) => {
+    if (!await dialogManager.OpenConfirm("Odhlásit firmu ze dne firem?", "Opravdu chcete odhlásit Vaši firmu z tohoto dne firem?"))
+        return;
+    let data = new FormData();
+    data.append("action", "rmcd");
+    data.append("id", e.target.getAttribute("comp"));
+    data.append("idCD", e.target.getAttribute("cd"));
+    let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
+    if (ok) {
+        SendToast("Odhlášení.", res, "ok");
+        window.location.href = "./";
+    }
+    else {
+        SendToast("Odpověď serveru", res, "error");
     }
 });
 //# sourceMappingURL=event.js.map

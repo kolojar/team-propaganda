@@ -4,7 +4,7 @@ function setupTitlebarUser(mysqli $conn): userRoleType
     //Get name of current user
     $stmt = $conn->prepare("SELECT name, surname, role,type FROM users_teamPropaganda WHERE id_users=?");
     $error = false;
-    if (!$stmt->bind_param("i", $_SESSION["userId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $surname,$role, $type) || !$stmt->fetch() || !$stmt->close()) {
+    if (!$stmt->bind_param("i", $_SESSION["userId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $surname, $role, $type) || !$stmt->fetch() || !$stmt->close()) {
         $name = "Neznámý";
         $surname = "uživatel";
         $error = true;
@@ -92,3 +92,15 @@ function checkIfParentMatches2(mysqli $conn, string $variableSymbol): bool
     return $getId == $_SESSION["userId"];
 }
 
+function checkIfCDMatches(string $cd): bool
+{
+    global $conn;
+    $stmt = $conn->query("SELECT id_users FROM `company_days_companies_teamPropaganda` NATURAL JOIN companies_teamPropaganda WHERE id_company_days = " . $cd . " and id_companies = " . $_SESSION["companyId"]);
+    if (!$stmt->num_rows > 0) {
+        return false;
+    }
+    if ($row = $stmt->fetch_assoc()) {
+        return $row["id_users"] == $_SESSION["userId"];
+    }
+    return false;
+}

@@ -33,11 +33,11 @@ require '../assets/sharedFunctions.php';
             <legend>Informace o Vás</legend>
             <?php
             //Get name of current user
-            $stmt = $conn->prepare("SELECT name, surname, email FROM users_teamPropaganda WHERE id_users=?");
+            $stmt = $conn->prepare("SELECT name, surname, email, type FROM users_teamPropaganda WHERE id_users=?");
             $stmt->bind_param("i", $_SESSION["userId"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name, $surname, $email);
+            $stmt->bind_result($name, $surname, $email, $isNILE);
             $stmt->fetch();
 
             echo "<form-input class='validate' value-id='name' label='Jméno:' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>";
@@ -56,7 +56,7 @@ require '../assets/sharedFunctions.php';
         </fieldset>
 
         <?php
-        if ($result->type->getIsNILE() == 0) {
+        if ($isNILE == "KLAL") {
             //Get attendants of current user
             $stmt = $conn->prepare("SELECT a.id_attendants, a.name, a.surname, a.id_schools, s.name, s.address FROM attendants_teamPropaganda a JOIN schools_teamPropaganda s ON  a.id_schools = s.id_schools WHERE a.id_parent = ?;");
             $stmt->bind_param("i", $_SESSION["userId"]);
@@ -106,7 +106,7 @@ require '../assets/sharedFunctions.php';
                 </div>
                 </fieldset>";
             }
-        } elseif ($result->type->getIsNILE() == 1) {
+        } else if ($result->type->getIsNILE() == 1) {
             //Get companies of current user
             $stmt = $conn->prepare("SELECT * FROM companies_teamPropaganda WHERE id_users = ?");
             $stmt->bind_param("i", $_SESSION["userId"]);
@@ -114,8 +114,9 @@ require '../assets/sharedFunctions.php';
             $res = $stmt->get_result();
             $stmt->close();
             if ($res->num_rows > 0) {
-                while ($row = $res->fetch_assoc()) {
-                    echo "<br>
+                $row = $res->fetch_assoc();
+                $_SESSION["companyId"] = $row["id_companies"];
+                echo "<br>
                 <fieldset class='companyInfo' company='" . $row["id_companies"] . "'>
                 <legend>Informace o firmě: " . $row["name"] . ((isset($row["icon"])) ? " </legend><img style='width: 4vw; height: 4vw;' src='data:image/jpeg;base64," . base64_encode($row["icon"]) . "'>" : "</legend>") . "
                 <button class='formButton purkynkaButton' id='icon' company=" . $row["id_companies"] . ">Přidat/změnit logo firmy.</button>
@@ -124,23 +125,23 @@ require '../assets/sharedFunctions.php';
                 <form-input value-id='short_info' label='Krátký popis:' class='validate' type='text' do-change-check='true' min-len='300' value='" . $row["short_info"] . "' original-value='" . $row["short_info"] . "'></form-input>
                 <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check='true' value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>";
 
-                    //Get events of attendant
+                //Get events of attendant
 
-                    $comp = $conn->query("SELECT * FROM `company_days_companies_teamPropaganda` NATURAL JOIN company_days_teamPropaganda WHERE id_companies = " . $row["id_companies"]);
-                    if ($comp->num_rows > 0) {
-                        echo "<span>Data dní firem - kliknutím na modrý název zobrazíte podrobnosti:</span><ul>";
-                        while ($cd = $comp->fetch_assoc()) {
-                            echo "<li><a href='./event.php?cd=" . $cd["id_company_days"] . "'>" . $date = new DateTime($cd["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                            echo " → " . $cd["description"] . "</a>";
-                            echo "</li>";
-                        }
-                        echo "</ul>";
-                    } else {
-                        echo "<span>Nejste přihlášen na žádnou akci.</span>";
+                $comp = $conn->query("SELECT * FROM `company_days_companies_teamPropaganda` NATURAL JOIN company_days_teamPropaganda WHERE id_companies = " . $row["id_companies"]);
+                if ($comp->num_rows > 0) {
+                    echo "<span>Data dní firem - kliknutím na modrý název zobrazíte podrobnosti:</span><ul>";
+                    while ($cd = $comp->fetch_assoc()) {
+                        echo "<li><a href='./event.php?cd=" . $cd["id_company_days"] . "'>" . $date = new DateTime($cd["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                        echo " → " . $cd["description"] . "</a>";
+                        echo "</li>";
                     }
+                    echo "</ul>";
+                } else {
+                    echo "<span>Nejste přihlášen na žádnou akci.</span>";
+                }
 
-                    //Buttons
-                    echo "<div class='formButtonBoxHolder'>
+                //Buttons
+                echo "<div class='formButtonBoxHolder'>
                 <div class='formButtonBox formJustifyLeft'>
                     <button class='formButton purkynkaButton' id='addNew' comp=" . $row["id_companies"] . ">Přihlásit na další akce</button>
                 </div>
@@ -150,7 +151,6 @@ require '../assets/sharedFunctions.php';
                 </div>
                 </div>
                 </fieldset>";
-                }
             }
         }
         ?>

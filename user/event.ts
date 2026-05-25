@@ -53,7 +53,7 @@ btnPay?.addEventListener("click", async () => {
 
 document.getElementById("btnRemoveAttendant")?.addEventListener("click", async () => {
     //Get confirmation
-    const reason = await dialogManager.OpenPrompt<string|null>("Odhlásit zájemce z akce?", "Opravdu chcete odhlásit zájemce z akce? Tento krok nelze vzít zpět. Sdělte nám prosím důvod.",null,"textarea","Zadejte důvod odhlášení", true, true)
+    const reason = await dialogManager.OpenPrompt<string | null>("Odhlásit zájemce z akce?", "Opravdu chcete odhlásit zájemce z akce? Tento krok nelze vzít zpět. Sdělte nám prosím důvod.", null, "textarea", "Zadejte důvod odhlášení", true, true)
     if (reason == null) {
         SendToast("Odhlásit zájemce z akce", "Odlášení bylo zrušeno - zájemce zůstává přihlášený.", "info")
         return
@@ -64,7 +64,7 @@ document.getElementById("btnRemoveAttendant")?.addEventListener("click", async (
     const formData = new FormData();
     formData.set("action", "unregisterFromEvent")
     formData.set("id", urlSearchParams.get("variableSymbol") as string)
-    formData.set("reason",reason)
+    formData.set("reason", reason)
     const [ok, responce] = await SendPOSTDataToServerAsync("./event.php", formData)
     progress.CloseDialog()
     if (ok) {
@@ -75,4 +75,20 @@ document.getElementById("btnRemoveAttendant")?.addEventListener("click", async (
         SendToast("Odhlásit zájemce z akce", "Zájemce nemohl být odhlášen.", "error")
         await dialogManager.OpenAlert("Odhlásit zájemce z akce", "Informace o odhlášení nemohly být uloženy, opakujte akci později.", true, true)
     }
+})
+
+document.getElementById("btnRemoveCD")?.addEventListener("click", async (e) => {
+    if (!await dialogManager.OpenConfirm("Odhlásit firmu ze dne firem?", "Opravdu chcete odhlásit Vaši firmu z tohoto dne firem?")) return;
+    let data = new FormData()
+    data.append("action", "rmcd")
+    data.append("id", (e.target as HTMLButtonElement).getAttribute("comp") as string)
+    data.append("idCD", (e.target as HTMLButtonElement).getAttribute("cd") as string)
+    let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
+    if (ok) {
+        SendToast("Odhlášení.", res, "ok")
+        window.location.href = "./"
+    } else {
+        SendToast("Odpověď serveru", res, "error")
+    }
+
 })

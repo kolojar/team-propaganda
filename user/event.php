@@ -91,9 +91,26 @@ if (isset($_POST["action"])) {
             echo "Entry moved.";
             die();
         }
+    } else if ($_POST["action"] == "rmcd") {
+        if (!isset($_POST["id"]) || !isset($_POST["idCD"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+        if (
+            $conn->query("DELETE FROM sites_teamPropaganda WHERE id_companies = " . $_POST["id"] . " and id_company_days = " . $_POST["idCD"]) &&
+            $conn->query("DELETE FROM company_days_companies_teamPropaganda WHERE id_companies = " . $_POST["id"] . " and id_company_days = " . $_POST["idCD"])
+        ) {
+            echo "Odhlášení proběhlo úspěšně.";
+            die;
+        } else {
+            http_response_code(400);
+            echo "Nepodařilo se smazat data z databáze.";
+            die;
+        }
     } else {
         http_response_code(400);
-        echo "Neplatné použití funkce - neplatná akc";
+        echo "Neplatné použití funkce - neplatná akce";
         die();
     }
 }
@@ -132,90 +149,96 @@ if (isset($_POST["action"])) {
     <main>
         <?php
         //Security check
-        if (!isset($_GET["variableSymbol"])) {
+        if (!isset($_GET["variableSymbol"]) && !isset($_GET["cd"])) {
             echo "<h1>Nebyl zadán platní variabilní symbol!</h1>";
             die();
         }
-        if (!checkIfParentMatches2($conn, $_GET["variableSymbol"])) {
+        if (isset($_GET["variableSymbol"]) && !checkIfParentMatches2($conn, $_GET["variableSymbol"])) {
             echo "<h1>Nejste rodičem tohoto zájemce!</h1>";
             die();
+        }
+        if (isset($_GET["cd"]) && !checkIfCDMatches($_GET["cd"])) {
+            echo "<h1>Nejste přihlášen na tento den firem!</h1>";
+            die;
         }
         ?>
         <fieldset id='eventInfo'>
             <legend>Informace o akci</legend>
             <?php
-            //Get info from DB
-            $stmt = $conn->prepare("SELECT  ra.id_attendants, ra.id_events, ra.registered, ra.user_paid, ra.paid, e.name ename, e.description, e.registration_close, e.price, ra.id_classrooms, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events JOIN classrooms_teamPropaganda c ON ra.id_classrooms = c.id_classrooms LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 WHERE variable_symbol=?;");
-            $stmt->bind_param("i", $_GET["variableSymbol"]);
-            $stmt->execute();
-            $res = $stmt->get_result()->fetch_assoc();
-            //$stmt->bind_result($attendantId, $eventId, $registered, $userPaid, $paid, $eventName, $eventDescription, $registrationClose, $price, $classroomId, $classroomName, $subeventIdNext, $subeventDate, $subeventStart, $subeventEnd);
-            //$stmt->fetch();
-            //Format times
-            $registeredFormated = new DateTime($res["registered"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-            $registrationCloseDate = new DateTime($res["registration_close"]);
-            $registrationCloseFormated = $registrationCloseDate->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+            if (!isset($_SESSION["companyId"])) {
+                //Get info from DB
+                $stmt = $conn->prepare("SELECT  ra.id_attendants, ra.id_events, ra.registered, ra.user_paid, ra.paid, e.name ename, e.description, e.registration_close, e.price, ra.id_classrooms, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events JOIN classrooms_teamPropaganda c ON ra.id_classrooms = c.id_classrooms LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 WHERE variable_symbol=?;");
+                $stmt->bind_param("i", $_GET["variableSymbol"]);
+                $stmt->execute();
+                $res = $stmt->get_result()->fetch_assoc();
+                //$stmt->bind_result($attendantId, $eventId, $registered, $userPaid, $paid, $eventName, $eventDescription, $registrationClose, $price, $classroomId, $classroomName, $subeventIdNext, $subeventDate, $subeventStart, $subeventEnd);
+                //$stmt->fetch();
+                //Format times
+                $registeredFormated = new DateTime($res["registered"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                $registrationCloseDate = new DateTime($res["registration_close"]);
+                $registrationCloseFormated = $registrationCloseDate->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
 
-            //Put to HTML
-            echo "<p>Název akce: " . $res["ename"] . "</p>";
-            echo "<p>Popis akce: " . $res["description"] . "</p>";
-            echo "<p>Přihlášen od: $registeredFormated</p>";
-            echo "<p>Do kdy se lze odhlásit: $registrationCloseFormated</p>";
-            if ($res["id_subevents"] != null) {
-                $subeventDateFormated = new DateTime($res["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                $subeventStartFormated = new DateTime($res["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                echo "<p><b>Příští událost: $subeventDateFormated v: $subeventStartFormated v učebně: " . $res["cname"] . "</b></p>";
-            }
+                //Put to HTML
+                echo "<p>Název akce: " . $res["ename"] . "</p>";
+                echo "<p>Popis akce: " . $res["description"] . "</p>";
+                echo "<p>Přihlášen od: $registeredFormated</p>";
+                echo "<p>Do kdy se lze odhlásit: $registrationCloseFormated</p>";
+                if ($res["id_subevents"] != null) {
+                    $subeventDateFormated = new DateTime($res["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                    $subeventStartFormated = new DateTime($res["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    echo "<p><b>Příští událost: $subeventDateFormated v: $subeventStartFormated v učebně: " . $res["cname"] . "</b></p>";
+                }
 
-            //Disable remove from action button
-            $disabledRemove = "";
-            if ($registrationCloseDate < new DateTime()) {
-                $disabledRemove = "disabled";
-            }
+                //Disable remove from action button
+                $disabledRemove = "";
+                if ($registrationCloseDate < new DateTime()) {
+                    $disabledRemove = "disabled";
+                }
 
-            //Put to HTML
-            echo "<div class='formButtonBoxHolder'>";
-            echo "    <div class='formButtonBox formJustifyLeft'>";
-            echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveAttendant'>Odhlásit zájemce z akce</button>";
-            echo "    </div>";
-            echo "</div>";
+                //Put to HTML
+                echo "<div class='formButtonBoxHolder'>";
+                echo "    <div class='formButtonBox formJustifyLeft'>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveAttendant'>Odhlásit zájemce z akce</button>";
+                echo "    </div>";
+                echo "</div>";
+
             ?>
         </fieldset><br>
         <fieldset id='paymentInfo'>
             <legend>Informace o platbě</legend>
             <?php
-            //Sort payment info
-            echo "<p>Stav zaplacení: ";
-            if ($res["paid"] != null) {
-                echo "OK</p>";
-                $paidFormated = new DateTime($res["paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                echo "<p>Datum zaplacení: $paidFormated";
-            } else {
-                if ($res["user_paid"] != null) {
-                    echo "Čeká na zpracování</p>";
-                    $userPaidFormated = new DateTime($res["user_paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                    echo "<p>Datum odeslání platby: $userPaidFormated";
+                //Sort payment info
+                echo "<p>Stav zaplacení: ";
+                if ($res["paid"] != null) {
+                    echo "OK</p>";
+                    $paidFormated = new DateTime($res["paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    echo "<p>Datum zaplacení: $paidFormated";
                 } else {
-                    echo "Nezaplaceno</p>";
-                    echo "<p>Zaplaťte co nejdříve, ideálně do: $registrationCloseFormated";
+                    if ($res["user_paid"] != null) {
+                        echo "Čeká na zpracování</p>";
+                        $userPaidFormated = new DateTime($res["user_paid"])->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                        echo "<p>Datum odeslání platby: $userPaidFormated";
+                    } else {
+                        echo "Nezaplaceno</p>";
+                        echo "<p>Zaplaťte co nejdříve, ideálně do: $registrationCloseFormated";
+                    }
                 }
-            }
-            echo "</p>";
+                echo "</p>";
 
-            //Disable remove from action button
-            $disabledRemove2 = "";
-            $variableSymbolFormated = str_pad($_GET["variableSymbol"], 10, "0", STR_PAD_LEFT);
-            if ($res["user_paid"] != null) {
-                $disabledRemove2 = "disabled";
-                echo "<p>Variabilní symbol: <span class='fontMono'>$variableSymbolFormated</span></p>";
-            }
+                //Disable remove from action button
+                $disabledRemove2 = "";
+                $variableSymbolFormated = str_pad($_GET["variableSymbol"], 10, "0", STR_PAD_LEFT);
+                if ($res["user_paid"] != null) {
+                    $disabledRemove2 = "disabled";
+                    echo "<p>Variabilní symbol: <span class='fontMono'>$variableSymbolFormated</span></p>";
+                }
 
-            //Put to HTML
-            echo "<div class='formButtonBoxHolder'>";
-            echo "    <div class='formButtonBox formJustifyLeft'>";
-            echo "        <button class='formButton purkynkaButton' $disabledRemove2 id='btnPay' variableSymbol='$variableSymbolFormated' price='$price'>Zaplatit</button>";
-            echo "    </div>";
-            echo "</div>";
+                //Put to HTML
+                echo "<div class='formButtonBoxHolder'>";
+                echo "    <div class='formButtonBox formJustifyLeft'>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove2 id='btnPay' variableSymbol='$variableSymbolFormated' price='$price'>Zaplatit</button>";
+                echo "    </div>";
+                echo "</div>";
             ?>
             <p><i>Poznámka: Prosíme o trpělivost, jelikož peníze mohou někdy cestovat několik dní.</i></p>
         </fieldset><br>
@@ -258,6 +281,39 @@ if (isset($_POST["action"])) {
                 }
                 ?>
             </ol>
+        <?php
+            } else {
+                $cd = $conn->query("SELECT * FROM company_days_teamPropaganda WHERE id_company_days = " . $_GET["cd"])->fetch_assoc();
+                $stmt2 = $conn->query("SELECT s.id_sites, s.seats, s.electricity, s.id_presentations, s.floor FROM sites_teamPropaganda s WHERE id_company_days = " . $_GET["cd"] . " and id_companies = " . $_SESSION["companyId"]);
+
+                $registrationCloseDate = new DateTime($cd["registration_close"]);
+                $registrationCloseFormated = $registrationCloseDate->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+
+                //Disable remove from action button
+                $disabledRemove = "";
+                if ($registrationCloseDate < new DateTime()) {
+                    $disabledRemove = "disabled";
+                }
+
+                //Put to HTML
+                echo "<p>Datum konání akce: " . new DateTime($cd["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL) . "</p>";
+                echo "<p>Název akce: " . $cd["name"] . "</p>";
+                echo "<p>Popis akce: " . $cd["description"] . "</p>";
+                echo "<p>Do kdy se lze odhlásit: $registrationCloseFormated</p>";
+                echo "<div class='formButtonBoxHolder'>";
+                echo "    <div class='formButtonBox formJustifyLeft'>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveCD' comp='" . $_SESSION["companyId"] . "' cd='" . $_GET["cd"] . "'>Odhlásit z tohoto dne firem.</button>";
+                echo "    </div>";
+                echo "</div>";
+
+                echo "<fieldset>";
+                echo "<div class='formButtonBoxHolder'>";
+                echo "    <div class='formButtonBox formJustifyLeft'>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnAddSite'>Přidat stánek</button>";
+                echo "    </div>";
+                echo "</div>";
+            }
+        ?>
         </fieldset><a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>
     </main>
     <script type='module' src='../formWebScripts/js/formScript.js'></script>
