@@ -12,11 +12,18 @@ enum userType
     case NILE;
 }
 
+enum userRole
+{
+    case ADMIN;
+    case ACCOUNTANT;
+    case USER;
+}
+
 class userRoleType
 {
-    public string|null $role;
+    public userRole|null $role;
     public userType|null $type;
-    public function __construct(string|null $role, userType|null $type)
+    public function __construct(userRole|null $role, userType|null $type)
     {
         $this->role = $role;
         $this->type = $type;
@@ -30,7 +37,7 @@ function getUserRoleType(mysqli $conn, int $id): userRoleType
     $stmt->store_result();
     $stmt->bind_result($role, $type);
     $stmt->fetch();
-    return new userRoleType($role, ((isset($type) && ($type != null)) ? userType::{$type} : null));
+    return new userRoleType(((isset($role) && ($role != null)) ? userRole::{strtoupper($role)} : null), ((isset($type) && ($type != null)) ? userType::{strtoupper($type)} : null));
 }
 
 function logToConsole(string $log)

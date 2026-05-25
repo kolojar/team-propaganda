@@ -7,7 +7,8 @@ enum accessLevelEventNeedence
     case NEEDS_COMPANY_DAY;
 }
 
-enum accessLevelTitlebarButton {
+enum accessLevelTitlebarButton
+{
     case NONE;
     case LEFT;
     case RIGHT;
@@ -15,13 +16,13 @@ enum accessLevelTitlebarButton {
 
 class accessLevel
 {
-    public accessLevelEventType $eventType;
+    public userType $eventType;
     public accessLevelEventNeedence $eventNeedance;
     public array $accessRoles;
     public accessLevelTitlebarButton $titlebarButton;
     public string $titlebarButtonText;
     public string $titlebarButtonColorClass;
-    public function __construct(accessLevelEventType $eventType, accessLevelEventNeedence $eventNeedance, array $accessRoles, accessLevelTitlebarButton $titlebarButton = accessLevelTitlebarButton::NONE, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
+    public function __construct(userType $eventType, accessLevelEventNeedence $eventNeedance, array $accessRoles, accessLevelTitlebarButton $titlebarButton = accessLevelTitlebarButton::NONE, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
     {
         $this->eventType = $eventType;
         $this->eventNeedance = $eventNeedance;
@@ -33,26 +34,26 @@ class accessLevel
 }
 
 $accessLevels = array(
-    "admin.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin", "accountant"), accessLevelTitlebarButton::RIGHT, "Hlavní menu"),
-    "attendant.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "attendants.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_EVENT, array("admin"), accessLevelTitlebarButton::RIGHT, "Zájemci"),
-    "school.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "schools.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_EVENT, array("admin"), accessLevelTitlebarButton::RIGHT, "Školy"),
-    "schoolsAll.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "classroom.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "classrooms.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Učebny"),
-    "payments.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Platby"),
-    "presets.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Šablony"),
-    "fs.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Soubory"),
-    "sendMail.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Komunikace"),
-    "event.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "subevent.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "user.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
-    "users.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::LEFT, "Správa uživatelů"),
-    "events.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin","accountant"), accessLevelTitlebarButton::LEFT, "Správa událostí"),
-    "logout.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*"), accessLevelTitlebarButton::LEFT, "Odhlásit se"),
-    "accessDenied.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*")),
-    "index.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*")),
+    "admin.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::RIGHT, "Hlavní menu"),
+    "attendant.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "attendants.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_EVENT, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Zájemci"),
+    "school.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "schools.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_EVENT, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Školy"),
+    "schoolsAll.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "classroom.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "classrooms.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Učebny"),
+    "payments.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Platby"),
+    "presets.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Šablony"),
+    "fs.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Soubory"),
+    "sendMail.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::RIGHT, "Komunikace"),
+    "event.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "subevent.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "user.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
+    "users.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Správa uživatelů"),
+    "events.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::LEFT, "Správa událostí"),
+    "logout.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array("*"), accessLevelTitlebarButton::LEFT, "Odhlásit se"),
+    "accessDenied.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array("*")),
+    "index.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array("*")),
 );
 
 function checkAccess(string $file, userRoleType $roleType): bool
@@ -60,8 +61,8 @@ function checkAccess(string $file, userRoleType $roleType): bool
     global $accessLevels;
     $roles = $accessLevels[$file]->accessRoles;
     $eventType = $accessLevels[$file]->eventType;
-    if (isset($levels)) {
-        return (in_array($roleType->role, $roles, true) || in_array("*", $levels, true)) && ($eventType == accessLevelEventType::GENERIC || $roleType->type == "GENERIC" || ($eventType == accessLevelEventType::KLAL && $roleType->type == "KLAL") || ($eventType == accessLevelEventType::NILE && $roleType->type == "NILE"));
+    if (isset($roles) && isset($eventType) && isset($roleType) && isset($roleType->role) && isset($roleType->type)) {
+        return (in_array($roleType->role, $roles, true) || in_array("*", $roles, true)) && ($eventType == userType::GENERIC || $roleType->type == $roleType->type);
     }
     return false;
 }
@@ -80,8 +81,7 @@ class titlebarSetupResult
     public string $message;
     public bool $allowView;
     //public  bool $allowEdit;
-    public string $userRole;
-    public string $userType;
+    public userRoleType $roleType;
     public int|null $eventId;
     public int|null $subeventId;
     public int|null $companyDaysId;
@@ -110,13 +110,13 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     if (!checkAccess($page, $roleType)) {
         header("Location: ./accessDenied.php");
         $result = new titlebarSetupResult("", false, null, null);
-        $result->role = $role;
+        $result->roleType = $roleType;
         return $result;
     }
 
     //Prepare HTML
     $result = setupTitlebarAdminAction($conn, $accessLevels[$page]);
-    $result->role = $role;
+    $result->roleType = $roleType;
     echo '<h1> Akce: ' . $result->message . '</h1>';
     echo "<div class='formButtonBoxHolder'>";
 
@@ -155,22 +155,28 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
         return new titlebarSetupResult("NENÍ", true, null, null);
     }
 
+    //Check if already redirected due to noCompanyDayId
+    if (isset($_GET["noCompanyDayId"])) {
+        return new titlebarSetupResult("NENÍ", true, null, null);
+    }
+
     //Check if event cookie exist and refresh it
     if (!isset($_COOKIE["adminEventId"])) {
-        if ($accessLevel->needsEvent) {
+        if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_EVENT || $accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
             header("Location: ./events.php?noEventId=1");
             return new titlebarSetupResult("NENÍ", false, null, null);
         }
         setSubeventId("");
         return new titlebarSetupResult("NENÍ", true, null, null);
+    }else {
+        setEventId($_COOKIE["adminEventId"]);
     }
-    setEventId($_COOKIE["adminEventId"]);
 
     //Check if event exists
     $name = 0;
     $stmt = $conn->prepare("SELECT name FROM events_teamPropaganda WHERE id_events=?;");
     if (!$stmt->bind_param("i", $_COOKIE["adminEventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name) || !$stmt->fetch() || !$stmt->close() || $name == "") {
-        if ($accessLevel->needsEvent) {
+        if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_EVENT || $accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
             header("Location: ./events.php?noEventId=1");
             return new titlebarSetupResult("NENÍ", false, null, null);
         }
@@ -186,7 +192,7 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
 
     //Check if event subcookie exist and refresh it
     if (!isset($_COOKIE["adminSubeventId"])) {
-        if ($accessLevel->needsSubEvent) {
+        if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
             header("Location: ./events.php?noSubeventId=1");
             return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null);
         }
@@ -198,7 +204,7 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
     $date = "";
     $stmt = $conn->prepare("SELECT date FROM subevents_teamPropaganda WHERE id_subevents=?;");
     if (!$stmt->bind_param("i", $_COOKIE["adminSubeventId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($date) || !$stmt->fetch() || !$stmt->close() || $date == "") {
-        if ($accessLevel->needsSubEvent) {
+        if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_SUBEVENT) {
             header("Location: ./events.php?noSubeventId=1");
             return new titlebarSetupResult($name, false, $_COOKIE["adminEventId"], null);
         }
