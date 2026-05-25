@@ -1,54 +1,67 @@
 <?php
+enum accessLevelEventNeedence
+{
+    case NEEDS_NONE;
+    case NEEDS_EVENT;
+    case NEEDS_SUBEVENT;
+    case NEEDS_COMPANY_DAY;
+}
+
+enum accessLevelTitlebarButton {
+    case NONE;
+    case LEFT;
+    case RIGHT;
+}
+
 class accessLevel
 {
-    public readonly bool $needsEvent;
-    public readonly bool $needsSubEvent;
-    public readonly array $accessGroups;
-    public readonly bool $hasTitlebarButton;
-    public readonly bool $hasTitlebarButtonLeft;
-    public readonly string $titlebarButtonText;
-    public readonly string $titlebarButtonColorClass;
-    public function __construct(array $accessGroup, bool $needsEvent = true, bool $needsSubEvent = false, bool $hasTitlebarButton = false, bool $hasTitlebarButtonLeft = true, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
+    public accessLevelEventType $eventType;
+    public accessLevelEventNeedence $eventNeedance;
+    public array $accessRoles;
+    public accessLevelTitlebarButton $titlebarButton;
+    public string $titlebarButtonText;
+    public string $titlebarButtonColorClass;
+    public function __construct(accessLevelEventType $eventType, accessLevelEventNeedence $eventNeedance, array $accessRoles, accessLevelTitlebarButton $titlebarButton = accessLevelTitlebarButton::NONE, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
     {
-        $this->needsEvent = $needsEvent;
-        $this->needsSubEvent = $needsSubEvent;
-        $this->accessGroups = $accessGroup;
-        $this->hasTitlebarButton = $hasTitlebarButton;
-        $this->hasTitlebarButtonLeft = $hasTitlebarButtonLeft;
+        $this->eventType = $eventType;
+        $this->eventNeedance = $eventNeedance;
+        $this->accessRoles = $accessRoles;
+        $this->titlebarButton = $titlebarButton;
         $this->titlebarButtonText = $titlebarButtonText;
         $this->titlebarButtonColorClass = $titlebarButtonColorClass;
     }
 }
 
 $accessLevels = array(
-    "admin.php" => new accessLevel(array("admin", "accountant"), false, false, true, true, "Hlavní menu"),
-    "attendant.php" => new accessLevel(array("admin")),
-    "attendants.php" => new accessLevel(array("admin"), true, false, true, true, "Zájemci"),
-    "school.php" => new accessLevel(array("admin")),
-    "schools.php" => new accessLevel(array("admin"), true, false, true, true, "Školy"),
-    "schoolsAll.php" => new accessLevel(array("admin")),
-    "classroom.php" => new accessLevel(array("admin"), false),
-    "classrooms.php" => new accessLevel(array("admin"), false, false, true, true, "Učebny"),
-    "payments.php" => new accessLevel(array("admin", "accountant"), false, false, true, true, "Platby"),
-    "presets.php" => new accessLevel(array("admin"), false, false, true, true, "Šablony"),
-    "fs.php" => new accessLevel(array("admin"), false, false, true, true, "Soubory"),
-    "sendMail.php" => new accessLevel(array("admin"), false, false, true, true, "Komunikace"),
-    "event.php" => new accessLevel(array("admin"), false),
-    "subevent.php" => new accessLevel(array("admin"), false),
-    "user.php" => new accessLevel(array("admin"), false),
-    "users.php" => new accessLevel(array("admin"), false, false, true, false, "Správa uživatelů", "formInfoColor"),
-    "events.php" => new accessLevel(array("admin", "accountant"), false, false, true, false, "Správa událostí", "formWarnColor"),
-    "logout.php" => new accessLevel(array("*"), false, false, true, false, "Odhlásit se", "formErrorColor"),
-    "accessDenied.php" => new accessLevel(array("*"), false),
-    "index.php" => new accessLevel(array("*"), false),
+    "admin.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin", "accountant"), accessLevelTitlebarButton::RIGHT, "Hlavní menu"),
+    "attendant.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "attendants.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_EVENT, array("admin"), accessLevelTitlebarButton::RIGHT, "Zájemci"),
+    "school.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "schools.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_EVENT, array("admin"), accessLevelTitlebarButton::RIGHT, "Školy"),
+    "schoolsAll.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "classroom.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "classrooms.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Učebny"),
+    "payments.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Platby"),
+    "presets.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Šablony"),
+    "fs.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Soubory"),
+    "sendMail.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::RIGHT, "Komunikace"),
+    "event.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "subevent.php" => new accessLevel(accessLevelEventType::KLAL,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "user.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin")),
+    "users.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin"), accessLevelTitlebarButton::LEFT, "Správa uživatelů"),
+    "events.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("admin","accountant"), accessLevelTitlebarButton::LEFT, "Správa událostí"),
+    "logout.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*"), accessLevelTitlebarButton::LEFT, "Odhlásit se"),
+    "accessDenied.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*")),
+    "index.php" => new accessLevel(accessLevelEventType::GENERIC,accessLevelEventNeedence::NEEDS_NONE, array("*")),
 );
 
-function checkAccess(string $file, string $level): bool
+function checkAccess(string $file, userRoleType $roleType): bool
 {
     global $accessLevels;
-    $levels = $accessLevels[$file]->accessGroups;
+    $roles = $accessLevels[$file]->accessRoles;
+    $eventType = $accessLevels[$file]->eventType;
     if (isset($levels)) {
-        return in_array($level, $levels, true) || in_array("*", $levels, true);
+        return (in_array($roleType->role, $roles, true) || in_array("*", $levels, true)) && ($eventType == accessLevelEventType::GENERIC || $roleType->type == "GENERIC" || ($eventType == accessLevelEventType::KLAL && $roleType->type == "KLAL") || ($eventType == accessLevelEventType::NILE && $roleType->type == "NILE"));
     }
     return false;
 }
@@ -64,12 +77,14 @@ function setSubeventId($id): void
 
 class titlebarSetupResult
 {
-    public readonly string $message;
-    public readonly bool $allowView;
-    //public readonly bool $allowEdit;
-    public string $role;
-    public readonly int|null $eventId;
-    public readonly int|null $subeventId;
+    public string $message;
+    public bool $allowView;
+    //public  bool $allowEdit;
+    public string $userRole;
+    public string $userType;
+    public int|null $eventId;
+    public int|null $subeventId;
+    public int|null $companyDaysId;
 
     public function __construct(string $message, bool $allowView, int|null $eventId, int|null $subeventId /*$allowEdit*/)
     {
@@ -89,10 +104,10 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     //Get global variables + user role
     global $accessLevels;
     require_once "../assets/sharedFunctions.php";
-    $role = getUserRole($conn, $_SESSION["userId"]);
+    $roleType = getUserRoleType($conn, $_SESSION["userId"]);
 
     //Check access level
-    if (!checkAccess($page, $role)) {
+    if (!checkAccess($page, $roleType)) {
         header("Location: ./accessDenied.php");
         $result = new titlebarSetupResult("", false, null, null);
         $result->role = $role;

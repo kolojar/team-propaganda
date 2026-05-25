@@ -5,6 +5,7 @@ const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
 setupTableDeleteButtons(dialogManager, "./event.php", "event");
 setupTableDeleteButtons(dialogManager, "./subevent.php", "subevent");
+setupTableDeleteButtons(dialogManager, "./companyDay.php", "companyDay");
 if (urlSearchParams.has("noEventId")) {
     SendToast("Nastavení události", "Není vybrána žádná událost!", "error");
 }

@@ -104,12 +104,12 @@ if (isset($_GET["selectSubevent"])) {
             $stmt->close();
             $stmt = $conn->prepare("SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE id_events=?;");
             if (!$stmt->bind_param("i", $eventId) || !$stmt->execute() || !$stmt->store_result()) {
-                echo "<h1>Nelze získat seznam podudálostí.</h1>";
+                echo "<h1>Nelze získat seznam podudálostí pro zájemce o studium.</h1>";
             } else if ($stmt->num_rows == 0) {
-                echo "<h1>Nejsou k dispozici žádné podudálosti.</h1>";
+                echo "<h1>Nejsou k dispozici žádné podudálosti  pro zájemce o studium.</h1>";
             } else {
                 //Generate HTML
-                echo "<h1>Dostupné podudálosti pro událost: $eventName</h1>";
+                echo "<h1>Termíny události (podudálosti) pro zájemce o studium: $eventName</h1>";
                 echo "<table>";
                 echo "<tr>";
                 echo "<th>Akce</th>";
@@ -166,11 +166,11 @@ if (isset($_GET["selectSubevent"])) {
         //Request events
         $stmt = $conn->prepare("SELECT id_events, name, type, active_since, active_until, registration_open, registration_close FROM events_teamPropaganda;");
         if (!$stmt->execute() || !$stmt->store_result()) {
-            echo "<h1>Nelze získat seznam událostí.</h1>";
+            echo "<h1>Nelze získat seznam událostí pro zájemce o studium.</h1>";
         } else if ($stmt->num_rows == 0) {
-            echo "<h1>Nejsou k dispozici žádné události</h1>";
+            echo "<h1>Nejsou k dispozici žádné události pro zájemce o studium.</h1>";
         } else {
-            echo "<h1>Dostupné události</h1>";
+            echo "<h1>Dostupné události pro zájemce o studium</h1>";
             echo "<table>";
             echo "<tr>";
             echo "<th>Akce</th>";
@@ -178,7 +178,7 @@ if (isset($_GET["selectSubevent"])) {
             echo "<th>Druh</th>";
             echo "<th>Je aktivní</th>";
             echo "<th>Je registrace aktivní</th>";
-            echo "<th>Počet přihlášených</th>";
+            echo "<th>Počet přihlášených zájemců</th>";
             echo "</tr>";
 
             //List all events in table
@@ -231,7 +231,82 @@ if (isset($_GET["selectSubevent"])) {
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
             if ($result->role == "admin") {
-                echo "<a href='./event.php?newEvent=1'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit událost</span></button></a>";
+                echo "<a href='./event.php?newEvent=1'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit událost pro zájemce o studium</span></button></a>";
+            }
+            echo "</div>";
+            echo "</div>";
+        }
+
+        //Request company days
+        $stmt = $conn->prepare("SELECT id_company_days, name, date, active_since,active_until,registration_open,registration_close FROM company_days_teamPropaganda;");
+        if (!$stmt->execute() || !$stmt->store_result()) {
+            echo "<h1>Nelze získat seznam dnů firem.</h1>";
+        } else if ($stmt->num_rows == 0) {
+            echo "<h1>Nejsou k dispozici dny firem.</h1>";
+        } else {
+            echo "<h1>Dostupné dny firem</h1>";
+            echo "<table>";
+            echo "<tr>";
+            echo "<th>Akce</th>";
+            echo "<th>Název</th>";
+            echo "<th>Datum konání</th>";
+            echo "<th>Je aktivní</th>";
+            echo "<th>Je registrace aktivní</th>";
+            echo "<th>Počet přihlášených firem</th>";
+            echo "</tr>";
+
+            //List all events in table
+            for ($i = 0; $i < $stmt->num_rows; $i++) {
+                if (!$stmt->bind_result($id, $name, $date, $activeSince, $activeUntil, $registrationOpen, $registrationClose) || !$stmt->fetch()) {
+                    $id = null;
+                    $name = "CHYBA";
+                    $date = "CHYBA";
+                    $activeSince = "CHYBA";
+                    $activeUntil = "CHYBA";
+                    $registrationOpen = "CHYBA";
+                    $registrationClose = "CHYBA";
+                    $isActive = "CHYBA";
+                    $isRegistrationActive = "CHYBA";
+                } else {
+                    $currentDate = new DateTime();
+                    $activeSinceDate = new DateTime($activeSince);
+                    $activeUntilDate = new DateTime($activeUntil);
+                    $registrationOpenDate = new DateTime($registrationOpen);
+                    $registrationCloseDate = new DateTime($registrationClose);
+                    $date = new DateTime($date)->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+
+                    $isActive = "Ne";
+                    $isRegistrationActive = "Ne";
+                    if ($currentDate >= $activeSinceDate && $currentDate <= $activeUntilDate) {
+                        $isActive = "Ano";
+                    }
+                    if ($currentDate >= $registrationOpen && $currentDate <= $registrationClose) {
+                        $isRegistrationActive = "Ano";
+                    }
+                }
+                echo "<tr class='clickHighlightRow'>";
+                echo "<td class='formButtonBoxTable'>";
+                echo "<a href='./events.php?selectCompanyDay=$id'><button form-icon='!openView' class='purkynkaButton'><span>Otevřít pohled</span></button></a>";
+                if ($result->role == "admin") {
+                    echo "<a href='./companyDay.php?companyDay=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>";
+                    echo "<button form-icon='!delete' class='purkynkaButton btnTableDelete' companyDay=$id></button>";
+                }
+                echo "</td>";
+                echo "<td>$name</td>";
+                echo "<td>$date</td>";
+                echo "<td>$isActive</td>";
+                echo "<td>$isRegistrationActive</td>";
+                echo "<td>?</td>";
+                echo "</tr>";
+            }
+            echo "</table>";
+
+            //Echo buttons
+            $stmt->close();
+            echo "<div class='formButtonBoxHolder'>";
+            echo "<div class='formButtonBox'>";
+            if ($result->role == "admin") {
+                echo "<a href='./companyDay.php?newCompanyDay=1'><button form-icon='!add' class='purkynkaButton'><span>Vytvořit den firem</span></button></a>";
             }
             echo "</div>";
             echo "</div>";
