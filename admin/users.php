@@ -30,7 +30,7 @@ require "./adminFunctions.php";
         //}
         
         //Request users
-        $stmt = $conn->prepare("SELECT id_users, name,surname, email,role,lastLogin FROM users_teamPropaganda", );
+        $stmt = $conn->prepare("SELECT id_users, name,surname, email,role,type,lastLogin FROM users_teamPropaganda", );
         if (!$stmt->execute() || !$stmt->store_result()) {
             echo "<h1>Nelze získat informace o uživatelích.</h1>";
         } else if ($stmt->num_rows > 0) {
@@ -42,17 +42,19 @@ require "./adminFunctions.php";
             echo "<th>Jméno a přijmení</th>";
             echo "<th>Email</th>";
             echo "<th>Role</th>";
+            echo "<th>Typ</th>";
             echo "<th>Naposledy přihlášen</th>";
             echo "</tr>";
 
             //List all users in table
             for ($i = 0; $i < $stmt->num_rows; $i++) {
-                if (!$stmt->bind_result($id, $name, $surname, $email, $role, $lastLogin) || !$stmt->fetch()) {
+                if (!$stmt->bind_result($id, $name, $surname, $email, $role,$type, $lastLogin) || !$stmt->fetch()) {
                     $id = null;
                     $name = "CHYBA";
                     $surname = "CHYBA";
                     $email = "CHYBA";
                     $role = "CHYBA";
+                    $type = "CHYBA";
                     $lastLogin = "CHYBA";
                     $lastLoginFormat = "CHYBA";
                 } else {
@@ -68,6 +70,7 @@ require "./adminFunctions.php";
                         <td>$name $surname</td>
                         <td><a href='mailto:$email'>$email</td>
                         <td>$role</td>
+                        <td>$type</td>
                         <td>$lastLoginFormat</td>
                     </tr>";
             }

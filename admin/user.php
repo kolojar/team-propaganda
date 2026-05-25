@@ -3,12 +3,12 @@ session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
 
-function echoCheckAdminDelete(mysqli $conn, $role)
+function echoCheckAdminDelete(mysqli $conn, userRoleType $roleType)
 {
-    if ($role != "admin") {
+    if ($roleType->role != userRole::ADMIN && $roleType->type != userType::GENERIC) {
         return;
     }
-    $stmt = $conn->prepare("SELECT COUNT(id_users) FROM users_teamPropaganda WHERE role='admin';");
+    $stmt = $conn->prepare("SELECT COUNT(id_users) FROM users_teamPropaganda WHERE role='ADMIN' AND type='Generic';");
     if (!$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($count) || !$stmt->fetch() || !$stmt->close()) {
         http_response_code(400);
         echo "Nelze zjisit stav uživatelů.";
@@ -16,7 +16,7 @@ function echoCheckAdminDelete(mysqli $conn, $role)
     }
     if ($count <= 1) {
         http_response_code(400);
-        echo "Nelze odebrat posledního správce systému.";
+        echo "Nelze odebrat posledního obecného správce systému.";
         die();
     }
 }
@@ -24,21 +24,20 @@ function echoCheckAdminDelete(mysqli $conn, $role)
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["email"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["type"]) || !isset($_POST["email"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Security check
-        $role = getUserRole($conn, $_POST["id"]);
-        if ($role != $_POST["role"]) {
-            echoCheckAdminDelete($conn, $role);
+        $roleType = getUserRoleType($conn, $_POST["id"]);
+        if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
+            echoCheckAdminDelete($conn, $roleType);
         }
-
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, role=? WHERE id_users=?");
-        if ($stmt->bind_param("ssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
+        $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, role=?, type=? WHERE id_users=?");
+        if ($stmt->bind_param("sssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"],$_POST["type"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Uživatel upraven.";
             die();
@@ -49,15 +48,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "insert") {
         //Check if values set
-        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["email"])) {
+        if (!isset($_POST["name"]) || !isset($_POST["surname"]) || !isset($_POST["role"]) || !isset($_POST["type"]) || !isset($_POST["email"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, isNILE, role, lastLogin) VALUES (?,?,?,0,?,CURRENT_TIMESTAMP())");
-        if ($stmt->bind_param("ssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"]) && $stmt->execute() && $stmt->close()) {
+        $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, type, role, lastLogin) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP())");
+        if ($stmt->bind_param("sssss", $_POST["email"], $_POST["name"], $_POST["surname"],  $_POST["type"],$_POST["role"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Uživatel vytvořen.";
             die();
@@ -75,9 +74,9 @@ if (isset($_POST["action"])) {
         }
 
         //Security check
-        $role = getUserRole($conn, $_POST["id"]);
-        if ($role != $_POST["role"]) {
-            echoCheckAdminDelete($conn, $role);
+        $roleType = getUserRoleType($conn, $_POST["id"]);
+        if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
+            echoCheckAdminDelete($conn, $roleType);
         }
 
         //Make SQL Update
@@ -116,9 +115,14 @@ if (isset($_POST["action"])) {
     <header>
         <?php setupTitlebarAdmin($conn, "user.php") ?>
         <datalist id="userRoles">
-            <option label="Správce systému" value="admin"></option>
-            <option label="Účetní" value="accountant"></option>
-            <option label="Uživatel" value="user"></option>
+            <option label="Správce systému" value="ADMIN"></option>
+            <option label="Účetní" value="ACCOUNTANT"></option>
+            <option label="Uživatel" value="USER"></option>
+        </datalist>
+        <datalist id="userTypes">
+            <option label="Obecný / Univezální (výchozí)" value="GENERIC"></option>
+            <option label="Kurzy a přijímačky (KLAL)" value="KLAL"></option>
+            <option label="Den firem (NILE)" value="NILE"></option>
         </datalist>
     </header>
     <main>
@@ -129,15 +133,15 @@ if (isset($_POST["action"])) {
         $surname = "";
         $email = "";
         $role = "";
-        $isNILE = 0;
+        $type = "";
         $lastLogin = new DateTime()->format('Y-m-d H:i:s');
         $exists = "true";
         if (isset($_GET["newUser"])) {
             echo "<h1>Vytvořit nového uživatele</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, surname, email,role, isNILE, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
-            if (!$stmt->bind_param("i", $_GET["user"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $surname, $email, $role, $isNILE, $lastLogin) || !$stmt->fetch() || !$stmt->close()) {
+            $stmt = $conn->prepare("SELECT name, surname, email,role, type, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
+            if (!$stmt->bind_param("i", $_GET["user"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $surname, $email, $role, $type, $lastLogin) || !$stmt->fetch() || !$stmt->close()) {
                 echo "<h1>Nelze získat informace o uživateli.</h1>";
                 echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
                 die();
@@ -153,6 +157,7 @@ if (isset($_POST["action"])) {
         echo "<form-input icon='!email' label='Email:' class='validate' do-change-check='true' type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
         echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check='true' value-id='role' original-value='$role' value='$role' is-case-sensitive-list='false'></form-input>";
+        echo "<form-input icon='!userRole' list='userTypes' is-strict-list='true' label='Typ:' class='validate' type='select' do-change-check='true' value-id='type' original-value='$type' value='$type' is-case-sensitive-list='false'></form-input>";
         if ($exists == "true") {
             echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
         }
