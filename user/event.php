@@ -108,6 +108,21 @@ if (isset($_POST["action"])) {
             echo "Nepodařilo se smazat data z databáze.";
             die;
         }
+    } else if ($_POST["action"] == "addSite") {
+        if (!isset($_POST["id"]) || !isset($_POST["idCD"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+
+        if ($conn->query("INSERT INTO sites_teamPropaganda (id_company_days, id_companies) VALUES (" . $_POST["idCD"] . ", " . $_POST["id"] . ")")) {
+            echo "Data zapsána do databáze úspěšně.";
+            die;
+        } else {
+            http_response_code(400);
+            echo "Nepodařilo se zapsat data do databáze.";
+            die;
+        }
     } else {
         http_response_code(400);
         echo "Neplatné použití funkce - neplatná akce";
@@ -302,16 +317,23 @@ if (isset($_POST["action"])) {
                 echo "<p>Do kdy se lze odhlásit: $registrationCloseFormated</p>";
                 echo "<div class='formButtonBoxHolder'>";
                 echo "    <div class='formButtonBox formJustifyLeft'>";
-                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveCD' comp='" . $_SESSION["companyId"] . "' cd='" . $_GET["cd"] . "'>Odhlásit z tohoto dne firem.</button>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnRemoveCD' comp='" . $_SESSION["companyId"] . "'>Odhlásit z tohoto dne firem.</button>";
                 echo "    </div>";
                 echo "</div>";
 
-                echo "<fieldset>";
+                echo "</fieldset><br><fieldset>";
+                echo "<legend>Stánky</legend>";
                 echo "<div class='formButtonBoxHolder'>";
                 echo "    <div class='formButtonBox formJustifyLeft'>";
-                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnAddSite'>Přidat stánek</button>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnAddSite' comp='" . $_SESSION["companyId"] . "'>Přidat stánek</button>";
                 echo "    </div>";
                 echo "</div>";
+                while ($row = $stmt2->fetch_assoc()) {
+                    echo "<fieldset>";
+
+
+                    echo "</fieldset>";
+                }
             }
         ?>
         </fieldset><a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>

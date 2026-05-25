@@ -82,11 +82,27 @@ document.getElementById("btnRemoveCD")?.addEventListener("click", async (e) => {
     let data = new FormData()
     data.append("action", "rmcd")
     data.append("id", (e.target as HTMLButtonElement).getAttribute("comp") as string)
-    data.append("idCD", (e.target as HTMLButtonElement).getAttribute("cd") as string)
+    data.append("idCD", urlSearchParams.get("cd") as string)
     let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
     if (ok) {
         SendToast("Odhlášení.", res, "ok")
         window.location.href = "./"
+    } else {
+        SendToast("Odpověď serveru", res, "error")
+    }
+
+})
+
+document.getElementById("btnAddSite")?.addEventListener("click", async (e) => {
+    if (!await dialogManager.OpenConfirm("Přidat nový stánek?", "Opravdu chcete přidat nový stánek pro tento dne firem?")) return;
+    let data = new FormData()
+    data.append("action", "addSite")
+    data.append("id", (e.target as HTMLButtonElement).getAttribute("comp") as string)
+    data.append("idCD", urlSearchParams.get("cd") as string)
+    let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
+    if (ok) {
+        SendToast("Odpověď serveru.", res, "ok")
+        window.location.reload()
     } else {
         SendToast("Odpověď serveru", res, "error")
     }

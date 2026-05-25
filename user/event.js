@@ -1,4 +1,4 @@
-var _a, _b;
+var _a, _b, _c;
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
@@ -79,11 +79,27 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     let data = new FormData();
     data.append("action", "rmcd");
     data.append("id", e.target.getAttribute("comp"));
-    data.append("idCD", e.target.getAttribute("cd"));
+    data.append("idCD", urlSearchParams.get("cd"));
     let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
     if (ok) {
         SendToast("Odhlášení.", res, "ok");
         window.location.href = "./";
+    }
+    else {
+        SendToast("Odpověď serveru", res, "error");
+    }
+});
+(_c = document.getElementById("btnAddSite")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", async (e) => {
+    if (!await dialogManager.OpenConfirm("Přidat nový stánek?", "Opravdu chcete přidat nový stánek pro tento dne firem?"))
+        return;
+    let data = new FormData();
+    data.append("action", "addSite");
+    data.append("id", e.target.getAttribute("comp"));
+    data.append("idCD", urlSearchParams.get("cd"));
+    let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
+    if (ok) {
+        SendToast("Odpověď serveru.", res, "ok");
+        window.location.reload();
     }
     else {
         SendToast("Odpověď serveru", res, "error");

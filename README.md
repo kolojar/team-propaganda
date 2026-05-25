@@ -150,9 +150,12 @@ wifi
 - [X] deleteFile.php sql
 - [ ] sendMail no duplicate files
 - [ ] Maybe description for files
-- [ ] company days insert event on creation
-- [ ] new table company days companies
-    - [ ] insert to it
+- [X] company days insert event on creation
+- [X] new table company days companies
+    - [X] insert to it
 - [X] icon adding in user/main.php (formscript problem)
-- [ ] user/event.php not completed
+- [ ] user/event.php not completed site info + presentations
+- [ ] integrate table files_subevents_teamPropaganda
+- [ ] integrate table files_company_days_teamPropaganda
+- [ ] user/main.php adding fields
 

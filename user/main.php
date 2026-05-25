@@ -124,6 +124,8 @@ require '../assets/sharedFunctions.php';
                 <form-input value-id='name' label='Jméno:' class='validate' type='text' do-change-check='true' value='" . $row["name"] . "' original-value='" . $row["name"] . "'></form-input>
                 <form-input value-id='short_info' label='Krátký popis:' class='validate' type='text' do-change-check='true' min-len='300' value='" . $row["short_info"] . "' original-value='" . $row["short_info"] . "'></form-input>
                 <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check='true' value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>";
+                //add fields picker
+
 
                 //Get events of attendant
 
