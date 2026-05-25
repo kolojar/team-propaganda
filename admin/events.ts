@@ -9,11 +9,16 @@ setupTableDeleteButtons(dialogManager,"./subevent.php","subevent")
 setupTableDeleteButtons(dialogManager,"./companyDay.php","companyDay")
 
 if(urlSearchParams.has("noEventId")) {
-    SendToast("Nastavení události","Není vybrána žádná událost!","error")
+    SendToast("Nastavení události","Není vybrána žádná událost pro zájemce!","error")
 }
-
 if(urlSearchParams.has("noSubeventId")) {
     SendToast("Nastavení události","Není vybrána žádná podudálost!","error")
+}
+if(urlSearchParams.has("noCompanyDayId")) {
+    SendToast("Nastavení události","Není vybrán žádný den firem!","error")
+}
+if(urlSearchParams.has("invalidCombination")) {
+    SendToast("Nastavení události","Neplatná kombinace události a dnu firem!","error")
 }
 
 //Setup btnTableSelectEvent buttons

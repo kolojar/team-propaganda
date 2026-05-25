@@ -10,6 +10,14 @@ enum userType
     case GENERIC;
     case KLAL;
     case NILE;
+    function getIsNILE(): int
+    {
+        return match($this) {
+            self::GENERIC => 2,
+            self::KLAL => 0,
+            self::NILE => 1,
+        };
+    }
 }
 
 enum userRole
@@ -17,6 +25,7 @@ enum userRole
     case ADMIN;
     case ACCOUNTANT;
     case USER;
+    case ANY;
 }
 
 class userRoleType

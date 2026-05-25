@@ -6,13 +6,6 @@ session_start();
 //    header("Location: ./loginForm.html");
 //    exit;
 //}
-
-if (isset($_GET["isNILE"])) {
-    $isNILE = $_GET["isNILE"];
-} else {
-    header("Location: ./accessDenied.php");
-    die;
-}
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -34,13 +27,22 @@ if (isset($_GET["isNILE"])) {
 
 <body>
     <header>
-        <?php setupTitlebarAdmin($conn, "fs.php"); ?>
+        <?php
+        $result = setupTitlebarAdmin($conn, "fs.php");
+        $userType = $result->getUserType(true);
+        logToConsole($userType->getIsNILE());
+        $isNILE = $userType->getIsNILE();
+        if ($isNILE == -1) {
+            header("Location: ./accessDenied.php");
+            die;
+        }
+        ?>
     </header>
     <main>
         <?php
         if (isset($_GET["file"]) && is_dir("../files/" . $_GET["file"])) {
             echo "<h1>Zobrazení složky: " . $_GET["file"] . "</h1>";
-        ?><br>
+            ?><br>
             <table>
                 <tr>
                     <th>Akce</th>
@@ -62,10 +64,10 @@ if (isset($_GET["isNILE"])) {
                 }
                 ?>
             </table>
-        <?php
+            <?php
             echo "<button class='purkynkaButton' onclick=\"window.location.href='./fs.php'\">Zpět</button>";
         } else {
-        ?>
+            ?>
             <div class="formButtonBoxHolder">
                 <div class="formJustifyLeft" style="align-items: center">
                     <h1 style="margin-bottom: 0px; margin-top: 4px;">Prohlížení souborů</h1>
@@ -93,7 +95,7 @@ if (isset($_GET["isNILE"])) {
                 }
                 ?>
             </table>
-        <?php
+            <?php
         }
         ?>
     </main>
