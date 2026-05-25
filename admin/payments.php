@@ -107,7 +107,7 @@ require "./adminFunctions.php";
                         <td>$unregistered</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$reason</td>
                     </tr>";
             }
@@ -192,7 +192,7 @@ require "./adminFunctions.php";
                         <td>$unregistered</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$reason</td>
                     </tr>";
             }
@@ -244,14 +244,14 @@ require "./adminFunctions.php";
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
                             <button variableSymbol=$variableSymbol class='purkynkaButton btnTableAddPayment' email='$parentEmail' id-events='$idEvents' form-icon='!addPayment'></button></a>";
-                if ($result->role == "admin") {
+                if ($result->roleType->role == userRole::ADMIN) {
                     echo "<a href='./attendant.php?attendant=$attendantId'><button form-icon='!edit' class='purkynkaButton'></button></a><button class='purkynkaButton btnUnregisterTable' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>";
                 }
                 echo "  </td>
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                         <td>$registered</td>
                     </tr>";
             }
@@ -262,7 +262,7 @@ require "./adminFunctions.php";
         }
 
         //Request rejected attendants
-        if ($result->role == "admin") {
+        if ($result->roleType->role == userRole::ADMIN) {
             $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account,ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE " . ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "ua.refunded IS NOT NULL;");
             if (($resultEventId != null && !$stmt->bind_param("i", $resultEventId)) || !$stmt->execute() || !$stmt->store_result()) {
                 echo "<h1>Nelze získat zájemce, kterým byly vráceny peníze.</h1>";
@@ -322,7 +322,7 @@ require "./adminFunctions.php";
                         <td>$eventPrice Kč</td>
                         <td>$attendantFullName</td>
                         <td>$parentFullName</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                     </tr>";
                 }
                 echo "</table>";
@@ -333,7 +333,7 @@ require "./adminFunctions.php";
         }
 
         //Request paid attendants
-        if ($result->role == "admin") {
+        if ($result->roleType->role == userRole::ADMIN) {
             $stmt = $conn->prepare("SELECT ra.paid, ra.variable_symbol, a.name, a.surname, u.name,u.surname,u.email FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users WHERE ra.paid IS NOT NULL" . ($resultEventId == null ? "" : " AND ra.id_events = ?"));
             if (($resultEventId != null && !$stmt->bind_param("i", $resultEventId)) || !$stmt->execute() || !$stmt->store_result()) {
                 echo "<h1>Nelze získat zaplacené zájemce.</h1>";
@@ -379,7 +379,7 @@ require "./adminFunctions.php";
                         <td class='fontMono'>$variableSymbolFormated</td>
                         <td>$attendantName $attendantSurname</td>
                         <td>$parentName $parentSurname</td>
-                        <td><a href='mailto:$parentEmail'>$parentEmail</td>
+                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></td>
                     </tr>";
                 }
                 echo "</table>";

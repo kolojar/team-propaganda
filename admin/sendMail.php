@@ -79,10 +79,6 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     $stmt->close();
     exit;
 }
-if (isset($_GET["isNILE"]))
-    $isNILE = $_GET["isNILE"];
-else
-    header("Location: ./accessDenied.php");
 ?>
 
 <html>
@@ -104,7 +100,14 @@ else
 
 <body>
     <header>
-        <?php setupTitlebarAdmin($conn, "sendMail.php") ?>
+        <?php
+        $result = setupTitlebarAdmin($conn, "sendMail.php");
+        $userType = $result->getUserType(true);
+        $isNILE = $userType->getIsNILE();
+        if ($isNILE == -1) {
+            header("Location: ./accessDenied.php");
+            die;
+        } ?>
     </header>
     <main>
         <!--<form id="form">-->
@@ -117,7 +120,8 @@ else
                     <th>E-mail</th>
                 </tr>
                 <?php
-                $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'user';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE isNILE = " . $isNILE . " AND role = 'user';");
+                logToConsole($userType->toString());
+                $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'USER';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE type='" . $userType->toString() . "' AND role='USER';");
                 $uid = $_GET["uid"];
                 while ($row = $res->fetch_object()) {
                     echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
@@ -145,7 +149,7 @@ else
             <input type="checkbox" checked id="now" name="now">
             <label for="now">Odeslat ihned</label><br>
             <form-input type='date' id='date' name="date" label="Datum odeslání" disabled></form-input>
-            <form-input type="number" id="hour" name="hour" min=0 max=23 value=12  label='Hodina odeslání' disabled></form-input>
+            <form-input type="number" id="hour" name="hour" min=0 max=23 value=12 label='Hodina odeslání' disabled></form-input>
             <div id="attachments">
 
             </div>

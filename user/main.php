@@ -25,7 +25,7 @@ require '../assets/sharedFunctions.php';
 <body class="pageHolder">
     <header>
         <?php
-        setupTitlebarUser($conn)
+        $result = setupTitlebarUser($conn)
         ?>
     </header>
     <main>
@@ -33,11 +33,11 @@ require '../assets/sharedFunctions.php';
             <legend>Informace o Vás</legend>
             <?php
             //Get name of current user
-            $stmt = $conn->prepare("SELECT name, surname, email, isNILE FROM users_teamPropaganda WHERE id_users=?");
+            $stmt = $conn->prepare("SELECT name, surname, email FROM users_teamPropaganda WHERE id_users=?");
             $stmt->bind_param("i", $_SESSION["userId"]);
             $stmt->execute();
             $stmt->store_result();
-            $stmt->bind_result($name, $surname, $email, $isNILE);
+            $stmt->bind_result($name, $surname, $email);
             $stmt->fetch();
 
             echo "<form-input class='validate' value-id='name' label='Jméno:' type='text' do-change-check='true' value='$name' original-value='$name'></form-input>";
@@ -56,7 +56,7 @@ require '../assets/sharedFunctions.php';
         </fieldset>
 
         <?php
-        if ($isNILE == 0) {
+        if ($result->type->getIsNILE() == 0) {
             //Get attendants of current user
             $stmt = $conn->prepare("SELECT a.id_attendants, a.name, a.surname, a.id_schools, s.name, s.address FROM attendants_teamPropaganda a JOIN schools_teamPropaganda s ON  a.id_schools = s.id_schools WHERE a.id_parent = ?;");
             $stmt->bind_param("i", $_SESSION["userId"]);
@@ -106,7 +106,7 @@ require '../assets/sharedFunctions.php';
                 </div>
                 </fieldset>";
             }
-        } elseif ($isNILE == 1) {
+        } elseif ($result->type->getIsNILE() == 1) {
             //Get companies of current user
             $stmt = $conn->prepare("SELECT * FROM companies_teamPropaganda WHERE id_users = ?");
             $stmt->bind_param("i", $_SESSION["userId"]);

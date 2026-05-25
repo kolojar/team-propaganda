@@ -114,8 +114,10 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
     if (!ok2) {
         SendToast("Odpověď serveru", res2, "error");
     }
-    else
+    else {
         SendToast("Odpověď serveru", res2, "ok");
+        window.location.reload();
+    }
 });
 //Make attendant change school field work
 const getSchoolsStart = async () => {
