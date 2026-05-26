@@ -119,11 +119,13 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
                 progress.CloseDialog()
                 await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason, true, true)
             }
+        } else {
+            SendToast("Uložit změny", "Ukládání změn zrušeno.", "info")
         }
     })
 
     //Make cancel button work
-    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function() {
+    GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function () {
         //Check for changes
         const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
         let foundChange = false
@@ -147,11 +149,16 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             }
             return
         }
-        if (foundChange && await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"), true, true)) {
-            dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true)
-            window.location.reload()
-        }
-        if (!foundChange) {
+        if (foundChange) {
+            if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"), true, true)) {
+                dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true)
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1000)
+            } else {
+                SendToast("Smazat změny", "Mazání změn zrušeno.", "info")
+            }
+        } else {
             SendToast("Nelze smazat změny!", "Žádné změny nebyly provedeny.", "ok")
             return
         }
@@ -182,6 +189,7 @@ export function setupTableDeleteButtons(dialogManager: FormDialogManager, postUR
 
             //Ask for confirm
             if (! await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?", true, true)) {
+                SendToast("Smazat řádek", "Mazání změn zrušeno.", "info")
                 return
             }
 

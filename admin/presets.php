@@ -77,12 +77,10 @@ if (isset($_POST["file"])) {
         console.log("html")
     </script>
     <script type="module">
-        import {
-            SendPOSTDataToServerAsync
-        } from "../formWebScripts/js/serverComunication.js";
-        import {
-            SendToast
-        } from "../formWebScripts/js/formScript.js";
+        import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
+        import { SendToast } from "../formWebScripts/js/formScript.js";
+        import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+        const dialogManager = new FormDialogManager()
         let selectedTemplate = "none";
 
         let temp = document.getElementsByClassName("templateChange")
@@ -101,35 +99,43 @@ if (isset($_POST["file"])) {
 
         document.getElementById("save").addEventListener("click", (e) => {
             save()
-        })
+        });
         document.getElementById("savenew").addEventListener("click", (e) => {
             save(true)
-        })
+        });
 
-        function templateChange(template) {
+        async function templateChange(template) {
             console.log('TADY')
-            if (!confirm("Opradu si přejete změnit template?\nNeuložené změny budou smazány.")) {
+            if (!await dialogManager.OpenConfirm("Otevřít šablonu?", "Opradu si přejete změnit šablonu?<br>Neuložené změny budou smazány.")) {
                 //document.getElementById(selectedTemplate).selected = true;
                 selectedTemplate = template;
+                SendToast("Otevření šablony zrušeno", "Otevření šablony zrušeno.", "info")
                 return;
             }
             if (template == "none") {
                 message.setValue("");
             } else {
+                const progress = dialogManager.ShowProgress("Otevřít šablonu", "Probíhá načítání dat ze serveru, čekejte prosím...", true, true)
                 var request = new XMLHttpRequest();
                 request.open('GET', "../templates/" + template, true);
-                request.onload = function () {
+                request.onload = async function () {
                     if (request.status >= 200 && request.status < 400) {
                         document.getElementById("message").setValue(request.responseText);
                     } else {
-                        SendToast("Odpověď serveru", request.responseText, "error")
+                        SendToast("Nelze otevřít šablonu!", "Nepodařilo se načíst informace.", "error")
+                        progress.CloseDialog()
+                        await dialogManager.OpenAlert("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: " + request.responseText, true, true)
                     }
                 };
-                request.onerror = function () {
-                    SendToast("Odpověď serveru", "connection error", "error")
+                request.onerror = async function () {
+                    SendToast("Nelze otevřít šablonu!", "Nepodařilo se načíst informace.", "error")
+                    progress.CloseDialog()
+                    await dialogManager.OpenAlert("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: Neznámá chyba.", true, true)
                 };
                 request.send();
                 document.getElementById("name").setValue(template);
+                SendToast("Šablona otevřena", "Informace o šabloně načteny.", "ok")
+                progress.CloseDialog()
             }
         }
 
