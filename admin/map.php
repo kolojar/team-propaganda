@@ -7,25 +7,39 @@ if (!isset($_SESSION["adminId"])) {
 }
 
 if (isset($_POST["sitePos"])) {
-    $checks = $conn->query("SELECT id_sites, posX, posY, floor FROM sites_teamPropaganda");
+    $checks = $conn->prepare("SELECT id_sites, posX, posY, floor FROM sites_teamPropaganda WHERE id_company_days = ?");
+    if (!$checks->bind_param("i", $_POST["companyDayId"]) || !$checks->execute()) {
+        echo "Nelze získat informace o firmách.";
+        die();
+    }
+    $checksResult = $checks->get_result();
     $site = json_decode($_POST["sitePos"], true);
-    $stmt = $conn->prepare("UPDATE `sites_teamPropaganda` SET `posX` = ?, `posY` = ?, `floor` = ? WHERE `sites_teamPropaganda`.`id_sites` = ?;");
-    while ($check = $checks->fetch_assoc()) {
+    $stmt = $conn->prepare("UPDATE `sites_teamPropaganda` SET `posX` = ?, `posY` = ?, `floor` = ? WHERE `sites_teamPropaganda`.`id_sites` = ?");
+    while ($check = $checksResult->fetch_assoc()) {
         if ($site["id" . $check["id_sites"]]["posX"] == 0) {
             $site["id" . $check["id_sites"]]["posX"] = null;
         }
         if ($site["id" . $check["id_sites"]]["posY"] == 0) {
             $site["id" . $check["id_sites"]]["posY"] = null;
         }
+        //logToConsole($site["id" . $check["id_sites"]]);
+        //logToConsole($site["id" . $check["id_sites"]]["floor"]);
         if ($site["id" . $check["id_sites"]]["posX"] != $check["posX"] || $site["id" . $check["id_sites"]]["posY"] != $check["posY"]) {
-            $stmt->bind_param("ddii", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $site["id" . $check["id_sites"]]["floor"], $check["id_sites"]);
-            if (!$stmt->execute()) {
+            if (!$stmt->bind_param("ddii", $site["id" . $check["id_sites"]]["posX"], $site["id" . $check["id_sites"]]["posY"], $site["id" . $check["id_sites"]]["floor"], $check["id_sites"]) || !$stmt->execute()) {
                 http_response_code(400);
-                echo "error UPDATE";
+                echo "Chyba při aktualizaci pozice na mapě.";
+                $checksResult->close();
+                $checks->close();
+                $stmt->close();
                 exit;
             }
         }
     }
+    $checksResult->close();
+    $checks->close();
+    $stmt->close();
+    http_response_code(200);
+    echo "Místa na mapě uloženy.";
     exit;
 }
 ?>
@@ -139,7 +153,7 @@ if (isset($_POST["sitePos"])) {
 
 </head>
 <header>
-    <?php 
+    <?php
     $result = setupTitlebarAdmin($conn, "map.php");
     $companyDaysId = $result->companyDayId;
     ?>
@@ -210,6 +224,8 @@ if (isset($_POST["sitePos"])) {
         import {
             SendToast, MakeElementDraggable, DraggableElement
         } from "../formWebScripts/js/formScript.js";
+        import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
+        const dialogManager = new FormDialogManager()
         let get = new URLSearchParams(window.location.search)
 
         for (let site of document.getElementsByClassName("site")) {
@@ -252,6 +268,11 @@ if (isset($_POST["sitePos"])) {
         //}
 
         document.getElementById("save").addEventListener("click", async (e) => {
+            if (! await dialogManager.OpenConfirm("Uložit plánek", "Opravdu chcete uložit pozice na mapě?")) {
+                SendToast("Uložit plánek", "Uložení plánku zrušeno.", "info")
+                return;
+            }
+            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
             let data = new FormData();
             let siteList = {};
             const map = document.getElementById("map");
@@ -279,15 +300,24 @@ if (isset($_POST["sitePos"])) {
                     floor: floor
                 };
             }
-            //console.log(siteList["id1"], siteList["id2"])
-            data.append("sitePos", JSON.stringify(siteList))
+            console.log(siteList["id1"], siteList["id2"])
+            const json = JSON.stringify(siteList)
+            console.log(json)
+            data.append("sitePos", json)
+            data.append("companyDayId", <?php echo $result->companyDayId ?>)
 
-            let [ok, res] = await SendPOSTDataToServerAsync("./adminmap.php", data)
+            let [ok, res] = await SendPOSTDataToServerAsync("./map.php", data)
 
             if (ok) {
-                SendToast("Odpověď serveru", res, "ok");
-                window.location.reload()
-            } else SendToast("Odpověď serveru", res, "error")
+                SendToast("Plánek uložen uspěšně", "Data uložena.", "ok");
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1000);
+            } else {
+                SendToast("Nastala chyba při ukládání dat", "Nelze uložit pozice na mapě.", "error")
+                progress.CloseDialog()
+                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason, true, true)
+            }
 
         })
 
