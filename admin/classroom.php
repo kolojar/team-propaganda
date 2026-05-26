@@ -108,14 +108,14 @@ if (isset($_POST["action"])) {
         $isFunctionalString = $isFunctional == 1 ? "true" : "false";
 
         //Create HTML
-        echo "<form-input label='Název učebny:' class='classroomValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input label='Počet míst k sezení:' class='classroomValidate' do-change-check='$exists' type='number' value-id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
-        echo "<form-input label='Poznámka:' class='classroomValidate' do-change-check='$exists' type='textarea' value-id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
+        echo "<form-input label='Název učebny:' tabindex='1' class='classroomValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input label='Počet míst k sezení:' tabindex='2' class='classroomValidate' do-change-check='$exists' type='number' value-id='placesToSit' original-value='$placesToSit' value='$placesToSit' placeholder='$placesToSit'></form-input>";
+        echo "<form-input label='Poznámka:' class='classroomValidate' tabindex='3' do-change-check='$exists' type='textarea' value-id='note' original-value='$note' value='$note' placeholder='$note'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button exists='$exists' class='purkynkaButton btnSave' form-icon='!save'></button>";
-        echo "<button exists='$exists' class='purkynkaButton btnCancel' form-icon='!dontSave'></button>";
-        echo "<a href='./classrooms.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam učeben</span></button></a>";
+        echo "<button exists='$exists' class='purkynkaButton btnSave' tabindex='4' form-icon='!save'></button>";
+        echo "<button exists='$exists' class='purkynkaButton btnCancel' tabindex='5' form-icon='!dontSave'></button>";
+        echo "<a href='./classrooms.php'><button class='formButton purkynkaButton' tabindex='6' form-icon='!listTable'><span>Zpět na seznam učeben</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>

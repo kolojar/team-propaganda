@@ -47,10 +47,10 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
     <form-box>
         <p class="formHeader">Přihlášení do správy systému akcí</p>
         <form id="form">
-            <form-input type="email" label="Přihlašovací E-mail" id="email" placeholder="Zadejte Váš E-mail"></form-input>
-            <form-input type="password" label="Heslo" id="password" placeholder="Zadejte Váše heslo"></form-input>
+            <form-input type="email" tabindex="1" label="Přihlašovací E-mail" id="email" placeholder="Zadejte Váš E-mail"></form-input>
+            <form-input type="password" tabindex="2" label="Heslo" id="password" placeholder="Zadejte Váše heslo"></form-input>
             <div class="formButtonBoxHolder formCenter">
-                <button type="submit" class="formButton purkynkaButton">Přihlásit se</button>
+                <button type="submit" tabindex="3" class="formButton purkynkaButton">Přihlásit se</button>
             </div>
         </form>
         <form-status-message></form-status-message>

@@ -128,9 +128,10 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 }
                 ?>
             </table>
-            <input type="checkbox" id="checkall" name="checkall">
+            <input type="checkbox" tabindex='1' id="checkall" name="checkall">
             <label for="checkall">Vybrat všechny</label><br>
-            <input type="checkbox" id="global" name="global"><label for="global">Globální oznámení</label><br>
+            <input type="checkbox" tabindex='2' id="global" name="global">
+            <label for="global">Globální oznámení</label><br>
         </fieldset>
         <fieldset>
             <legend>Obsah zprávy</legend>
@@ -143,19 +144,19 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 }
                 ?>
             </datalist>
-            <form-input type='text' id='subject' label="Předmět"></form-input>
-            <form-input type='textarea' id='message' label="Zpráva"></form-input>
-            <form-input type='select' id='templates' list="templatesList" label="Předvolby / šablony"></form-input>
-            <input type="checkbox" checked id="now" name="now">
+            <form-input tabindex='3' type='text' id='subject' label="Předmět"></form-input>
+            <form-input tabindex='4' type='textarea' id='message' label="Zpráva"></form-input>
+            <form-input tabindex='5' type='select' id='templates' list="templatesList" label="Předvolby / šablony"></form-input>
+            <input tabindex='6' type="checkbox" checked id="now" name="now">
             <label for="now">Odeslat ihned</label><br>
-            <form-input type='date' id='date' name="date" label="Datum odeslání" disabled></form-input>
-            <form-input type="number" id="hour" name="hour" min=0 max=23 value=12 label='Hodina odeslání' disabled></form-input>
+            <form-input tabindex='7' type='date' id='date' name="date" label="Datum odeslání" disabled></form-input>
+            <form-input tabindex='8' type="number" id="hour" name="hour" min=0 max=23 value=12 label='Hodina odeslání' disabled></form-input>
             <div id="attachments">
 
             </div>
-            <button id="addAttachment" form-icon='!attachment' class="purkynkaButton"><span>Přidat soubor</span></button>
+            <button id="addAttachment" tabindex='9' form-icon='!attachment' class="purkynkaButton"><span>Přidat soubor</span></button>
             <br>
-            <button type="submit" form-icon='!send' id="submit" class="purkynkaButton"><span>Odeslat</span></button>
+            <button type="submit" tabindex='10' form-icon='!send' id="submit" class="purkynkaButton"><span>Odeslat</span></button>
         </fieldset>
         <!--</form>-->
     </main>

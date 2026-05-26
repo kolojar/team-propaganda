@@ -637,16 +637,16 @@ if (isset($_POST["action"])) {
         echo "<fieldset>";
         echo "<legend>Nastavení podudálosi</legend>";
         echo "<p><i>Poznámka: Nastavení v této sekci se ukládají po stisknutí tlačítek na konci této sekce.</i></p>";
-        echo "<form-input label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
-        echo "<form-input label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
-        echo "<form-input label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
+        echo "<form-input tabindex='1' label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
+        echo "<form-input tabindex='2' label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
+        echo "<form-input tabindex='3' label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
 
         //Echo HTML buttons
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnSave' form-icon='!save'></button>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel' form-icon='!dontSave'></button>";
-        echo "<a href='./events.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam události</span></button></a>";
+        echo "<button tabindex='4' exists='$exists' class='formButton purkynkaButton btnSave' form-icon='!save'></button>";
+        echo "<button tabindex='5' exists='$exists' class='formButton purkynkaButton btnCancel' form-icon='!dontSave'></button>";
+        echo "<a tabindex='-1'  href='./events.php'><button tabindex='6' class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam události</span></button></a>";
         echo "</div>";
         echo "</div></fieldset>";
 
@@ -696,6 +696,8 @@ if (isset($_POST["action"])) {
                 } else if ($stmt->num_rows > 0) {
                     $echoHeader = true;
                     for ($i = 0; $i < $stmt->num_rows; $i++) {
+                        $tab1 = $i * 2 + 10;
+                        $tab2 = $tab1 + 1;
                         if (!$stmt->bind_result($idClassroom, $classroomName, $placesToSit, $variableSymbols, $placesToSitUsed) || !$stmt->fetch()) {
                             $idClassroom = null;
                             $classroomName = "CHYBA";
@@ -715,8 +717,8 @@ if (isset($_POST["action"])) {
                         $placesToSitUsedTotal += $placesToSitUsed;
                         echo "<li>";
                         echo "<span>$classroomName → $placesToSit míst, obsazeno: $placesToSitUsed</span>";
-                        echo "<button class='purkynkaButton deleteClassroom' form-icon='!delete' classroom='$idClassroom' count='$placesToSitUsed'></button>";
-                        echo "<button class='purkynkaButton moveClassroom' form-icon='!relocate' classroom='$idClassroom' count='$placesToSitUsed' variableSymbols='$variableSymbols'></button>";
+                        echo "<button tabindex='$tab1' class='purkynkaButton moveClassroom' form-icon='!relocate' classroom='$idClassroom' count='$placesToSitUsed' variableSymbols='$variableSymbols'></button>";
+                        echo "<button tabindex='$tab2' class='purkynkaButton deleteClassroom' form-icon='!delete' classroom='$idClassroom' count='$placesToSitUsed'></button>";
                         echo "</li>";
                     }
                     echo "</ul>";
@@ -745,9 +747,9 @@ if (isset($_POST["action"])) {
             //Echo HTML buttons
             echo "<div class='formButtonBoxHolder'>";
             echo "<div class='formButtonBox'>";
-            echo "<button id='addClassroom' class='formButton purkynkaButton' form-icon='!add'><span>Přidat učebnu</span></button>";
-            echo "<button id='copySettings' class='formButton purkynkaButton' form-icon='!copy'><span>Kopírovat nastavení učeben z jiné podudálosti</span></button>";
-            echo "<button id='sortAttendants' class='formButton purkynkaButton' $disableSort form-icon='!shuffle'><span>Rozřadit zájemce do učeben</span></button>";
+            echo "<button tabindex='7' id='addClassroom' class='formButton purkynkaButton' form-icon='!add'><span>Přidat učebnu</span></button>";
+            echo "<button tabindex='8' id='copySettings' class='formButton purkynkaButton' form-icon='!copy'><span>Kopírovat nastavení učeben z jiné podudálosti</span></button>";
+            echo "<button tabindex='9' id='sortAttendants' class='formButton purkynkaButton' $disableSort form-icon='!shuffle'><span>Rozřadit zájemce do učeben</span></button>";
             echo "</div>";
             echo "</div></fieldset>";
         }

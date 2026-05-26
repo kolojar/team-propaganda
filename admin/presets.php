@@ -66,9 +66,11 @@ if (isset($_POST["file"])) {
         </table>
         <form-input type="text" label="Název souboru:" id="name" placeholder="Zadejte název souboru"></form-input>
         <form-input type="textarea" label="Zpráva:" id="message" placeholder="Zadejte zprávu"></form-input>
-        <div class="formButtonBox">
-            <button id="save" class="purkynkaButton" form-icon="!save"></button>
-            <button id="savenew" class="purkynkaButton" form-icon="!saveAs"></button>
+        <div class="formButtonBoxHolder">
+            <div class="formButtonBox">
+                <button id="save" class="purkynkaButton" form-icon="!save"></button>
+                <button id="savenew" class="purkynkaButton" form-icon="!saveAs"></button>
+            </div>
         </div>
     </main>
     <script>

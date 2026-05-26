@@ -81,9 +81,11 @@ if (isset($_POST["action"])) {
         for ($i = 0; $i < $stmt->num_rows; $i++) {
             $stmt->bind_result($id, $name, $placesToSit, $note);
             $stmt->fetch();
+            $tab1 = $i * 2 + 200;
+            $tab2 = $tab1 + 1;
             echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
-                            <a href='./classroom.php?classroom=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
+                            <a tabindex='-1' href='./classroom.php?classroom=$id'><button tabindex='$tab1' form-icon='!edit' class='purkynkaButton'></button></a><button tabindex='$tab2' form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
                         </td>
                         <td>$name</td>
                         <td>$placesToSit</td>
@@ -93,7 +95,7 @@ if (isset($_POST["action"])) {
         $stmt->free_result();
         ?>
         </table>
-        <a href='./classroom.php?newClassroom=1'><button class='formButton purkynkaButton' form-icon="!add"><span>Vytvořit učebnu</span></button></a>
+        <a tabindex='-1' href='./classroom.php?newClassroom=1'><button tabindex='1' class='formButton purkynkaButton' form-icon="!add"><span>Vytvořit učebnu</span></button></a>
     </main>
     <footer>
 
