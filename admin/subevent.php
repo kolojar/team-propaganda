@@ -451,9 +451,9 @@ if (isset($_POST["action"])) {
         //Clear classrooms when force
         if ($_POST["force"] == "1") {
             $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = NULL WHERE id_subevents = ?;");
-            if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || $stmt->close()) {
+            if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
                 http_response_code(400);
-                echo "Nepodařilo se načíst odebrat zájemce z učeben.";
+                echo "Nepodařilo se odebrat zájemce z učeben.";
                 die();
             }
         }
