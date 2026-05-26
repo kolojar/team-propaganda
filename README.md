@@ -11,11 +11,11 @@ team pro team na pomoc propagačním systémům pro školu
 	  - Adresy budou
 	  - Zda příjdou druhou sobotu
 		  + Pokud ne = OSOBNĚ + KONTAKT / Online
-  - [ ] Spárování počtu žáků ke škole + každého rozhodit do učeben (ideálně 1 dítě z jedné školy v jedné třídě - oddělit je)
+  - [X] Spárování počtu žáků ke škole + každého rozhodit do učeben (ideálně 1 dítě z jedné školy v jedné třídě - oddělit je)
   - [X] Plán s učebnou, počet židlí a pozice
   - [X] Většinou max 25 žáků, nějak průměrně
   - [ ] Možnost přemístění žáků ručně
-  - [ ] Možnost přemístění celé učebny
+  - [X] Možnost přemístění celé učebny
   - [ ] ? Možnost propojení žáků jako kamarádů na přípravy + schválení
   - [X] Platba - potvrzení v admin panelu + informace E-Mailem
   - [X] Platba musí mít variabilní symbol
