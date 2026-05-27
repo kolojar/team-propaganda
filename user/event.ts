@@ -1,9 +1,34 @@
+import { SetupSaveCancelButtons } from "../assets/sharedScripts.js"
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js"
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
 const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search)
+
+for (const element of document.getElementsByClassName("siteInfo")) {
+    SetupSaveCancelButtons(dialogManager, element as HTMLElement, ".", "./site.php", element.getAttribute("site") as string)
+}
+
+for (let element of document.getElementsByClassName("rmSite")) {
+    element.addEventListener("click", async () => {
+        if (!await dialogManager.OpenConfirm("Odstranit stánek", "Opravdu chcete smazat tento stánek?")) {
+            SendToast("Odstranit stánek", "Odstranění stánek bylo zrušeno.", "info")
+            return
+        }
+        let data = new FormData()
+        data.append("action", "delete")
+        data.append("id", element.getAttribute("site") as string)
+        let [ok, res] = await SendPOSTDataToServerAsync("./site.php", data)
+        if (ok) {
+            SendToast("Odpověď serveru.", res, "ok")
+            window.location.reload()
+        } else {
+            SendToast("Odpověď serveru", res, "error")
+        }
+    })
+}
+
 const btnPay = document.getElementById("btnPay")
 btnPay?.addEventListener("click", async () => {
     //Get payment info from server
