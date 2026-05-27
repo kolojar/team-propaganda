@@ -57,6 +57,13 @@ function getUserRoleType(mysqli $conn, int $id): userRoleType
     return new userRoleType(((isset($role) && ($role != null)) ? userRole::{strtoupper($role)} : null), ((isset($type) && ($type != null)) ? userType::{strtoupper($type)} : null));
 }
 
+function getUserName(int $id): array
+{
+    global $conn;
+    $res = $conn->query("SELECT name, surname FROM users_teamPropaganda WHERE id_users=" . $id)->fetch_assoc();
+    return $res;
+}
+
 function logToConsole(string $log)
 {
     file_put_contents("php://stdout", $log . "\n");
@@ -76,4 +83,4 @@ function exceptionHandler(Exception $e)
     exceptionToConsole($e);
     die();
 }
-?>
+
