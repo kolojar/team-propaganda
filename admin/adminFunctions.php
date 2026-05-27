@@ -191,7 +191,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
             if (checkAccess($key, $roleType) && checkGenericCompatibility($result, $value->eventType)) {
                 $text = $value->titlebarButtonText;
                 $colorClass = $page == $key ? "purkynkaButtonGreen" : "";
-                $line = "<a tabindex='-1' href='$key'><button class='formButton purkynkaButton' tabindex='$counter' $colorClass'>$text</button></a>";
+                $line = "<a tabindex='-1' href='$key'><button class='formButton purkynkaButton $colorClass' tabindex='$counter'>$text</button></a>";
                 if ($value->titlebarButton == accessLevelTitlebarButton::LEFT) {
                     $buttonsLeftHtml .= $line;
                 } else {
