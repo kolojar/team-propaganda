@@ -10,11 +10,12 @@ const activeUntil = document.getElementById("active_until");
 const registrationOpen = document.getElementById("registration_open");
 const registrationClose = document.getElementById("registration_close");
 const repeatStart = document.getElementById("repeat_start");
-console.log(repeatStart);
 activeSince.addEventListener("validation-done", () => {
-    activeUntil.setMinimum(activeSince.getValue());
-    registrationOpen.setMinimum(activeSince.getValue());
-    repeatStart.setMinimum(activeSince.getValue() + "T00:00");
+    const value = activeSince.getValue();
+    activeUntil.setMinimum(new Date(value) <= new Date() ? activeUntil.getValue() : value);
+    const value2 = registrationOpen.getValue();
+    registrationOpen.setMinimum(new Date(value2) <= new Date() ? value2 : value);
+    repeatStart.setMinimum(value + "T00:00");
 });
 activeUntil.addEventListener("validation-done", () => {
     registrationOpen.setMaximum(activeUntil.getValue());
@@ -22,7 +23,8 @@ activeUntil.addEventListener("validation-done", () => {
     repeatStart.setMaximum(activeUntil.getValue() + "T23:59");
 });
 registrationOpen.addEventListener("validation-done", () => {
-    registrationClose.setMinimum(registrationOpen.getValue());
+    const value = registrationOpen.getValue();
+    registrationClose.setMinimum(new Date(value) <= new Date() ? registrationClose.getValue() : value);
 });
 async function onSaveFunc() {
     const price = document.getElementById("price");

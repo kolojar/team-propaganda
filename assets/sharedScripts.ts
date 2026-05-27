@@ -72,6 +72,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
         //Run save function
         if (onSaveFunc != null) {
             if (!(await onSaveFunc())) {
+                progress2.CloseDialog()
                 return
             }
         }

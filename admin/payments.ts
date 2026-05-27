@@ -29,7 +29,7 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
         data.set("email", button.getAttribute("email") as string);
         data.set("id_events", button.getAttribute("id-events") as string);
         data.set("unregistered", button.hasAttribute("unregistered") ? "1" : "0")
-        const [ok, responce] = await SendPOSTDataToServerAsync("./attendant.php", data)
+        const [ok, responce] = await SendPOSTDataToServerAsync("./payments.php", data)
         if (!ok) {
             progress.CloseDialog()
             SendToast("Zadat platbu", "Platbu se nepodařilo zadat!", "error")
@@ -55,7 +55,7 @@ for (const button of document.getElementsByClassName("btnRefundTable")) {
             const formData = new FormData();
             formData.set("action", "removePayment")
             formData.set("id", button.getAttribute("variableSymbol") as string)
-            const [ok, _] = await SendPOSTDataToServerAsync("./attendant.php", formData)
+            const [ok, _] = await SendPOSTDataToServerAsync("./payments.php", formData)
             if (!ok) {
                 progress.CloseDialog()
                 SendToast("Vrátit platbu", "Nepodařilo se vrátit platbu!", "error")
@@ -81,7 +81,7 @@ for (const button of document.getElementsByClassName("btnRemoveNotPaidTable")) {
         const formData = new FormData();
         formData.set("action", "removePayment")
         formData.set("id", button.getAttribute("variableSymbol") as string)
-        const [ok, _] = await SendPOSTDataToServerAsync("./attendant.php", formData)
+        const [ok, _] = await SendPOSTDataToServerAsync("./payment.php", formData)
         if (!ok) {
             progress.CloseDialog()
             SendToast("Platba nedorazila", "Přeřazení zájemce nebylo úspěšné!", "error")
