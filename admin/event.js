@@ -12,9 +12,9 @@ const registrationClose = document.getElementById("registration_close");
 const repeatStart = document.getElementById("repeat_start");
 activeSince.addEventListener("validation-done", () => {
     const value = activeSince.getValue();
-    activeUntil.setMinimum(new Date(value) >= new Date() ? activeUntil.getValue() : value);
+    activeUntil.setMinimum(new Date(value) <= new Date() ? activeUntil.getValue() : value);
     const value2 = registrationOpen.getValue();
-    registrationOpen.setMinimum(new Date(value2) >= new Date() ? value2 : value);
+    registrationOpen.setMinimum(new Date(value2) <= new Date() ? value2 : value);
     repeatStart.setMinimum(value + "T00:00");
 });
 activeUntil.addEventListener("validation-done", () => {
@@ -24,7 +24,7 @@ activeUntil.addEventListener("validation-done", () => {
 });
 registrationOpen.addEventListener("validation-done", () => {
     const value = registrationOpen.getValue();
-    registrationClose.setMinimum(new Date(value) >= new Date() ? registrationClose.getValue() : value);
+    registrationClose.setMinimum(new Date(value) <= new Date() ? registrationClose.getValue() : value);
 });
 async function onSaveFunc() {
     const price = document.getElementById("price");

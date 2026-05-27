@@ -117,6 +117,7 @@ if (isset($_POST["action"])) {
             }
             echo "<h1>Informace o události: $name</h1>";
         }
+        echo "<p><i>Poznámka: Pokud je událost aktivní, nelze přesunout koncové datum zpět než do aktuálního konce.</i></p>";
         $activeSince = DateTime::createFromFormat('Y-m-d H:i:s', $activeSinceDB)->format(JS_TIME_FORMAT);
         $activeUntil = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format(JS_TIME_FORMAT);
         $registrationOpen = DateTime::createFromFormat('Y-m-d H:i:s', $registrationOpenDB)->format(JS_TIME_FORMAT);
@@ -126,7 +127,7 @@ if (isset($_POST["action"])) {
         
         //Set minimums
         $activeSinceMinimum = "";
-        if($exists != "true") {
+        if($exists == "true") {
             $activeSinceMinimum = $activeSince;
         }
 
