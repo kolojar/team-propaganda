@@ -22,7 +22,6 @@ require "./adminFunctions.php";
         <?php $result = setupTitlebarAdmin($conn, "payments.php") ?>
     </header>
     <main>
-        <i>Tip: Pro filtrování plateb na určitou událost otevřte pohled pomocí správy událostí.</i>
         <?php
         ////Get highlighted schools
         //$highlightSchools = [];
@@ -33,7 +32,22 @@ require "./adminFunctions.php";
         $found = false;
         $resultEventId = $result->eventId;
 
+        //Request event info
+        $stmt = $conn->prepare("SELECT price FROM events_teamPropaganda WHERE id_events=?");
+        if (!$stmt->bind_param("i", $resultEventId) || !$stmt->execute() || !$stmt->bind_result($price) || !$stmt->fetch() || !$stmt->close()) {
+            $stmt->close();
+            echo "<h1>Nelze získat cenu události.</h1>";
+            echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+            die();
+        }
+        if ($price <= 0) {
+            echo "<h1>Tato událost je zdarma, nebudou tedy žádné platby.</h1>";
+            echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
+            die();
+        }
+
         //Request waiting for refund attendants
+        echo "<i>Tip: Pro filtrování plateb na určitou událost otevřte pohled pomocí správy událostí.</i>";
         $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email,e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE " . ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "ua.refunded IS NULL AND ua.paid IS NOT NULL;");
         if (($resultEventId != null && !$stmt->bind_param("i", $resultEventId)) || !$stmt->execute() || !$stmt->store_result()) {
             echo "<h1>Nelze získat čekající platby na vrácení</h1>";
