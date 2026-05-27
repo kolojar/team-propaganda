@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION["userId"] = 6;
+$_SESSION["userId"] = 7;
 if (!isset($_SESSION["userId"])) {
     header("Location: ./");
     exit();

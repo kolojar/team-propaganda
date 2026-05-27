@@ -19,11 +19,11 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("sssi", $_POST["name"], $_POST["short_info"], $_POST["long_info"], $_POST["id"]);
         if ($stmt->execute()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Úspěšně zapsáno do databáze.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Data se nepodařilo zapsat do databáze.";
             die();
         }
     } else {
