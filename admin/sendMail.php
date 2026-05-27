@@ -63,8 +63,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             if (!$stmt->execute()) {
                 http_response_code(400);
                 echo "Nepodařilo se uložit data k uživateli s id: $uid";
-            }
-            ;
+            };
         }
     }
     $stmt->prepare("INSERT INTO email_send_files_teamPropaganda (id_files, id_email_send) VALUES (?, ?)");
@@ -73,8 +72,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se uložit soubory k emailu.";
-        }
-        ;
+        };
     }
     $stmt->close();
     exit;
@@ -181,7 +179,9 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
         document.getElementById("global").addEventListener("change", () => {
             document.getElementById("checkall").disabled = (document.getElementById("checkall").disabled == true) ? false : true;
-            document.getElementById("users").disabled = (document.getElementById("users").disabled == true) ? false : true;
+            for (let u of document.getElementsByName("users")) {
+                u.disabled = (u.disabled == true) ? false : true;
+            }
         })
 
         document.getElementById("templates").addEventListener("change", (e) => {
@@ -197,14 +197,14 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             } else {
                 var request = new XMLHttpRequest();
                 request.open('GET', "./templates/" + template, true);
-                request.onload = function () {
+                request.onload = function() {
                     if (request.status >= 200 && request.status < 400) {
                         document.getElementById("message").value = request.responseText;
                     } else {
                         SendToast("Odpověď serveru", request.responseText, "error")
                     }
                 };
-                request.onerror = function () {
+                request.onerror = function() {
                     SendToast("Odpověď serveru", "connection error", "error")
                 };
                 request.send();
