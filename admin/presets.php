@@ -144,7 +144,11 @@ if (isset($_POST["file"])) {
         }
 
         async function save() {
+<<<<<<< HEAD
             if (!await dialogManager.ShowConfirmAsync("Uložit šablonu?", "Opradu si přejete uložit šablonu?<br>Předchozí obsah bude smazán.")) {
+=======
+            if (!await dialogManager.OpenConfirm("Uložit šablonu?", "Opradu si přejete uložit šablonu?<br>Předchozí obsah bude smazán.")) {
+>>>>>>> 304dbe9 (update #24)
                 SendToast("Ukládání šablony zrušeno", "Ukládání šablony zrušeno.", "info")
                 return
             }
