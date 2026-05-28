@@ -155,7 +155,6 @@ if (isset($_POST["action"])) {
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Uživatelský panel</title>
-    <link rel='stylesheet' href='../formWebScripts/css/sharedStyle.css'>
     <link rel='stylesheet' href='../formWebScripts/css/formStyle.css'>
     <link rel='stylesheet' href='../assets/style.css'>
     <link rel='stylesheet' href='./user.css'>
@@ -200,7 +199,7 @@ if (isset($_POST["action"])) {
             <?php
             if ($result->type == userType::KLAL) {
                 //Get info from DB
-                $stmt = $conn->prepare("SELECT ra.*, e.name ename, e.description, e.registration_close, e.price, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = s.id_subevents AND ap.variable_symbol = ra.variable_symbol LEFT JOIN classrooms_teamPropaganda c ON ap.id_classrooms = c.id_classrooms WHERE ra.variable_symbol=?;");
+                $stmt = $conn->prepare("SELECT ra.*, e.id_events, e.name ename, e.description, e.registration_close, e.price, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = s.id_subevents AND ap.variable_symbol = ra.variable_symbol LEFT JOIN classrooms_teamPropaganda c ON ap.id_classrooms = c.id_classrooms WHERE ra.variable_symbol=?;");
                 $stmt->bind_param("i", $_GET["variableSymbol"]);
                 $stmt->execute();
                 $res = $stmt->get_result()->fetch_assoc();
@@ -288,7 +287,7 @@ if (isset($_POST["action"])) {
                 //Get all subevents
                 $variableSymbol = $_GET["variableSymbol"];
                 $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.variable_symbol = ? OR ap.variable_symbol IS NULL);");
-                $stmt->bind_param("ii", $eventId, $variableSymbol);
+                $stmt->bind_param("ii", $res["id_events"], $variableSymbol);
                 $stmt->execute();
                 $res = $stmt->get_result();
                 if ($res->num_rows > 0) {
