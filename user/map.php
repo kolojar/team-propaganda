@@ -108,6 +108,7 @@ require "../assets/config.php";
     <meta charset="UTF-8">
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa dnu firem</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">

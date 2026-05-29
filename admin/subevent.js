@@ -11,21 +11,21 @@ const startTime = document.getElementById("start_time");
 const endTime = document.getElementById("end_time");
 const date = document.getElementById("date");
 startTime.addEventListener("validation-done", () => {
-    endTime.setMinimum(startTime.getValue());
+    endTime.min = (startTime.value);
 });
 date.addEventListener("validation-done", () => {
-    console.log(date.getValue() == date.getMinimum());
-    if (date.getValue() == date.getMinimum()) {
-        startTime.setMinimum(date.getAttribute("minTime"));
+    console.log(date.value == date.min);
+    if (date.value == date.min) {
+        startTime.min = date.getAttribute("minTime");
     }
     else {
-        startTime.setMinimum("");
+        startTime.min = ("");
     }
-    if (date.getValue() == date.getMaximum()) {
-        endTime.setMaximum(date.getAttribute("maxTime"));
+    if (date.value == date.max) {
+        endTime.max = date.getAttribute("maxTime");
     }
     else {
-        endTime.setMaximum("");
+        endTime.max = ("");
     }
 });
 date.validate();

@@ -37,6 +37,7 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Přihlásit se k admin panelu</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
@@ -78,8 +79,8 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                 SetWaitStatusForms("Probíhá odesílání požadavku na server, čekejte prosím...")
                 sent = true
                 const data = new FormData();
-                data.append("email", document.getElementById("email").getValue());
-                data.append("password", document.getElementById("password").getValue());
+                data.append("email", document.getElementById("email").value);
+                data.append("password", document.getElementById("password").value);
 
                 const [ok, res] = await SendPOSTDataToServerAsync("./index.php", data);
 

@@ -92,9 +92,12 @@ function verify(string $email)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Account</title>
+    <title>Ověřte si účet</title>
+    <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
+    <meta name="form-icons-db" content="../assets/formIcons.json">
     <link rel="stylesheet" href="./formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="./assets/style.css">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
 </head>
 
 <body class="formBackground" form-box-holder>
@@ -195,7 +198,7 @@ function verify(string $email)
             //};
 
             const data = new FormData();
-            data.append("code", document.getElementById("code").getValue());
+            data.append("code", document.getElementById("code").value);
             const [ok, res] = await SendPOSTDataToServerAsync("./codeVerify.php", data);
 
             if (ok) {

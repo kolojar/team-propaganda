@@ -24,7 +24,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         if (inputElementOriginal instanceof HTMLFormInputElement) {
             const inputElement = inputElementOriginal;
             inputElement.validationFunction = async (value) => {
-                return Promise.resolve(value.length > 0);
+                return Promise.resolve(value.toString().length > 0);
             };
             inputElement.validate();
         }
@@ -51,10 +51,10 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
                 return;
             }
             if (!exists) {
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.label + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.valueRaw : inputElement.value ? "Ano" : "Ne"));
             }
             else if (changed) {
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValueRaw() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.label + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.originalValueRaw : inputElement.originalChecked ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.valueRaw : inputElement.value ? "Ano" : "Ne"));
             }
         }
         //Show dialog if found change
@@ -85,14 +85,14 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
                 const inputElement = inputElementOriginal;
                 console.log(inputElement);
                 if (inputElement instanceof HTMLFormToggleElement) {
-                    data.append(inputElement.getAttribute("value-id"), inputElement.getValue() ? "1" : "0");
+                    data.append(inputElement.getAttribute("value-id"), inputElement.value ? "1" : "0");
                 }
-                else if (inputElement.getType() == "file") {
+                else if (inputElement.type == "file") {
                     console.log("file");
                     data.append(inputElement.getAttribute("value-id"), inputElement.getAttribute("file"));
                 }
                 else {
-                    data.append(inputElement.getAttribute("value-id"), inputElement.getValue());
+                    data.append(inputElement.getAttribute("value-id"), inputElement.value);
                 }
             }
             //Send to server
@@ -132,9 +132,9 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
             console.log(changed, isValid);
             if (changed) {
                 foundChange = true;
-                changes.push("• " + inputElement.getLabel() + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.getOriginalValueRaw() : inputElement.getOriginalValue() ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue() ? "Ano" : "Ne"));
+                changes.push("• " + inputElement.label + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.originalValueRaw : inputElement.originalChecked ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.valueRaw : inputElement.value ? "Ano" : "Ne"));
             }
-            //changes.push("• " + (inputElement instanceof HTMLFormInputElement ? inputElement.getValueRaw() : inputElement.getValue()));
+            //changes.push("• " + (inputElement instanceof HTMLFormInputElement ? inputElement.getvalueRaw : inputElement.value));
         }
         //Wait for confirm
         progress2.CloseDialog();

@@ -127,8 +127,8 @@ const getSchoolsStart = async () => {
         attendantSchool.validationFunction = async (value) => {
             const timestamp = new Date();
             const data = new FormData(undefined, null);
-            console.log(attendantSchool.getValue());
-            data.set("query", attendantSchool.getValueRaw());
+            console.log(attendantSchool.value);
+            data.set("query", attendantSchool.valueRaw.toString());
             const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data);
             const options = new Map();
             for (const school of JSON.parse(msg)) {

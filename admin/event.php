@@ -77,6 +77,7 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Událost</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
@@ -133,7 +134,7 @@ if (isset($_POST["action"])) {
 
         //Create HTML
         echo "<form-input tabindex='1' label='Název události:' class='eventValidate' do-change-check='$exists' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input tabindex='2' label='Typ události:' is-case-sensitive-list='false' class='eventValidate' do-change-check='$exists' type='select' value-id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
+        echo "<form-input tabindex='2' label='Typ události:'  class='eventValidate' do-change-check='$exists' type='select' value-id='type' original-value='$type' raw-value='$type' placeholder='$type' list='typeTypes'></form-input>";
         echo "<form-input tabindex='3' label='Popis události:' class='eventValidate' do-change-check='$exists' type='textarea' value-id='description' original-value='$description' value='$description' placeholder='$description'></form-input>";
         echo "<form-input tabindex='4' label='Cena události:' class='eventValidate' do-change-check='$exists' type='number' min=0 value-id='price' original-value='$price' id='price' value='$price' placeholder='$price'></form-input>";
         echo "<form-input tabindex='5' label='Událost aktivní od:' min='$activeSinceMinimum' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='active_since' id='active_since' original-value='$activeSince' value='$activeSince'></form-input>";
