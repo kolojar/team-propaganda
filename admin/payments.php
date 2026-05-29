@@ -135,7 +135,7 @@ if (isset($_POST["action"])) {
         //if(isset($_GET['schools'])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
-        
+
         $found = false;
         $resultEventId = $result->eventId;
 
@@ -217,7 +217,7 @@ if (isset($_POST["action"])) {
                 //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                 //    $highlightSchoolClass = "trHighlight";
                 //}
-        
+
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
@@ -244,7 +244,7 @@ if (isset($_POST["action"])) {
         //if(isset($_GET['schools'])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
-        
+
         //Request waiting for refund attendants without payment
         $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE " . ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "ua.refunded IS NULL AND ua.paid IS NULL AND e.price != 0;");
         if (($resultEventId != null && !$stmt->bind_param("i", $resultEventId)) || !$stmt->execute() || !$stmt->store_result()) {
@@ -303,7 +303,7 @@ if (isset($_POST["action"])) {
                 //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                 //    $highlightSchoolClass = "trHighlight";
                 //}
-        
+
                 //Put in table
                 echo "<tr class='clickHighlightRow'>
                         <td class='formButtonBoxTable'>
@@ -437,7 +437,7 @@ if (isset($_POST["action"])) {
                     //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
                     //    $highlightSchoolClass = "trHighlight";
                     //}
-        
+
                     //Put in table
                     echo "<tr class='clickHighlightRow'>
                         <td>$refunded</td>
@@ -451,8 +451,6 @@ if (isset($_POST["action"])) {
                 echo "</table>";
                 $stmt->close();
             }
-        } else {
-            $stmt->close();
         }
 
         //Request paid attendants
