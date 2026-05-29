@@ -43,7 +43,7 @@ $accessLevels = array(
     "schoolsAll.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "classroom.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "classrooms.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Učebny"),
-    "payments.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Platby"),
+    "payments.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::LEFT, "Platby"),
     "presets.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Šablony"),
     "fs.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Soubory"),
     "sendMail.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Komunikace"),
@@ -87,6 +87,7 @@ class titlebarSetupResult
 {
     public string $message;
     public bool $allowView;
+    public string $username;
     //public  bool $allowEdit;
     public userRoleType $roleType;
     public int|null $eventId;
@@ -131,12 +132,13 @@ class titlebarSetupResult
     }
 }
 
-function checkGenericCompatibility(titlebarSetupResult $result,userType $eventType): bool {
+function checkGenericCompatibility(titlebarSetupResult $result, userType $eventType): bool
+{
     if (($result->eventId != null || $result->subeventId != null) && $eventType == userType::NILE) {
-       return false;
+        return false;
     }
     if ($result->companyDayId != null && $eventType == userType::KLAL) {
-       return false;
+        return false;
     }
     return true;
 }
@@ -150,6 +152,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     global $accessLevels;
     require_once "../assets/sharedFunctions.php";
     $roleType = getUserRoleType($conn, $_SESSION["userId"]);
+    $username = join(" ", getUserName($_SESSION["userId"]));
 
     //Check access level
     if (!checkAccess($page, $roleType)) {
@@ -163,6 +166,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     $accessLevel = $accessLevels[$page];
     $result = setupTitlebarAdminAction($conn, $accessLevel);
     $result->roleType = $roleType;
+    $result->username = $username;
 
     //Check for invalid combinations
     if (($result->eventId != null || $result->subeventId != null) && $result->getUserType() == userType::NILE) {
@@ -179,7 +183,11 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     }
 
     //Prepare HTML
-    echo '<h1> Akce: ' . $result->message . '</h1>';
+
+    //======
+    //fix formJustifyRight
+    //======
+    echo '<h1> Akce: ' . $result->message . '</h1><h1 class="formJustifyRight">' . $result->username . '</h1>';
     echo "<div class='formButtonBoxHolder'>";
 
     //Generate buttons
@@ -284,7 +292,8 @@ function setupTitlebarAdminAction(mysqli $conn, accessLevel $accessLevel): title
         //Check if company day cookie exist and refresh it
         setCompanyDayId($_COOKIE["adminCompanyDayId"]);
         //Check if event exists
-        $name = 0;
+        $name = "";
+        $date = "";
         $stmt = $conn->prepare("SELECT name, date FROM company_days_teamPropaganda WHERE id_company_days=?;");
         if (!$stmt->bind_param("i", $_COOKIE["adminCompanyDayId"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($name, $date) || !$stmt->fetch() || !$stmt->close() || $name == "") {
             if ($accessLevel->eventNeedance == accessLevelEventNeedence::NEEDS_COMPANY_DAY) {
