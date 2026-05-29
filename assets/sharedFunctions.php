@@ -122,7 +122,7 @@ function setupFilteredTable(mysqli $conn, string $rawSelect, filterSelector ...$
     }
 
     //Add filters
-    echo "<fieldset><legend></legend>";
+    echo "<fieldset><legend>Konfigurace filtrování</legend>";
     foreach ($filterSelectors as $key => $value) {
         //Prepare input
         $label = $value->displayName;
@@ -151,6 +151,10 @@ function setupFilteredTable(mysqli $conn, string $rawSelect, filterSelector ...$
         if (isset($_GET[$getter])) {
             $rawSelect .=  " AND " . $value->sqlName . $value->compareOperator . $_GET[$getter];
         }
-    }
+
+        //Generate UI
+
+    } 
+    echo "</fieldset>";
 }
 ?>
