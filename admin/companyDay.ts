@@ -14,17 +14,17 @@ const registrationClose = (document.getElementById("registration_close") as HTML
 const date = document.getElementById("date") as HTMLFormInputElement;
 
 activeSince.addEventListener("validation-done", () => {
-    activeUntil.setMinimum(activeSince.getValue())
-    registrationOpen.setMinimum(activeSince.getValue())
+    activeUntil.min = (activeSince.value)
+    registrationOpen.min = (activeSince.value)
 })
 activeUntil.addEventListener("validation-done", () => {
-    registrationOpen.setMaximum(activeUntil.getValue())
-    registrationClose.setMaximum(activeUntil.getValue())
-    date.setMaximum(activeUntil.getValue().split("T",2)[0]);
+    registrationOpen.max = (activeUntil.value)
+    registrationClose.max = (activeUntil.value)
+    date.max = (activeUntil.value.split("T",2)[0]);
 })
 registrationOpen.addEventListener("validation-done", () => {
-    registrationClose.setMinimum(registrationOpen.getValue())
+    registrationClose.min = (registrationOpen.value)
 })
 registrationClose.addEventListener("validation-done", () => {
-    date.setMinimum(registrationClose.getValue().split("T",2)[0])
+    date.min = (registrationClose.value.split("T",2)[0])
 })

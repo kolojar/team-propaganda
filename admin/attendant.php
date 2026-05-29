@@ -58,6 +58,7 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Zájemce</title>
 
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
@@ -82,13 +83,13 @@ if (isset($_POST["action"])) {
 
         //Print HTML
         echo "<h1>Informace o zájemci: $name $surname</h1>";
-        echo "<form-input tabindex='1' icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input tabindex='2' icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
-        //echo "<form-input label='Email:' class='attendantValidate' do-change-check='true' type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
+        echo "<form-input tabindex='1' icon='!userName' label='Křestní jméno:' class='validate' do-change-check type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input tabindex='2' icon='!userSurname' label='Přijmení:' class='validate' do-change-check type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
+        //echo "<form-input label='Email:' class='attendantValidate' do-change-check type='email' id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         echo "<p>Zákonný zástupce: $parentName $parentSurname</p>";
         echo "<p>Email zákonného zástupce: <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</a></p>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<form-input tabindex='3' icon='!school' id='school' label='Základní škola:' class='validate' type='select' do-change-check='true' value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' is-case-sensitive-list='false'></form-input>";
+        echo "<form-input tabindex='3' icon='!school' id='school' label='Základní škola:' class='validate' type='select' do-change-check value-id='school' original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
         echo "<button tabindex='4' class='formButton purkynkaButton btnSave' form-icon='!save'></button>";

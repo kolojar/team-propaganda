@@ -11,27 +11,27 @@ const registrationOpen = document.getElementById("registration_open");
 const registrationClose = document.getElementById("registration_close");
 const repeatStart = document.getElementById("repeat_start");
 activeSince.addEventListener("validation-done", () => {
-    const value = activeSince.getValue();
-    activeUntil.setMinimum(new Date(value) <= new Date() ? activeUntil.getValue() : value);
-    const value2 = registrationOpen.getValue();
-    registrationOpen.setMinimum(new Date(value2) <= new Date() ? value2 : value);
-    repeatStart.setMinimum(value + "T00:00");
+    const value = activeSince.value;
+    activeUntil.min = (new Date(value) <= new Date() ? activeUntil.value : value);
+    const value2 = registrationOpen.value;
+    registrationOpen.min = (new Date(value2) <= new Date() ? value2 : value);
+    repeatStart.min = (value + "T00:00");
 });
 activeUntil.addEventListener("validation-done", () => {
-    registrationOpen.setMaximum(activeUntil.getValue());
-    registrationClose.setMaximum(activeUntil.getValue());
-    repeatStart.setMaximum(activeUntil.getValue() + "T23:59");
+    registrationOpen.max = (activeUntil.value);
+    registrationClose.max = (activeUntil.value);
+    repeatStart.max = (activeUntil.value + "T23:59");
 });
 registrationOpen.addEventListener("validation-done", () => {
-    const value = registrationOpen.getValue();
-    registrationClose.setMinimum(new Date(value) <= new Date() ? registrationClose.getValue() : value);
+    const value = registrationOpen.value;
+    registrationClose.min = (new Date(value) <= new Date() ? registrationClose.value : value);
 });
 async function onSaveFunc() {
     const price = document.getElementById("price");
     const [changed, _] = await price.validate();
     if (changed) {
         const currentTime = new Date();
-        if (new Date(activeSince.getValue()) <= currentTime && currentTime <= new Date(activeUntil.getValue())) {
+        if (new Date(activeSince.value) <= currentTime && currentTime <= new Date(activeUntil.value)) {
             SendToast("Nelze uložit změny!", "Nelze upravit cenu, pokud je událost aktivní.", "error");
             return Promise.resolve(false);
         }

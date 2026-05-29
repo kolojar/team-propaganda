@@ -93,6 +93,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Komunikace</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
@@ -269,11 +270,11 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
 
             const data = new FormData();
-            data.append("subject", document.getElementById("subject").getValue())
-            data.append("message", document.getElementById("message").getValue())
+            data.append("subject", document.getElementById("subject").value)
+            data.append("message", document.getElementById("message").value)
             if (files != undefined) data.append("files", JSON.stringify(files))
             if (!document.getElementById("now").checked) {
-                data.append("datetime", document.getElementById("date").getValue() + " " + document.getElementById("hour").getValue())
+                data.append("datetime", document.getElementById("date").value + " " + document.getElementById("hour").value)
             }
             if (document.getElementById("global").checked) {
                 data.append("global", true)

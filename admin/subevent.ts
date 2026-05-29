@@ -13,19 +13,19 @@ const endTime = (document.getElementById("end_time") as HTMLFormInputElement)
 const date = (document.getElementById("date") as HTMLFormInputElement)
 
 startTime.addEventListener("validation-done", () => {
-    endTime.setMinimum(startTime.getValue())
+    endTime.min = (startTime.value)
 })
 date.addEventListener("validation-done", () => {
-    console.log(date.getValue() == date.getMinimum());
-    if (date.getValue() == date.getMinimum()) {
-        startTime.setMinimum(date.getAttribute("minTime") as string)
+    console.log(date.value == date.min);
+    if (date.value == date.min) {
+        startTime.min = (date.getAttribute("minTime") as string)
     } else {
-        startTime.setMinimum("")
+        startTime.min = ("")
     }
-    if (date.getValue() == date.getMaximum()) {
-        endTime.setMaximum(date.getAttribute("maxTime") as string)
+    if (date.value == date.max) {
+        endTime.max = (date.getAttribute("maxTime") as string)
     } else {
-        endTime.setMaximum("")
+        endTime.max = ("")
     }
 })
 date.validate()

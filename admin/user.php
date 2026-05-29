@@ -106,6 +106,7 @@ if (isset($_POST["action"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Uživatel</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
@@ -151,13 +152,13 @@ if (isset($_POST["action"])) {
         }
 
         //Print HTML
-        echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check='true' type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
-        echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check='true' type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
+        echo "<form-input icon='!userName' label='Křestní jméno:' class='validate' do-change-check type='text' value-id='name' original-value='$name' value='$name' placeholder='$name'></form-input>";
+        echo "<form-input icon='!userSurname' label='Přijmení:' class='validate' do-change-check type='text' value-id='surname' original-value='$surname' value='$surname' placeholder='$surname'></form-input>";
         //echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
-        echo "<form-input icon='!email' label='Email:' class='validate' do-change-check='true' type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
+        echo "<form-input icon='!email' label='Email:' class='validate' do-change-check type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check='true' value-id='role' original-value='$role' value='$role' is-case-sensitive-list='false'></form-input>";
-        echo "<form-input icon='!userRole' list='userTypes' is-strict-list='true' label='Typ:' class='validate' type='select' do-change-check='true' value-id='type' original-value='$type' value='$type' is-case-sensitive-list='false'></form-input>";
+        echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check value-id='role' original-value='$role' value='$role' ></form-input>";
+        echo "<form-input icon='!userRole' list='userTypes' is-strict-list='true' label='Typ:' class='validate' type='select' do-change-check value-id='type' original-value='$type' value='$type' ></form-input>";
         if ($exists == "true") {
             echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
         }

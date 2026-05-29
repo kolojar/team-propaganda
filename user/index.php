@@ -12,6 +12,7 @@ if (isset($_SESSION["userId"])) {
 <head>
     <meta charset="UTF-8">
     <title>Přihlásit se</title>
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     
@@ -53,7 +54,7 @@ if (isset($_SESSION["userId"])) {
                 SetWaitStatusForms("Probíhá odesílání požadavku na server, čekejte prosím...")
                 sent = true
                 const data = new FormData();
-                data.append("login", document.getElementById("email").getValue());
+                data.append("login", document.getElementById("email").value);
 
                 const [ok, res] = await SendPOSTDataToServerAsync("../verify.php", data);
 

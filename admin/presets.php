@@ -34,6 +34,7 @@ if (isset($_POST["file"])) {
     <meta name="form-icons-main-db" content="../formWebScripts/formIcons.json">
     <meta name="form-icons-db" content="../assets/formIcons.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="form-locales-main" content="../formWebScripts/locales/">
     <title>Šablony</title>
     <link rel="stylesheet" href="../formWebScripts/css/formStyle.css">
     <link rel="stylesheet" href="../assets/style.css">
@@ -143,8 +144,8 @@ if (isset($_POST["file"])) {
             const data = new FormData();
             data.append("new", nev)
             data.append("template", selectedTemplate)
-            data.append("name", document.getElementById("name").getValue())
-            data.append("message", document.getElementById("message").getValue())
+            data.append("name", document.getElementById("name").value)
+            data.append("message", document.getElementById("message").value)
 
             console.log(data);
 

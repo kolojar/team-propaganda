@@ -76,4 +76,81 @@ function exceptionHandler(Exception $e)
     exceptionToConsole($e);
     die();
 }
+
+enum filterSelectorType
+{
+    case BOOLEAN;
+    case BOOLEAN_NULL;
+    case TEXT;
+    case NUMBER;
+    case DATE;
+    case TIME;
+    case DATETIME;
+    case SELECT;
+    case TEXTAREA;
+}
+
+
+class filterSelector
+{
+    public string $displayName;
+    public string $sqlName;
+    public string $compareOperator;
+    public filterSelectorType $type;
+}
+function setupFilteredTable(mysqli $conn, string $rawSelect, filterSelector ...$filterSelectors)
+{
+    //Trim trainling ;
+    $rawSelect = trim($rawSelect, ";");
+    $rawSelect = trim($rawSelect);
+
+    //Add WHERE
+    $lastWhere = strrpos($rawSelect, "WHERE");
+    $lastJoin = strrpos($rawSelect, "JOIN");
+    $lastOn = strrpos($rawSelect, "ON");
+    $lastSelect = strrpos($rawSelect, "SELECT");
+    if (!$lastWhere) {
+        $rawSelect .= " WHERE 1=1";
+    } else {
+        if ($lastJoin && $lastJoin > $lastWhere) {
+            $rawSelect .= " WHERE 1=1";
+        } else if ($lastOn && $lastOn > $lastWhere) {
+            $rawSelect .= " WHERE 1=1";
+        } else if ($lastSelect && $lastSelect > $lastWhere) {
+            $rawSelect .= " WHERE 1=1";
+        }
+    }
+
+    //Add filters
+    echo "<fieldset><legend></legend>";
+    foreach ($filterSelectors as $key => $value) {
+        //Prepare input
+        $label = $value->displayName;
+        $type = "";
+        if($value->type == filterSelectorType::BOOLEAN || $value->type == filterSelectorType::BOOLEAN_NULL) {
+            $type = "checkbox";
+        } else if($value->type == filterSelectorType::DATE) {
+            $type = "date";
+        } else if($value->type == filterSelectorType::TIME) {
+            $type = "time";
+        } else if($value->type == filterSelectorType::DATETIME) {
+            $type = "datetime";
+        } else if($value->type == filterSelectorType::NUMBER) {
+            $type = "number";
+        } else if($value->type == filterSelectorType::TEXT) {
+            $type = "text";
+        } else if($value->type == filterSelectorType::SELECT) {
+            $type = "select";
+        } else if($value->type == filterSelectorType::TEXTAREA) {
+            $type = "textarea";
+        }
+        echo "<form-input label='$label' ";
+
+        //Get value
+        $getter = $value->sqlName . $value->type->name;
+        if (isset($_GET[$getter])) {
+            $rawSelect .=  " AND " . $value->sqlName . $value->compareOperator . $_GET[$getter];
+        }
+    }
+}
 ?>
