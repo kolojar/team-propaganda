@@ -129,10 +129,14 @@ if (isset($_POST["file"])) {
                         SendToast("Nelze otevřít šablonu!", "Nepodařilo se načíst informace.", "error")
                         progress?.CloseDialog()
                         await dialogManager.ShowAlertAsync("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: " + request.responseText)
+                        progress?.CloseDialog()
+                        await dialogManager.ShowAlertAsync("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: " + request.responseText)
                     }
                 };
                 request.onerror = async function() {
                     SendToast("Nelze otevřít šablonu!", "Nepodařilo se načíst informace.", "error")
+                    progress?.CloseDialog()
+                    await dialogManager.ShowAlertAsync("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: Neznámá chyba.")
                     progress?.CloseDialog()
                     await dialogManager.ShowAlertAsync("Otevřít šablonu", "Informace nemohly být načteny, opakujte akci později.<br>Důvod: Neznámá chyba.")
                 };
@@ -140,15 +144,12 @@ if (isset($_POST["file"])) {
                 document.getElementById("name").setValue(template);
                 SendToast("Šablona otevřena", "Informace o šabloně načteny.", "ok")
                 progress?.CloseDialog()
+                progress?.CloseDialog()
             }
         }
 
         async function save() {
-<<<<<<< HEAD
-            if (!await dialogManager.ShowConfirmAsync("Uložit šablonu?", "Opradu si přejete uložit šablonu?<br>Předchozí obsah bude smazán.")) {
-=======
             if (!await dialogManager.OpenConfirm("Uložit šablonu?", "Opradu si přejete uložit šablonu?<br>Předchozí obsah bude smazán.")) {
->>>>>>> 304dbe9 (update #24)
                 SendToast("Ukládání šablony zrušeno", "Ukládání šablony zrušeno.", "info")
                 return
             }
