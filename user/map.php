@@ -219,7 +219,7 @@ require "../assets/config.php";
                 let fields = result["fields"].join(", ")
                 let html = (result.presname) ? `<h2>${result.presname}</h2><br><h3>Info:</h3><br>${result.description}<br>` : "";
                 html += `<h2>` + ((document.getElementById("s" + site.id)) ? `<img class="icon" src="${document.getElementById("s" + site.id).src}"> ` : ``) + `${result.compname}</h2><br>${fields}<br><h3>Info:</h3><br>${result.short_info}<br><br><h3>Popis</h3><br>${result.long_info}<br>`
-                await dm.OpenAlert(result.compname, html)
+                await dm.ShowAlertAsync(result.compname, html)
             })
         }
         if (document.getElementById("upBtn")) {

@@ -5,19 +5,19 @@ const dialogManager = new FormDialogManager();
 for (const button of document.getElementsByClassName("btnTableAddPayment")) {
     button.addEventListener("click", async () => {
         //Get bank account
-        const bankAccount = await dialogManager.OpenPrompt("Zaplatit", "Zadejte číslo účtu pro případné vrácení peněz.", null, "text", "Číslo účtu", true, false);
+        const bankAccount = await dialogManager.ShowPromptAsync("Zaplatit", "Zadejte číslo účtu pro případné vrácení peněz.", null, "text", { placeholder: "Číslo účtu" });
         if (bankAccount == null) {
             SendToast("Zadat platbu", "Zadání platby bylo zrušeno.", "info");
             return;
         }
         //Get pay date
-        const datePaid = await dialogManager.OpenPrompt("Zaplatit", "Zadejte datum provedení platby.", null, "datetime-local", "Datum platby", true, false);
+        const datePaid = await dialogManager.ShowPromptAsync("Zaplatit", "Zadejte datum provedení platby.", null, "datetime-local", { placeholder: "Datum platby" });
         if (datePaid == null) {
             SendToast("Zadat platbu", "Zadání platby bylo zrušeno.", "info");
             return;
         }
         //Send request to PHP
-        const progress = dialogManager.ShowProgress("Zadat platbu", "Probíhá odesílání dat na server, čekejte prosím...", () => { }, 0, false, true, true);
+        const progress = dialogManager.ShowProgress("Zadat platbu", "Probíhá odesílání dat na server, čekejte prosím...", () => { }, 0, false);
         const data = new FormData();
         data.set("action", "addPayment");
         data.set("bank_account", bankAccount);
@@ -28,8 +28,9 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
         data.set("unregistered", button.hasAttribute("unregistered") ? "1" : "0");
         const [ok, responce] = await SendPOSTDataToServerAsync("./payments.php", data);
         if (!ok) {
-            progress.CloseDialog();
+            progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
             SendToast("Zadat platbu", "Platbu se nepodařilo zadat!", "error");
+            await dialogManager.ShowAlertAsync("Zadat platbu", "Nepodařilo se zadat platbu, zkuste to prosím znovu a později.<br>Důvod: " + responce);
             return;
         }
         SendToast("Zadat platbu", "Platba uložena!", "ok");
@@ -39,44 +40,42 @@ for (const button of document.getElementsByClassName("btnTableAddPayment")) {
     });
 }
 for (const button of document.getElementsByClassName("btnRefundTable")) {
-    button.addEventListener("click", () => {
-        dialogManager.ShowConfirm("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "<br>Variabilní symbol: " + button.getAttribute("variableSymbol") + "<br>Částka: " + button.getAttribute("price") + " Kč", async (refund) => {
-            if (!refund) {
-                SendToast("Vrátit platbu", "Vrácení platby bylo zrušeno.", "info");
-                return;
-            }
-            //Send XHR
-            const progress = dialogManager.ShowProgress("Vrátit platbu", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
-            const formData = new FormData();
-            formData.set("action", "removePayment");
-            formData.set("id", button.getAttribute("variableSymbol"));
-            const [ok, _] = await SendPOSTDataToServerAsync("./payments.php", formData);
-            if (!ok) {
-                progress.CloseDialog();
-                SendToast("Vrátit platbu", "Nepodařilo se vrátit platbu!", "error");
-                return;
-            }
-            SendToast("Vrátit platbu", "Platba vrácena!", "ok");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }).AllowSelect(true);
+    button.addEventListener("click", async () => {
+        if (!await dialogManager.ShowConfirmAsync("Opravdu chcete vrátit platbu?", "Číslo účtu: " + button.getAttribute("bankAccount") + "<br>Variabilní symbol: " + button.getAttribute("variableSymbol") + "<br>Částka: " + button.getAttribute("price") + " Kč", { allowSelect: true })) {
+            SendToast("Vrátit platbu", "Vrácení platby bylo zrušeno.", "info");
+            return;
+        }
+        //Send XHR
+        const progress = dialogManager.ShowProgress("Vrátit platbu", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
+        const formData = new FormData();
+        formData.set("action", "removePayment");
+        formData.set("id", button.getAttribute("variableSymbol"));
+        const [ok, _] = await SendPOSTDataToServerAsync("./payments.php", formData);
+        if (!ok) {
+            progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
+            SendToast("Vrátit platbu", "Nepodařilo se vrátit platbu!", "error");
+            return;
+        }
+        SendToast("Vrátit platbu", "Platba vrácena!", "ok");
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     });
 }
 for (const button of document.getElementsByClassName("btnRemoveNotPaidTable")) {
     button.addEventListener("click", async () => {
-        if (!await dialogManager.OpenConfirm("Platba nedorazila", "Opravdu platba nedorazila? Někdy to může trvat několik dní.", true, true)) {
+        if (!await dialogManager.ShowConfirmAsync("Platba nedorazila", "Opravdu platba nedorazila? Někdy to může trvat několik dní.")) {
             SendToast("Platba nedorazila", "Systém bude nadále vyčkávat.", "info");
             return;
         }
         //Send XHR
-        const progress = dialogManager.ShowProgress("Platba nedorazila", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true);
+        const progress = dialogManager.ShowProgress("Platba nedorazila", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
         const formData = new FormData();
         formData.set("action", "removePayment");
         formData.set("id", button.getAttribute("variableSymbol"));
-        const [ok, _] = await SendPOSTDataToServerAsync("./payment.php", formData);
+        const [ok, _] = await SendPOSTDataToServerAsync("./payments.php", formData);
         if (!ok) {
-            progress.CloseDialog();
+            progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
             SendToast("Platba nedorazila", "Přeřazení zájemce nebylo úspěšné!", "error");
             return;
         }

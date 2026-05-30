@@ -64,21 +64,21 @@ if (isset($_SESSION["userId"])) {
                     } else {
                         SendToast("Odpověď serveru", res, "error");
                         setTimeout(async () => {
-                            await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
+                            await dialogManager.ShowAlertAsync("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                             window.location.reload()
                         }, 1000)
                     }
                 } else {
                     SendToast("Odpověď serveru", res, "error");
                     setTimeout(async () => {
-                        await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
+                        await dialogManager.ShowAlertAsync("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                         window.location.reload()
                     }, 1000)
                 }
             } else {
                 SendToast("Odpověď serveru", res, "error")
                 setTimeout(async () => {
-                    await dialogManager.OpenAlert("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
+                    await dialogManager.ShowAlertAsync("Zaslat ověřovací kód", "Zadány neplané údaje, zkuste to prosím znovu.")
                     window.location.reload()
                 }, 1000)
             }

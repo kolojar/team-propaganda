@@ -269,11 +269,11 @@ if (isset($_POST["sitePos"])) {
         //}
 
         document.getElementById("save").addEventListener("click", async (e) => {
-            if (! await dialogManager.OpenConfirm("Uložit plánek", "Opravdu chcete uložit pozice na mapě?")) {
+            if (! await dialogManager.ShowConfirmAsync("Uložit plánek", "Opravdu chcete uložit pozice na mapě?")) {
                 SendToast("Uložit plánek", "Uložení plánku zrušeno.", "info")
                 return;
             }
-            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
+            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false)
             let data = new FormData();
             let siteList = {};
             const map = document.getElementById("map");
@@ -316,8 +316,8 @@ if (isset($_POST["sitePos"])) {
                 }, 1000);
             } else {
                 SendToast("Nastala chyba při ukládání dat", "Nelze uložit pozice na mapě.", "error")
-                progress.CloseDialog()
-                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason, true, true)
+                progress?.CloseDialog()
+                await dialogManager.ShowAlertAsync("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason)
             }
 
         })

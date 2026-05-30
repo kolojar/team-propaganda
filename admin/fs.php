@@ -116,7 +116,7 @@ session_start();
 
         if (document.getElementById("addFile")) {
             document.getElementById("addFile").addEventListener("click", async (e) => {
-                let file = await dm.OpenPrompt("Soubor", "Vyberte soubor", null, "file")
+                let file = await dm.ShowPromptAsync("Soubor", "Vyberte soubor", null, "file")
                 if (file && file[0]) {
                     SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
                     let data = new FormData()
@@ -134,7 +134,7 @@ session_start();
             })
 
             document.getElementById("addFolder").addEventListener("click", async (e) => {
-                let name = await dm.OpenPrompt("Název", "Zadejte název souborů. <br>Tento název bude použit pro všechny soubory, které budou vloženy do této složky. (To platí i pro příponu.)", null)
+                let name = await dm.ShowPromptAsync("Název", "Zadejte název souborů. <br>Tento název bude použit pro všechny soubory, které budou vloženy do této složky. (To platí i pro příponu.)", null)
                 if (name) {
                     let data = new FormData()
                     data.append("name", name)
@@ -150,7 +150,7 @@ session_start();
 
         for (let del of document.getElementsByClassName("delete")) {
             del.addEventListener("click", async (e) => {
-                if (await dm.OpenConfirm("Smazání souboru", "Opravdu si přejete smazat tento soubor?")) {
+                if (await dm.ShowConfirmAsync("Smazání souboru", "Opravdu si přejete smazat tento soubor?")) {
                     let data = new FormData()
                     if (urlSearchParams.has("file")) {
                         data.append("name", "../files/" + urlSearchParams.get("file") + "/" + del.getAttribute("userId") + "." + urlSearchParams.get("file").split(".")[1])
@@ -171,7 +171,7 @@ session_start();
             neu.addEventListener("click", async (e) => {
                 let id = neu.getAttribute("userId");
                 let data = new FormData()
-                let file = await dm.OpenPrompt("Soubor", "Vyberte soubor. <br>Jméno souboru bude změněno na jméno složky.", null, "file")
+                let file = await dm.ShowPromptAsync("Soubor", "Vyberte soubor. <br>Jméno souboru bude změněno na jméno složky.", null, "file")
                 if (file && file[0]) {
                     SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
                     data.append("files[]", file[0])
@@ -192,7 +192,7 @@ session_start();
 
         for (let del of document.getElementsByClassName("delDir")) {
             del.addEventListener("click", async (e) => {
-                if (await dm.OpenConfirm("Smazání složky", "Opravdu si přejete smazat tuto složku? <br>Všechny soubory v této složce budou smazány také.")) {
+                if (await dm.ShowConfirmAsync("Smazání složky", "Opravdu si přejete smazat tuto složku? <br>Všechny soubory v této složce budou smazány také.")) {
                     let data = new FormData()
                     data.append("rmdir", del.getAttribute("file"))
                     data.append("isNILE", isNILE)
