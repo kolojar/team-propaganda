@@ -43,5 +43,5 @@ require "./adminFunctions.php";
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
-
+<script type="module" src="admin.js"></script>
 </html>

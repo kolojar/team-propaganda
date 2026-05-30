@@ -36,7 +36,7 @@ require "./adminFunctions.php";
         if ($result->roleType->role == userRole::ADMIN) {
             $resultEventId = $result->eventId;
             $resultSubeventId = $result->subeventId;
-            $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
+            $stmt = $conn->prepare("SELECT ra.variable_symbol, ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
             if (!$stmt->bind_param("ii", $resultSubeventId, $resultEventId) || !$stmt->execute() || !$stmt->store_result()) {
                 echo "<h1>Nelze získat informace o registrovaných a zaplacených zájemcích.</h1>";
                 $stmt->close();
@@ -59,7 +59,7 @@ require "./adminFunctions.php";
 
                     //List all attendants in table
                     for ($i = 0; $i < $stmt->num_rows; $i++) {
-                        if (!$stmt->bind_result($registered, $paid, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName) || !$stmt->fetch()) {
+                        if (!$stmt->bind_result($variableSymbol, $registered, $paid, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName) || !$stmt->fetch()) {
                             $attendantName = "CHYBA";
                             $attendantSurname = "CHYBA";
                             $parentName = "CHYBA";
@@ -74,6 +74,7 @@ require "./adminFunctions.php";
                             $schoolId = "NULL";
                             $classroomId = "NULL";
                             $classroomName = "CHYBA";
+                            $variableSymbol = "NULL";
                         } else {
                             $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
                             $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
