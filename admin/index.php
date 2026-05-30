@@ -90,14 +90,14 @@ if (isset($_POST["password"]) && isset($_POST["email"])) {
                     } else {
                         SendToast("Odpověď serveru", res, "error");
                         setTimeout(async () => {
-                            await dialogManager.OpenAlert("Přihlásit se", "Komunikace se serverem se nezdařila, zkuste to prosím znovu a později.")
+                            await dialogManager.ShowAlertAsync("Přihlásit se", "Komunikace se serverem se nezdařila, zkuste to prosím znovu a později.")
                             window.location.reload()
                         }, 1000)
                     }
                 } else {
                     SendToast("Odpověď serveru", res, "error")
                     setTimeout(async () => {
-                        await dialogManager.OpenAlert("Přihlásit se", "Zadány neplané údaje, zkuste to prosím znovu.")
+                        await dialogManager.ShowAlertAsync("Přihlásit se", "Zadány neplané údaje, zkuste to prosím znovu.")
                         window.location.reload()
                     }, 1000)
                 }

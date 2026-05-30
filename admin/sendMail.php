@@ -309,7 +309,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             ?>
             console.log(options)
 
-            let file = await dm.OpenSelect("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
+            let file = await dm.ShowSelectAsync("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
             console.log(file)
             if (file) {
                 let btn = document.createElement("button")

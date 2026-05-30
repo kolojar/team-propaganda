@@ -30,7 +30,8 @@ if (isset($_POST["action"])) {
         }
         $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,user_paid=?,bank_account=? WHERE variable_symbol=?;");
         if ($stmt->bind_param("sssi", $_POST["paid"], $userPaid, $_POST["bank_account"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
-            $res = $conn->query("SELECT price FROM `events_teamPropaganda` WHERE id_events = " . $_POST["id_events"])->fetch_assoc();
+            logToConsole("SELECT price FROM events_teamPropaganda WHERE id_events = " . $_POST["id_events"]);
+            $res = $conn->query("SELECT price FROM events_teamPropaganda WHERE id_events = " . $_POST["id_events"])->fetch_assoc();
             $message = file_get_contents("../assets/PaymentOk.html");
             $message = str_replace("\${variable_symbol}", str_pad($_POST["id"], 10, "0", STR_PAD_LEFT), $message);
             $date = new DateTime($_POST["paid"]);
@@ -85,7 +86,7 @@ if (isset($_POST["action"])) {
 
         //Insert SQL entry
         $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
-        if (!$stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]) || !$stmt->execute() || !$stmt->close()) {
+        if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze vložit informace o odhlášení zájemce.";
             die();

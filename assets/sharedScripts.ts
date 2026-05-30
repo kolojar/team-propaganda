@@ -42,7 +42,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
     //Make save button work
     saveBtn.addEventListener("click", async () => {
         //Get elements
-        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
+        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false)
         const changes = []
 
         //Process elements
@@ -52,7 +52,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
             console.log(changed, isValid);
             if (!isValid) {
                 SendToast("Nelze uložit změny!", "Pole obsahuje neplatnou hodnotu.", "error")
-                progress2.CloseDialog()
+                progress2?.CloseDialog()
                 return
             }
             if (!exists) {
@@ -65,22 +65,22 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
         //Show dialog if found change
         if (changes.length == 0) {
             SendToast("Nelze uložit změny!", "Žádné změny nebyly provedeny.", "ok")
-            progress2.CloseDialog()
+            progress2?.CloseDialog()
             return
         }
 
         //Run save function
         if (onSaveFunc != null) {
             if (!(await onSaveFunc())) {
-                progress2.CloseDialog()
+                progress2?.CloseDialog()
                 return
             }
         }
 
         //Wait for confirm
-        progress2.CloseDialog()
-        if (await dialogManager.OpenConfirm("Uložit změny?", "Opravdu chcete uložit provedené změny:<br>" + changes.join("<br>"), true, true)) {
-            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false, true, true)
+        progress2?.CloseDialog()
+        if (await dialogManager.ShowConfirmAsync("Uložit změny?", "Opravdu chcete uložit provedené změny:<br>" + changes.join("<br>"))) {
+            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false)
 
             //Create FormData
             const data = new FormData()
@@ -117,8 +117,8 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
                 }, 1000)
             } else {
                 SendToast("Nelze uložit změny!", "Změny nemohly být uloženy.", "error")
-                progress.CloseDialog()
-                await dialogManager.OpenAlert("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason, true, true)
+                progress?.CloseDialog()
+                await dialogManager.ShowAlertAsync("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason)
             }
         } else {
             SendToast("Uložit změny", "Ukládání změn zrušeno.", "info")
@@ -128,7 +128,7 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
     //Make cancel button work
     GetChildenElementsByClassName(holder, "btnCancel")[0]?.addEventListener("click", async function () {
         //Check for changes
-        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false, true, true)
+        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false)
         let foundChange = false
         const changes = []
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -143,16 +143,16 @@ export function SetupSaveCancelButtons(dialogManager: FormDialogManager, holderI
         }
 
         //Wait for confirm
-        progress2.CloseDialog()
+        progress2?.CloseDialog()
         if (!exists) {
-            if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete zrušit vytváření?", true, true)) {
+            if (await dialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete zrušit vytváření?")) {
                 window.location.href = cancelURL
             }
             return
         }
         if (foundChange) {
-            if (await dialogManager.OpenConfirm("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"), true, true)) {
-                dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false, true, true)
+            if (await dialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"))) {
+                dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false)
                 setTimeout(() => {
                     window.location.reload()
                 }, 1000)
@@ -189,13 +189,13 @@ export function setupTableDeleteButtons(dialogManager: FormDialogManager, postUR
             }
 
             //Ask for confirm
-            if (! await dialogManager.OpenConfirm("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?", true, true)) {
+            if (! await dialogManager.ShowConfirmAsync("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?")) {
                 SendToast("Smazat řádek", "Mazání změn zrušeno.", "info")
                 return
             }
 
             //Create FormData
-            const progress = dialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false, true, true)
+            const progress = dialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false)
             const formData = new FormData()
             formData.set("action", "delete")
             formData.set("id", button.getAttribute(idAttributeName) as string)
@@ -204,8 +204,8 @@ export function setupTableDeleteButtons(dialogManager: FormDialogManager, postUR
             const [ok, reason] = await SendPOSTDataToServerAsync(postURL, formData)
             if (!ok) {
                 SendToast("Mazání dat", "Nelze smazat data", "error")
-                progress.CloseDialog()
-                await dialogManager.OpenAlert("Mazání dat", "Data nemohla být smazána, opakujte akci později.<br>Důvod: " + reason, true, true)
+                progress?.CloseDialog()
+                await dialogManager.ShowAlertAsync("Mazání dat", "Data nemohla být smazána, opakujte akci později.<br>Důvod: " + reason)
                 return
             }
 

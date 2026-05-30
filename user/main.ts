@@ -17,25 +17,25 @@ for (const element of document.getElementsByClassName("companyInfo")) {
 //Make move email button work
 document.getElementById("btnChangeEmail")?.addEventListener("click", async () => {
     //Ask for email
-    const email = await dialogManager.OpenPrompt<null | string>("Přenos na jiný účet", "Zadejte nový Email, kterým se budete přihlašovat do aplikace. Starý přístup zanikne.", null, "email", "Email", true, true)
+    const email = await dialogManager.ShowPromptAsync<null | string>("Přenos na jiný účet", "Zadejte nový Email, kterým se budete přihlašovat do aplikace. Starý přístup zanikne.", null, "email", {placeholder:"Email"})
     if (email == null) {
         SendToast("Přenos účtu na jiný Email zrušen!", "Akce byla zrušena úspěšně.", "ok")
         return
     }
 
     //Send POST
-    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false, true, true)
+    const progress = dialogManager.ShowProgress("Přenos účtu na jiný Email", "Probíhá vytváření požadavku, čekejte prosím...", () => { }, 0, false)
     const formData = new FormData()
     formData.set("verify", email)
     const [ok, responce] = await SendPOSTDataToServerAsync("../verify.php", formData)
-    progress.CloseDialog()
+    progress?.CloseDialog()
     if (!ok) {
         SendToast("Nelze přenést účet na jiný Email!", "Změny nemohly být uloženy.", "error")
-        await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.", true, true)
+        await dialogManager.ShowAlertAsync("Přenos účtu na jiný Email", "Změny nemohly být uloženy, opakujte akci později.")
         return
     }
     window.open("../verify.php", "_blank");
-    await dialogManager.OpenAlert("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.", true, true);
+    await dialogManager.ShowAlertAsync("Přenos účtu na jiný Email", "Dokončete proces v novém okně. Dokud nevložíte správný kód, zachová se původní Email.");
     window.location.reload()
 })
 
@@ -43,14 +43,14 @@ document.getElementById("btnChangeEmail")?.addEventListener("click", async () =>
 for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
     btn.addEventListener("click", async () => {
         //Ask for confirm
-        const confirm = await dialogManager.OpenConfirm("Odebrat zájemce?", "Opravdu chcete odebrat zájemce? Tento krok nelze vzít zpět.", true, true)
+        const confirm = await dialogManager.ShowConfirmAsync("Odebrat zájemce?", "Opravdu chcete odebrat zájemce? Tento krok nelze vzít zpět.")
         if (!confirm) {
             SendToast("Odebrat zájemce", "Akce zrušena.", "info")
             return
         }
 
         //Send delete request
-        const progress = dialogManager.ShowProgress("Odebrat zájemce", "Probíhá odebírání zájemce, čekejte prosím...", () => { }, 0, false, true, true)
+        const progress = dialogManager.ShowProgress("Odebrat zájemce", "Probíhá odebírání zájemce, čekejte prosím...", () => { }, 0, false)
         const formData = new FormData()
         formData.set("action", "delete")
         formData.set("id", btn.getAttribute("attendant") as string)
@@ -64,18 +64,18 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         }
 
         //Handle errors
-        progress.CloseDialog()
+        progress?.CloseDialog()
         if (responce == "has subevents") {
             SendToast("Nelze smazat zájemce", "Zájemce je přihlášen na nějaké akci.", "error")
             return
         }
         SendToast("Odebrat zájemce", "Zájemce nemohl být odebrán.", "error")
-        await dialogManager.OpenAlert("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.", true, true)
+        await dialogManager.ShowAlertAsync("Odebrat zájemce", "Informace o odebrání nemohly být uloženy, opakujte akci později.")
     })
 }
 
 document.getElementById("icon")?.addEventListener("click", async (e) => {
-    let file = await dialogManager.OpenPrompt<null | any>("Logo", "Vyberte soubor. Musí být v poměru 1:1.", null, "file")
+    let file = await dialogManager.ShowPromptAsync<null | any>("Logo", "Vyberte soubor. Musí být v poměru 1:1.", null, "file")
     if (file && file[0]) {
         SendToast("Nahrávání souboru", "Soubor úspěšně nahrán", "ok")
         let data = new FormData()
@@ -107,7 +107,7 @@ document.getElementById("addNew")?.addEventListener("click", async (e) => {
         let date = row[1].split("-");
         options.set(`${date[2]}. ${date[1]}. ${date[0]}`, row[0])
     }
-    let companyDayId = await dialogManager.OpenSelect("Den firem", "<b style='color: red;'>Tento výběr je závazný.</b>", null, options)
+    let companyDayId = await dialogManager.ShowSelectAsync("Den firem", "<b style='color: red;'>Tento výběr je závazný.</b>", null, options)
     if (companyDayId == null) return;
     let data2 = new FormData()
     data2.append("action", "addCD");
@@ -123,7 +123,7 @@ document.getElementById("addNew")?.addEventListener("click", async (e) => {
 
 //Make attendant change school field work
 const getSchoolsStart = async () => {
-    const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false, true, true)
+    const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false)
     for (const element of document.getElementsByClassName("schoolValue")) {
         const attendantSchool = element as HTMLFormInputElement
         attendantSchool.validationFunction = async (value: string | boolean) => {
@@ -144,6 +144,6 @@ const getSchoolsStart = async () => {
         await attendantSchool.validate()
     }
     SendToast("Načítání dat proběhlo úspěšně!", "Data načtena úspěšně.", "ok")
-    progress.CloseDialog()
+    progress?.CloseDialog()
 }
 getSchoolsStart()
