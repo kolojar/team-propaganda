@@ -25,6 +25,9 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
+        echo "<h1>Zájemci přihlášení na akci</h1>";
+        setupFilteredTable();
+
         ////Get highlighted schools
         //$highlightSchools = [];
         //if(isset($_GET['schools'])) {
