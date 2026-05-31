@@ -105,18 +105,27 @@ legend {
     font-size: 16pt;
 }
 
-tr {
-    border-top: 1px solid;
-    border-bottom: 1px solid;
-    border-color: var(--purkynka-gray);
-}
 
 th, td {
     padding-left: 8px;
     padding-right: 8px;
+    border-bottom: 1px solid;
+    border-color: var(--purkynka-gray);
+    border-left: none;
+    border-right: none;
 }
 
-.purkynkaTableFullLines td,.purkynkaTableFullLines th {
+th {
+    border-top: 1px solid;
+    border-bottom: 2px solid;
+    border-color: var(--purkynka-gray);
+}
+
+.purkynkaTableStripped tr:nth-child(odd) {
+    background-color: var(--purkynka-text-white);
+}
+
+.purkynkaTableFullLines td {
     border-right: 1px solid;
     border-color: var(--purkynka-gray);
 }
