@@ -30,5 +30,9 @@
     "closeView": "./icons/previewOff32.svg",
     "relocate": "./icons/moveLocation32.svg",
     "copy": "./icons/contentCopy32.svg",
-    "shuffle": "./icons/shuffle32.svg"
+    "shuffle": "./icons/shuffle32.svg",
+    "firstPage": "./icons/firstPage32.svg",
+    "lastPage": "./icons/lastPage32.svg",
+    "nextPage": "./icons/keyboardArrowRight32.svg",
+    "previousPage": "./icons/keyboardArrowLeft32.svg"
 }
