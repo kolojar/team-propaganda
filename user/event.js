@@ -1,4 +1,4 @@
-var _a, _b, _c;
+var _a, _b, _c, _d;
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
@@ -7,6 +7,9 @@ const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
 for (const element of document.getElementsByClassName("siteInfo")) {
     SetupSaveCancelButtons(dialogManager, element, ".", "./site.php", element.getAttribute("site"));
+}
+for (const element of document.getElementsByClassName("presInfo")) {
+    SetupSaveCancelButtons(dialogManager, element, ".", "./pres.php", element.getAttribute("site"));
 }
 for (let element of document.getElementsByClassName("rmSite")) {
     element.addEventListener("click", async () => {
@@ -18,6 +21,25 @@ for (let element of document.getElementsByClassName("rmSite")) {
         data.append("action", "delete");
         data.append("id", element.getAttribute("site"));
         let [ok, res] = await SendPOSTDataToServerAsync("./site.php", data);
+        if (ok) {
+            SendToast("Odpověď serveru.", res, "ok");
+            window.location.reload();
+        }
+        else {
+            SendToast("Odpověď serveru", res, "error");
+        }
+    });
+}
+for (let element of document.getElementsByClassName("rmPres")) {
+    element.addEventListener("click", async () => {
+        if (!await dialogManager.ShowConfirmAsync("Odstranit prezentaci", "Opravdu chcete smazat tuto prezentaci?")) {
+            SendToast("Odstranit prezentaci", "Odstranění prezentace bylo zrušeno.", "info");
+            return;
+        }
+        let data = new FormData();
+        data.append("action", "delete");
+        data.append("id", element.getAttribute("site"));
+        let [ok, res] = await SendPOSTDataToServerAsync("./pres.php", data);
         if (ok) {
             SendToast("Odpověď serveru.", res, "ok");
             window.location.reload();
@@ -115,6 +137,22 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
         return;
     let data = new FormData();
     data.append("action", "addSite");
+    data.append("id", e.target.getAttribute("comp"));
+    data.append("idCD", urlSearchParams.get("cd"));
+    let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
+    if (ok) {
+        SendToast("Odpověď serveru.", res, "ok");
+        window.location.reload();
+    }
+    else {
+        SendToast("Odpověď serveru", res, "error");
+    }
+});
+(_d = document.getElementById("btnAddPres")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", async (e) => {
+    if (!await dialogManager.ShowConfirmAsync("Přidat novou prezentaci?", "Opravdu chcete přidat novou prezentaci pro tento dne firem?"))
+        return;
+    let data = new FormData();
+    data.append("action", "addPres");
     data.append("id", e.target.getAttribute("comp"));
     data.append("idCD", urlSearchParams.get("cd"));
     let [ok, res] = await SendPOSTDataToServerAsync("./event.php", data);
