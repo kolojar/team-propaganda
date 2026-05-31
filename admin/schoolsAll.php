@@ -52,7 +52,7 @@ require "./adminFunctions.php";
         "",
         "",
         "",
-        null,
+        [],
         [
         new filterSelector("s.name","Název","name",filterSelectorType::TEXT,filterCompareOperator::LIKE),
         new filterSelector("s.address","Adresa","address",filterSelectorType::TEXT,filterCompareOperator::LIKE),

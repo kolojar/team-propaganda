@@ -415,17 +415,17 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
 
     logToConsole($resultStatement);
     $stmt = $conn->prepare($resultStatement);
-    if (strlen($bindKeys) > 0) {
-        if ($bindValues == null || !call_user_func_array([$stmt, 'bind_param'], $references)) {
+    if (strlen($resultKeys) > 0) {
+        if (!call_user_func_array([$stmt, 'bind_param'], $references)) {
             $stmt->close();
-            echo "<h1>Nelze získat informace ze SQL.</h1>";
+            echo "<h1>Nelze získat informace ze SQL BIND.</h1>";
             echo "<script type='module' src='../assets/phpFilters.js'></script>";
             return false;
         }
     }
     if (!$stmt->execute()) {
         $stmt->close();
-        echo "<h1>Nelze získat informace ze SQL.</h1>";
+        echo "<h1>Nelze získat informace ze SQL EXECUTE.</h1>";
         echo "<script type='module' src='../assets/phpFilters.js'></script>";
         return false;
     }
