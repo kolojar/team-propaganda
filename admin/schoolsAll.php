@@ -61,10 +61,10 @@ require "./adminFunctions.php";
         new filterSelector("cnt","Maximální počet zájemců","countmax",filterSelectorType::NUMBER,filterCompareOperator::LESSEQUALS, true,["min"=>0]),
         new filterSelector("!test","Test","test",filterSelectorType::NUMBER,filterCompareOperator::EQUALS, true,["min"=>0])
         ],[
-            new filterDisplayer("!putFirstCell","Akce",filterSelectorType::TEXT,true),
-            new filterDisplayer("sname","Název",filterSelectorType::TEXT,true),
-            new filterDisplayer("address","Adresa",filterSelectorType::TEXT,true),
-            new filterDisplayer("cnt","Počet zájemcu",filterSelectorType::TEXT,true)
+            new filterDisplayer("!putFirstCell","Akce",true),
+            new filterDisplayer("sname","Název",true),
+            new filterDisplayer("address","Adresa",true),
+            new filterDisplayer("cnt","Počet zájemcu",true)
         ])
             ?>
     </main>
@@ -74,5 +74,4 @@ require "./adminFunctions.php";
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type="module" src="./schoolsAll.js"></script>
-<script type="module" src="../assets/phpFilters.js"></script>
 </html>

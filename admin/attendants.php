@@ -25,8 +25,27 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
+        $resultEventId = $result->eventId;
+        $resultSubeventId = $result->subeventId;
         echo "<h1>Zájemci přihlášení na akci</h1>";
-        setupFilteredTable();
+        setupFilteredTable(
+            $conn,
+            "purkynkaTableStripped purkynkaTableFullLines",
+            "ra.variable_symbol, ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name",
+            "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
+            "ra.id_events = ?",
+            "",
+            "",
+            "",
+            "ii",
+            [$result->subeventId,$result->eventId],
+            [
+                new filterSelector("ra.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS)
+            ],
+            [
+                new filterDisplayer("variable_symbol", "Variabilní symbol", false)
+            ]
+        );
 
         ////Get highlighted schools
         //$highlightSchools = [];
