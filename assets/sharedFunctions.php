@@ -97,17 +97,39 @@ enum filterSelectorType
     case TEXTAREA;
 }
 
+enum filterCompareOperator: string
+{
+    case LIKE = "LIKE";
+    case EQUALS = "=";
+    case NOTEQUALS = "!=";
+    case IS = "IS";
+    case ISNOT = "IS NOT";
+    case LESS = "<";
+    case LESSEQUALS = "<=";
+    case MORE = ">";
+    case MOREEQUALS = ">=";
+}
+
 class filterSelector
 {
     public string $displayName;
-    public string $sqlName;
-    public string $sqlCompareOperator;
+    public string $sqlName; //Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
+    public filterCompareOperator $sqlCompareOperator;
     public filterSelectorType $type;
     public string $getter;
     public array|null $settings;
     public bool $isHaving;
-
-    public function __construct(string $sqlName, string $displayName, string $getter, filterSelectorType $type, string $sqlCompareOperator, bool $isHaving = false, array|null $settings = null)
+    /**
+     * Summary of __construct
+     * @param string $sqlName
+     * @param string $displayName
+     * @param string $getter
+     * @param filterSelectorType $type
+     * @param filterCompareOperator $sqlCompareOperator [SQL VALUE] OPERATOR [FILTER VALUE]
+     * @param bool $isHaving
+     * @param array|null $settings
+     */
+    public function __construct(string $sqlName, string $displayName, string $getter, filterSelectorType $type, filterCompareOperator $sqlCompareOperator, bool $isHaving = false, array|null $settings = null)
     {
         $this->sqlName = $sqlName;
         $this->displayName = $displayName;
@@ -153,7 +175,7 @@ class filterDisplayer
  * @param filterSelector[] $filterSelectorsRaw
  * @return bool
  */
-function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $rawSelect, string $rawFrom, string $rawWhere, string $rawGroupBy, string $rawHaving, string $rawOrderBy, string $bindKeys, array|null $bindValues, array $filterSelectorsRaw,array $filterDisplayersRaw): bool
+function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $rawSelect, string $rawFrom, string $rawWhere, string $rawGroupBy, string $rawHaving, string $rawOrderBy, string $bindKeys, array|null $bindValues, array $filterSelectorsRaw, array $filterDisplayersRaw): bool
 {
     //Trim trainling ;
     $rawSelect = trim($rawSelect, ";");
@@ -187,8 +209,8 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
     //Convert filter selectors
     $filterSelectors = [];
     foreach ($filterSelectorsRaw as $key => $value) {
-        if (str_contains($value->sqlName, ",") || str_contains($value->sqlName, "!")) {
-            errorToConsole("SQL name can not contain \",\" or \"!\": " . $value->sqlName);
+        if (str_contains($value->sqlName, ",")) {
+            errorToConsole("SQL name can not contain \",\": " . $value->sqlName);
         }
         if (str_contains($value->getter, ",") || str_contains($value->getter, "!")) {
             errorToConsole("Getter name can not contain \",\" or \"!\": " . $value->getter);
@@ -204,7 +226,7 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
         logToConsole("Checking: " . $value->getter);
         if (isset($_GET[$value->getter])) {
             logToConsole("Present: " . $value->getter);
-            $activeFilters[$value->getter] = [true,$value->displayName];
+            $activeFilters[$value->getter] = [true, $value->displayName];
             //Prepare input
             $type = "";
             if ($value->type == filterSelectorType::BOOLEAN || $value->type == filterSelectorType::BOOLEAN_NULL) {
@@ -234,17 +256,19 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             $max = isset($value->settings["max"]) ? (" max='" . $value->settings["max"] . "'") : "";
             echo "<form-input label='$label' getter='$getter' type='$type' original-value='$get' value='$get' do-change-check list='$list' . $min . $max></form-input>";
 
-            //Build select
-            $islike = $value->sqlCompareOperator == "LIKE" ? "%" : "";
-            $add = ($value->isHaving ? $rawHaving : $rawWhere);
-            $add .= (strlen($add) == 0 ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator . " '" . $islike . $get . $islike . "'";
-            if ($value->isHaving) {
-                $rawHaving = $add;
-            } else {
-                $rawWhere = $add;
+            //Build WHERE or HAVING
+            if (strpos($value->sqlName, "!") !== 0) {
+                $islike = $value->sqlCompareOperator == filterCompareOperator::LIKE ? "%" : "";
+                $add = ($value->isHaving ? $rawHaving : $rawWhere);
+                $add .= (strlen($add) == 0 ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " '" . $islike . $get . $islike . "'";
+                if ($value->isHaving) {
+                    $rawHaving = $add;
+                } else {
+                    $rawWhere = $add;
+                }
             }
         } else {
-            $activeFilters[$value->getter] = [false,$value->displayName];
+            $activeFilters[$value->getter] = [false, $value->displayName];
         }
     }
 
@@ -265,7 +289,7 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
         if ($filterDisplayersGet == null) {
             $activeDisplayers[$value->sqlName] = [$value->defaultVisible, $value->displayName];
         } else {
-            $activeDisplayers[$value->sqlName] = [in_array($value->sqlName, $filterDisplayersGet, true), $value->displayName];;
+            $activeDisplayers[$value->sqlName] = [in_array($value->sqlName, $filterDisplayersGet, true), $value->displayName];
         }
     }
 
@@ -297,10 +321,12 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
     $orderers = [];
     if (isset($_GET["!order"])) {
         foreach (explode(",", $_GET["!order"]) as $key => $value) {
-            $valueTrimmed = strpos($value, "!") === 0 ? substr($value,1) : $value;
-            if(!isset($filterDisplayers[$valueTrimmed])) {continue;}
+            $valueTrimmed = strpos($value, "!") === 0 ? substr($value, 1) : $value;
+            if (!isset($filterDisplayers[$valueTrimmed])) {
+                continue;
+            }
             $desc = "";
-            if(strpos($value, "!") === 0) {
+            if (strpos($value, "!") === 0) {
                 $value = substr($value, 1);
                 $desc = " DESC";
                 $orderers[$value] = "$key.D";
@@ -309,10 +335,10 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             }
             $rawOrderBy .= (strlen($rawOrderBy) == 0 ? "" : ", ") . $value . $desc;
         }
-    } 
+    }
 
     //Perform select
-    $sqlOffset = ($page-1) * $step;
+    $sqlOffset = ($page - 1) * $step;
     $sql = "SELECT " . $rawSelect . " FROM " . $rawFrom . (strlen($rawWhere) == 0 ? "" : (" WHERE " . $rawWhere)) . (strlen($rawGroupBy) == 0 ? "" : (" GROUP BY " . $rawGroupBy)) . (strlen($rawHaving) == 0 ? "" : (" HAVING " . $rawHaving)) . (strlen($rawOrderBy) == 0 ? "" : (" ORDER BY " . $rawOrderBy)) . " LIMIT $sqlOffset,$step";
     logToConsole($sql);
     $stmt = $conn->prepare($sql);
@@ -350,13 +376,62 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
         }
     }
     echo "</tr>";
+
+    //Get filters with functions
+    $filterSelectorsFunctions = [];
+    foreach ($filterSelectors as $key => $value) {
+        if (isset($_GET[$value->getter])) {
+            if (strpos($value->sqlName, "!") === 0) {
+                $filterSelectorsFunctions[] = $value;
+            }
+        }
+    }
+
+    //Process SQL
     while ($result = $res->fetch_assoc()) {
+        $compare = true;
+        //Compare filters
+        foreach ($filterSelectorsFunctions as $key => $value) {
+            $compare = false;
+            $call = substr($value->sqlName, 1);
+            $callResult = $call($result);
+            $get = $_GET[$value->getter];
+            if ($value->sqlCompareOperator == filterCompareOperator::EQUALS) {
+                $compare = $callResult == $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::IS) {
+                $compare = $callResult === $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::LESS) {
+                $compare = $callResult < $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::LESSEQUALS) {
+                $compare = $callResult <= $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::MORE) {
+                $compare = $callResult > $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::MOREEQUALS) {
+                $compare = $callResult >= $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::NOTEQUALS) {
+                $compare = $callResult != $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
+                $compare = $callResult !== $get;
+            } else if ($value->sqlCompareOperator == filterCompareOperator::LIKE) {
+                $compare = strpos($callResult, $get) !== false;
+            } else {
+                errorToConsole("No compare funtion found for: " . $value->sqlCompareOperator->value);
+            }
+            if (!$compare) {
+                break;
+            }
+        }
+        if (!$compare) {
+            continue;
+        }
+
+        //Put rows
         echo "<tr>";
         foreach ($activeDisplayers as $key => $value) {
             if ($value[0]) {
-                if(strpos($key, "!") === 0) {
-                    $call = substr($key,1);
-                    echo "<td>" . $call($result) ."</td>";
+                if (strpos($key, "!") === 0) {
+                    $call = substr($key, 1);
+                    echo "<td>" . $call($result) . "</td>";
                 } else {
                     echo "<td>" . $result[$key] . "</td>";
                 }

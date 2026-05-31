@@ -37,6 +37,10 @@ require "./adminFunctions.php";
             }
             return $res;
         }
+        function test($result) {
+            $id = $result["id_schools"];
+            return $id;
+        }
 
         echo "<h1>Seznam všech škol</h1>";
         setupFilteredTable($conn,
@@ -50,11 +54,12 @@ require "./adminFunctions.php";
         "",
         null,
         [
-        new filterSelector("s.name","Název","name",filterSelectorType::TEXT,"LIKE"),
-        new filterSelector("s.address","Adresa","address",filterSelectorType::TEXT,"LIKE"),
-        new filterSelector("cnt","Počet zájemců","count",filterSelectorType::NUMBER,"=",true,["min"=>0]),
-        new filterSelector("cnt","Minimální počet zájemců","countmin",filterSelectorType::NUMBER,">=", true,["min"=>0]),
-        new filterSelector("cnt","Maximální počet zájemců","countmax",filterSelectorType::NUMBER,"<=", true,["min"=>0])
+        new filterSelector("s.name","Název","name",filterSelectorType::TEXT,filterCompareOperator::LIKE),
+        new filterSelector("s.address","Adresa","address",filterSelectorType::TEXT,filterCompareOperator::LIKE),
+        new filterSelector("cnt","Počet zájemců","count",filterSelectorType::NUMBER,filterCompareOperator::EQUALS,true,["min"=>0]),
+        new filterSelector("cnt","Minimální počet zájemců","countmin",filterSelectorType::NUMBER,filterCompareOperator::MOREEQUALS, true,["min"=>0]),
+        new filterSelector("cnt","Maximální počet zájemců","countmax",filterSelectorType::NUMBER,filterCompareOperator::LESSEQUALS, true,["min"=>0]),
+        new filterSelector("!test","Test","test",filterSelectorType::NUMBER,filterCompareOperator::EQUALS, true,["min"=>0])
         ],[
             new filterDisplayer("!putFirstCell","Akce",filterSelectorType::TEXT,true),
             new filterDisplayer("sname","Název",filterSelectorType::TEXT,true),
