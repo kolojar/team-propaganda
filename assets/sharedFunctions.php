@@ -113,7 +113,7 @@ enum filterCompareOperator: string
 class filterSelector
 {
     public string $displayName;
-    public string $sqlName; //Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
+    public string $sqlName;
     public filterCompareOperator $sqlCompareOperator;
     public filterSelectorType $type;
     public string $getter;
@@ -121,7 +121,7 @@ class filterSelector
     public bool $isHaving;
     /**
      * Summary of __construct
-     * @param string $sqlName
+     * @param string $sqlName Needs full SQL name, Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
      * @param string $displayName
      * @param string $getter
      * @param filterSelectorType $type
@@ -145,23 +145,47 @@ class filterDisplayer
 {
     public string $displayName;
     public string $sqlName;
-    public filterSelectorType $type;
     public bool $defaultVisible;
 
     /**
      * Summary of __construct
-     * @param string $sqlName Prefix with ! to make it callable -> function($result), function must RETURN, not echo
+     * @param string $sqlName Needs aliases, Prefix with ! to make it callable -> function($result), function must RETURN, not echo
      * @param string $displayName
-     * @param filterSelectorType $type
      * @param bool $defaultVisible
      */
-    public function __construct(string $sqlName, string $displayName, filterSelectorType $type, bool $defaultVisible)
+    public function __construct(string $sqlName, string $displayName, bool $defaultVisible)
     {
         $this->sqlName = $sqlName;
         $this->displayName = $displayName;
-        $this->type = $type;
         $this->defaultVisible = $defaultVisible;
     }
+}
+
+function questionmarkSolver(string $resultStatement, array $resultValues, string $resultKeys, string $statement1, array $values1, string $keys1, string $statement2, array $values2, string|null $keys2 = null): array
+{
+    $keys2 = ($keys2 == null ? str_repeat("s", count($values2)) : $keys2);
+    $values1 = array_reverse($values1);
+    $values2 = array_reverse($values2);
+    $count1 = substr_count($statement1, "?");
+    $count2 = substr_count($statement2, "?");
+    $resultKeys .= substr($keys1, 0, $count1);
+    $keys1 = substr($keys1, $count1);
+    $resultStatement .= $statement1;
+    for ($i = 0; $i < $count1; $i++) {
+        $resultValues[] = array_pop($values1);
+    }
+    $resultKeys .= substr($keys2, 0, $count2);
+    $keys2 = substr($keys2, $count2);
+    if (strlen($statement2) != 0) {
+        $resultStatement .= (strlen($statement1) == 0 ? "" : " AND ");
+        $resultStatement .= $statement2;
+        for ($i = 0; $i < $count2; $i++) {
+            $resultValues[] = array_pop($values2);
+        }
+    }
+    $values1 = array_reverse($values1);
+    $values2 = array_reverse($values2);
+    return ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2];
 }
 
 /**
@@ -222,6 +246,12 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
     $name = uniqid("filter-", true);
     $activeFilters = [];
     echo "<fieldset filter='" . $name . "'><legend>Konfigurace filtrování</legend>";
+    $valuesWhere = [];
+    $valuesHaving = [];
+    $filterWhere = "";
+    $filterHaving = "";
+    $filterKeysWhere = "";
+    $filterKeysHaving = "";
     foreach ($filterSelectors as $key => $value) {
         logToConsole("Checking: " . $value->getter);
         if (isset($_GET[$value->getter])) {
@@ -229,22 +259,31 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             $activeFilters[$value->getter] = [true, $value->displayName];
             //Prepare input
             $type = "";
+            $keySQL = "s";
             if ($value->type == filterSelectorType::BOOLEAN || $value->type == filterSelectorType::BOOLEAN_NULL) {
                 $type = "checkbox";
+                $keySQL = "i";
             } else if ($value->type == filterSelectorType::DATE) {
                 $type = "date";
+                $keySQL = "s";
             } else if ($value->type == filterSelectorType::TIME) {
                 $type = "time";
+                $keySQL = "s";
             } else if ($value->type == filterSelectorType::DATETIME) {
                 $type = "datetime";
+                $keySQL = "s";
             } else if ($value->type == filterSelectorType::NUMBER) {
                 $type = "number";
+                $keySQL = "i";
             } else if ($value->type == filterSelectorType::TEXT) {
                 $type = "text";
+                $keySQL = "s";
             } else if ($value->type == filterSelectorType::SELECT) {
                 $type = "select";
+                $keySQL = "s";
             } else if ($value->type == filterSelectorType::TEXTAREA) {
                 $type = "textarea";
+                $keySQL = "s";
             }
 
             //Get value
@@ -259,12 +298,16 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             //Build WHERE or HAVING
             if (strpos($value->sqlName, "!") !== 0) {
                 $islike = $value->sqlCompareOperator == filterCompareOperator::LIKE ? "%" : "";
-                $add = ($value->isHaving ? $rawHaving : $rawWhere);
-                $add .= (strlen($add) == 0 ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " '" . $islike . $get . $islike . "'";
+                $add = ($value->isHaving ? $filterWhere : $filterHaving);
+                $add .= ((strlen($add) == 0) ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " ? ";
                 if ($value->isHaving) {
-                    $rawHaving = $add;
+                    $filterHaving = $add;
+                    $valuesHaving[] = $islike . $get . $islike;
+                    $filterKeysHaving .= $keySQL;
                 } else {
-                    $rawWhere = $add;
+                    $filterWhere = $add;
+                    $valuesWhere[] = $islike . $get . $islike;
+                    $filterKeysWhere .= $keySQL;
                 }
             }
         } else {
@@ -337,32 +380,66 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
         }
     }
 
-    //Perform select
+    //Perform joining of parts
     $sqlOffset = ($page - 1) * $step;
-    $sql = "SELECT " . $rawSelect . " FROM " . $rawFrom . (strlen($rawWhere) == 0 ? "" : (" WHERE " . $rawWhere)) . (strlen($rawGroupBy) == 0 ? "" : (" GROUP BY " . $rawGroupBy)) . (strlen($rawHaving) == 0 ? "" : (" HAVING " . $rawHaving)) . (strlen($rawOrderBy) == 0 ? "" : (" ORDER BY " . $rawOrderBy)) . " LIMIT $sqlOffset,$step";
-    logToConsole($sql);
-    $stmt = $conn->prepare($sql);
+    ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver("SELECT ", [], "", $rawSelect, $bindValues, $bindKeys, "", []);
+    if (strlen($rawFrom) != 0) {
+        $resultStatement .= " FROM ";
+        ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, $rawFrom, $values1, $keys1, "", []);
+    }
+    if (strlen($rawWhere) != 0 || strlen($filterWhere) != 0) {
+        $resultStatement .= " WHERE ";
+        ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, $rawWhere, $values1, $keys1, $filterWhere, $valuesWhere, $filterKeysWhere);
+    }
+    if (strlen($rawGroupBy) != 0) {
+        $resultStatement .= " GROUP BY ";
+        ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, $rawGroupBy, $values1, $keys1, "", []);
+    }
+    if (strlen($rawHaving) != 0 || strlen($filterHaving) != 0) {
+        $resultStatement .= " HAVING ";
+        ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, $rawHaving, $values1, $keys1, $filterHaving, $valuesHaving, $filterKeysHaving);
+    }
+    if (strlen($rawOrderBy) != 0) {
+        $resultStatement .= " ORDER BY ";
+        ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, $rawOrderBy, $values1, $keys1, "", []);
+    }
+    $resultStatement .= " LIMIT ";
+    ["statement" => $resultStatement, "values" => $resultValues, "keys" => $resultKeys, "values1" => $values1, "values2" => $values2, "keys1" => $keys1, "keys2" => $keys2] = questionmarkSolver($resultStatement, $resultValues, $resultKeys, "?,?", [$sqlOffset, $step], "ii", "", []);
+
+    //Convert to references
+    $references = [];
+    $references[] = $resultKeys;
+    foreach ($resultValues as $key => $value) {
+        $references[$key + 1] = &$resultValues[$key];
+    }
+
+    logToConsole($resultStatement);
+    $stmt = $conn->prepare($resultStatement);
     if (strlen($bindKeys) > 0) {
-        if ($bindValues == null || !$stmt->bind_param($bindKeys, ...$bindValues)) {
+        if ($bindValues == null || !call_user_func_array([$stmt, 'bind_param'], $references)) {
             $stmt->close();
             echo "<h1>Nelze získat informace ze SQL.</h1>";
+            echo "<script type='module' src='../assets/phpFilters.js'></script>";
             return false;
         }
     }
     if (!$stmt->execute()) {
         $stmt->close();
         echo "<h1>Nelze získat informace ze SQL.</h1>";
+        echo "<script type='module' src='../assets/phpFilters.js'></script>";
         return false;
     }
     $res = $stmt->get_result();
     if ($res == false) {
         $stmt->close();
         echo "<h1>Nelze získat informace ze SQL.</h1>";
+        echo "<script type='module' src='../assets/phpFilters.js'></script>";
         return false;
     }
     if ($res->num_rows == 0) {
         $stmt->close();
         echo "<h1>Nenalezeny žádné výsledky.</h1>";
+        echo "<script type='module' src='../assets/phpFilters.js'></script>";
         return false;
     }
 
@@ -390,42 +467,47 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
     //Process SQL
     while ($result = $res->fetch_assoc()) {
         $compare = true;
+        logToConsole("Processing entry");
         //Compare filters
-        foreach ($filterSelectorsFunctions as $key => $value) {
-            $compare = false;
-            $call = substr($value->sqlName, 1);
-            $callResult = $call($result);
-            $get = $_GET[$value->getter];
-            if ($value->sqlCompareOperator == filterCompareOperator::EQUALS) {
-                $compare = $callResult == $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::IS) {
-                $compare = $callResult === $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::LESS) {
-                $compare = $callResult < $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::LESSEQUALS) {
-                $compare = $callResult <= $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::MORE) {
-                $compare = $callResult > $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::MOREEQUALS) {
-                $compare = $callResult >= $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::NOTEQUALS) {
-                $compare = $callResult != $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
-                $compare = $callResult !== $get;
-            } else if ($value->sqlCompareOperator == filterCompareOperator::LIKE) {
-                $compare = strpos($callResult, $get) !== false;
-            } else {
-                errorToConsole("No compare funtion found for: " . $value->sqlCompareOperator->value);
-            }
-            if (!$compare) {
-                break;
+        if (count($filterSelectorsFunctions) != 0) {
+            foreach ($filterSelectorsFunctions as $key => $value) {
+                logToConsole("Filtering");
+                $compare = false;
+                $call = substr($value->sqlName, 1);
+                $callResult = $call($result);
+                $get = $_GET[$value->getter];
+                if ($value->sqlCompareOperator == filterCompareOperator::EQUALS) {
+                    $compare = $callResult == $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::IS) {
+                    $compare = $callResult === $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::LESS) {
+                    $compare = $callResult < $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::LESSEQUALS) {
+                    $compare = $callResult <= $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::MORE) {
+                    $compare = $callResult > $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::MOREEQUALS) {
+                    $compare = $callResult >= $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::NOTEQUALS) {
+                    $compare = $callResult != $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
+                    $compare = $callResult !== $get;
+                } else if ($value->sqlCompareOperator == filterCompareOperator::LIKE) {
+                    $compare = strpos($callResult, $get) !== false;
+                } else {
+                    errorToConsole("No compare funtion found for: " . $value->sqlCompareOperator->value);
+                }
+                if ($compare === false) {
+                    break;
+                }
             }
         }
-        if (!$compare) {
+        if ($compare === false) {
             continue;
         }
 
         //Put rows
+        logToConsole("Writing entry");
         echo "<tr>";
         foreach ($activeDisplayers as $key => $value) {
             if ($value[0]) {
@@ -441,6 +523,7 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
     }
     echo "</table>";
     $stmt->close();
+    echo "<script type='module' src='../assets/phpFilters.js'></script>";
     return true;
 }
 ?>
