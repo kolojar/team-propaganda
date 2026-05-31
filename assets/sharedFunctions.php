@@ -298,8 +298,8 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             //Build WHERE or HAVING
             if (strpos($value->sqlName, "!") !== 0) {
                 $islike = $value->sqlCompareOperator == filterCompareOperator::LIKE ? "%" : "";
-                $add = ($value->isHaving ? $filterWhere : $filterHaving);
-                $add .= ((strlen($add) == 0) ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " ? ";
+                $add = ($value->isHaving ? $filterHaving : $filterWhere);
+                $add .= ((strlen($add) == 0) ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " ?";
                 if ($value->isHaving) {
                     $filterHaving = $add;
                     $valuesHaving[] = $islike . $get . $islike;
