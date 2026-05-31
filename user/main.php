@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION["userId"] = 6;
+$_SESSION["userId"] = 7;
 if (!isset($_SESSION["userId"])) {
     header("Location: ./");
     exit();
@@ -109,14 +109,19 @@ require '../assets/sharedFunctions.php';
             }
         } else if ($result->type->getIsNILE() == 1) {
             //Get companies of current user
-            $stmt = $conn->prepare("SELECT * FROM companies_teamPropaganda WHERE id_users = ?");
-            $stmt->bind_param("i", $_SESSION["userId"]);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            $stmt->close();
+            $res = $conn->query("SELECT * FROM companies_teamPropaganda WHERE id_users = " . $_SESSION["userId"]);
             if ($res->num_rows > 0) {
                 $row = $res->fetch_assoc();
                 $_SESSION["companyId"] = $row["id_companies"];
+                $res = $conn->query("SELECT * FROM companies_fields_teamPropaganda NATURAL JOIN fields_teamPropaganda WHERE id_companies = " . $row["id_companies"]);
+                $selectedFields = [];
+                $formatedFields = [];
+                if ($res->num_rows > 0) {
+                    while ($fields = $res->fetch_assoc()) {
+                        $selectedFields[] = $fields["id_fields"];
+                        $formatedFields[] = "<a href='" . $fields["web_link"] . "' target='_blank' title='" . $fields["name"] . "'>" . $fields["short"] . "</a>";
+                    }
+                }
                 echo "<br>
                 <fieldset class='companyInfo' company='" . $row["id_companies"] . "'>
                 <legend>Informace o firmě: " . $row["name"] . ((isset($row["icon"])) ? " </legend><img style='width: 4vw; height: 4vw;' src='data:image/jpeg;base64," . base64_encode($row["icon"]) . "'>" : "</legend>") . "
@@ -124,8 +129,9 @@ require '../assets/sharedFunctions.php';
                 <span>Musí být v poměru 1:1. Maximální velikost souboru: 16MB</span>
                 <form-input value-id='name' label='Jméno:' class='validate' type='text' do-change-check value='" . $row["name"] . "' original-value='" . $row["name"] . "'></form-input>
                 <form-input value-id='short_info' label='Krátký popis:' class='validate' type='text' do-change-check min-len='300' value='" . $row["short_info"] . "' original-value='" . $row["short_info"] . "'></form-input>
-                <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>";
-                //add fields picker
+                <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>
+                <div id='fields'><label>Vybrané cílené skupiny: </label>" . join(", ", $formatedFields) . "</div><button class='formButton purkynkaButton' id='fieldSelect' company='" . $row["id_companies"] . "' fields='" . join(",", $selectedFields) . "'>Vybrat cílenou skupinu zájemců.</button><br><br>";
+
 
 
                 //Get events of attendant

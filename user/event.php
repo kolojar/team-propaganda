@@ -353,9 +353,8 @@ if (isset($_POST["action"])) {
                 while ($row = $stmt2->fetch_assoc()) {
                     echo "<fieldset class='siteInfo' site='" . $row["id_sites"] . "'>";
                     echo "<form-input value-id='seats' $disabledRemove label='Počet osob na stánku:' class='validate' type='number' do-change-check='true' value='" . $row["seats"] . "' original-value='" . $row["seats"] . "'></form-input>";
-                    //======
-                    //add checkbox selector for electricity
-                    //======
+                    echo "<form-toggle value-id='electricity' $disabledRemove label-before='Potřebuji přístup k zásuvce:' class='validate' type='checkbox' do-change-check='true' original-checked='" . (($row["electricity"] == 1) ? "true" : "false") . "' " . (($row["electricity"] == 1) ? "checked" : "") . "></form-toggle><br>";
+
 
 
                     echo "<button class='formButton purkynkaButton rmSite' $disabledRemove site='" . $row["id_sites"] . "'>Odstranit stánek</button>

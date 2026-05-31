@@ -1,4 +1,4 @@
-var _a, _b, _c;
+var _a, _b, _c, _d;
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
@@ -116,6 +116,34 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
     }
     else {
         SendToast("Odpověď serveru", res2, "ok");
+        window.location.reload();
+    }
+});
+(_d = document.getElementById("fieldSelect")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", async (e) => {
+    var _a;
+    const companyId = e.target.getAttribute("company");
+    const selectedFields = (_a = e.target.getAttribute("fields")) === null || _a === void 0 ? void 0 : _a.split(",");
+    const data = new FormData();
+    data.append("action", "getFields");
+    const fields = JSON.parse((await SendPOSTDataToServerAsync("./company.php", data))[1]);
+    const values = new Map();
+    for (let field of fields) {
+        if (!(selectedFields === null || selectedFields === void 0 ? void 0 : selectedFields.includes(field.id_fields)))
+            values.set(field.name, { value: field.id_fields, checked: false });
+        else
+            values.set(field.name, { value: field.id_fields, checked: true });
+    }
+    let result = await dialogManager.ShowCheckboxSelectAsync("Obory", "Vyberte obory které by mohla vaše firma zajímat.", null, values);
+    let data2 = new FormData();
+    data2.append("action", "addFields");
+    data2.append("fields", JSON.stringify(result));
+    data2.append("id", companyId);
+    let [ok, res] = await SendPOSTDataToServerAsync("./company.php", data2);
+    if (!ok) {
+        SendToast("Odpověď serveru", res, "error");
+    }
+    else {
+        SendToast("Odpověď serveru", res, "ok");
         window.location.reload();
     }
 });
