@@ -25,18 +25,18 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
-        function attendantEmail($result)
+        function attendantEmail($result,$setup)
         {
             $email = $result["email"];
             $uid = $result["id_parent"];
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
         }
-        function attendantClassroom($result)
+        function attendantClassroom($result,$setup)
         {
-            if ($result->subeventId == null) {
+            if ($setup->subeventId == null) {
                 return "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
             } else if ($result["id_classrooms"] == null) {
-                return "<a href='./subevent.php?subevent=$result->subeventId'>Zařaďte žáka automaticky do učebny</a>";
+                return "<a href='./subevent.php?subevent=$setup->subeventId'>Zařaďte žáka automaticky do učebny</a>";
             }
             return $result["cname"];
         }
@@ -55,7 +55,7 @@ require "./adminFunctions.php";
         for ($i = 0; $i < $stmt->num_rows; $i++) {
             $stmt->bind_result($idClassroom, $classroomName);
             $stmt->fetch();
-            echo "<option label='$classroomName' value='$classroomId'></option>";
+            echo "<option label='$classroomName' value='$idClassroom'></option>";
         }
         echo "</datalist>";
 
@@ -63,6 +63,7 @@ require "./adminFunctions.php";
         echo "<h1>Zájemci přihlášení na akci</h1>";
         setupFilteredTable(
             $conn,
+            $result,
             "purkynkaTableStripped purkynkaTableFullLines",
             "ra.variable_symbol, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
             "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
