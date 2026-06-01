@@ -110,7 +110,7 @@ for (const btn of document.getElementsByClassName("deleteClassroom")) {
 }
 
 //Add Toast for not enought places
-if (document.getElementById("freeSpacesCount")?.getAttribute("ok") != "1") {
+if (document.getElementById("freeSpacesCount")?.getAttribute("ok") != "1" && !urlSearchParams.has("newSubevent")) {
     SendToast("Nedostatečný počet míst v učebnách", "Na tuto podudálost chybí místa v učebnách, přidejte prosím další.<br>Po vyřešení problému bude možné žáky automaticky rozřadit do učeben.", "warn")
 }
 
@@ -169,7 +169,7 @@ for (const btn of document.getElementsByClassName("moveClassroom")) {
 }
 
 //Add Toast for not attendants outside of classroom
-if (document.getElementById("withoutClassroom")?.getAttribute("count") != "0") {
+if (document.getElementById("withoutClassroom")?.getAttribute("count") != "0" && !urlSearchParams.has("newSubevent")) {
     SendToast("Žáci mimo učebny", "V této podudálosti jsou žáci mimo učebny.<br>Prosím, rozřaďte je.", "warn")
 }
 

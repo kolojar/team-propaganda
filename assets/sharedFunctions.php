@@ -201,7 +201,7 @@ function questionmarkSolver(string $resultStatement, array $resultValues, string
  * @param filterSelector[] $filterSelectorsRaw
  * @return bool
  */
-function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $rawSelect, string $rawFrom, string $rawWhere, string $rawGroupBy, string $rawHaving, string $rawOrderBy, string $bindKeys, array|null $bindValues, array $filterSelectorsRaw, array $filterDisplayersRaw): bool
+function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tableStyleClasses, string $rawSelect, string $rawFrom, string $rawWhere, string $rawGroupBy, string $rawHaving, string $rawOrderBy, string $bindKeys, array|null $bindValues, array $filterSelectorsRaw, array $filterDisplayersRaw): bool
 {
     //Trim trainling ;
     $rawSelect = trim($rawSelect, ";");
@@ -509,7 +509,7 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
                 logToConsole("Filtering");
                 $compare = false;
                 $call = substr($value->sqlName, 1);
-                $callResult = $call($result);
+                $callResult = $call($result, $paramsForFunctions);
                 $get = $_GET[$value->getter];
                 if ($value->sqlCompareOperator == filterCompareOperator::EQUALS) {
                     $compare = $callResult == $get;
@@ -548,9 +548,17 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             if ($value[0]) {
                 if (strpos($key, "!") === 0) {
                     $call = substr($key, 1);
-                    echo "<td>" . $call($result) . "</td>";
+                    echo "<td>" . $call($result, $paramsForFunctions) . "</td>";
                 } else {
-                    echo "<td>" . $result[$key] . "</td>";
+                    $formated = $result[$key];
+
+                    //Try to format bool
+                    $parsed = filter_var($formated, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                    if ($parsed !== null) {
+                        $formated = $parsed ? "Ano" : "Ne";
+                    }
+
+                    echo "<td>" . $formated . "</td>";
                 }
             }
         }
