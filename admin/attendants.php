@@ -29,6 +29,9 @@ require "./adminFunctions.php";
         {
             $email = $result["email"];
             $uid = $result["id_parent"];
+            if($email == "") {
+                return "Není k dispozici";
+            }
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
         }
         function attendantClassroom($result, $setup)
@@ -98,116 +101,15 @@ require "./adminFunctions.php";
                 new filterDisplayer("school", "Základní škola", true),
                 new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
                 new filterDisplayer("paid", "Datum platby", false, filterSelectorType::DATETIME),
-                new filterDisplayer("variable_symbol", "Variabilní symbol", false),
+                new filterDisplayer("variable_symbol", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
             ]
         );
-
-        //Request rejected attendants
-        if ($result->roleType->role == userRole::ADMIN) {
-            $stmt = $conn->prepare("SELECT ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, a.name, a.surname, a.id_parent, u.name, u.surname,u.email, e.price FROM unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events WHERE ua.id_events = ?");
-            if (!$stmt->bind_param("i", $_COOKIE["adminEventId"]) || !$stmt->execute() || !$stmt->store_result()) {
-                echo "<h1>Nelze získat informace o odhlášených zájemcích.</h1>";
-                $stmt->close();
-            } else {
-                if ($stmt->num_rows > 0) {
-                    $found = true;
-                    echo "<h1>Odhlášení zájemci</h1>
-                  <table>
-                      <tr>
-                          <th>Akce</th>
-                          <th>Jméno a přijmení</th>
-                          <th>Zákonný zástupce</th>
-                          <th>Email zákonného zástupce</th>
-                          <th>Důvod odhlášení</th>
-                          <th>Datum registrace</th>
-                          <th>Datum zaplacení</th>
-                          <th>Datum odhlášení</th>
-                          <th>Datum vrácení</th>
-                      </tr>";
-
-                    //List all attendants in table
-                    for ($i = 0; $i < $stmt->num_rows; $i++) {
-                        if (!$stmt->bind_result($variableSymbol, $bankAccount, $registered, $paid, $unregistered, $reason, $attendantId, $refunded, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $eventPrice) || !$stmt->fetch()) {
-                            $variableSymbol = null;
-                            $bankAccount = "CHYBA";
-                            $registered = "CHYBA";
-                            $paid = null;
-                            $unregistered = "CHYBA";
-                            $reason = "CHYBA";
-                            $attendantId = null;
-                            $refunded = null;
-                            $attendantName = "CHYBA";
-                            $attendantSurname = "CHYBA";
-                            $parentId = null;
-                            $parentName = "CHYBA";
-                            $parentSurname = "CHYBA";
-                            $parentEmail = "CHYBA";
-                            $eventPrice = "CHYBA";
-                        } else {
-                            $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                            $attendantFullName = $attendantName . " " . $attendantSurname;
-                            $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                            $unregistered = new DateTime($unregistered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                        }
-                        if ($attendantId == null) {
-                            $attendantFullName = "Není k dispozici";
-                        }
-                        $parentFullName = $parentName . " " . $parentSurname;
-                        if ($parentId == null) {
-                            $parentFullName = "Není k dispozici";
-                            $parentEmail = "Není k dispozici";
-                        }
-                        if ($paid != null) {
-                            $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                        } else {
-                            $paid = "Nezaplaceno";
-                        }
-                        $refundedFormated = "Zatím nevráceno";
-                        $disableDelete = "";
-                        if ($refunded != null) {
-                            $refundedFormated = new DateTime($refunded)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                        } else {
-                            $disableDelete = "disabled";
-                        }
-
-                        //Highlight
-                        //$highlightSchoolClass = "";
-                        //if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                        //    $highlightSchoolClass = "trHighlight";
-                        //}
-        
-                        //Put in table
-                        echo "<tr class='clickHighlightRow'>
-                        <td class='formButtonBoxTable'>
-                            <button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol' form-icon='!delete'></button>
-                        </td>
-                        <td>$attendantFullName</td>
-                        <td>$parentFullName</td>";
-                        if ($parentId != null) {
-                            echo "<td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>";
-                        } else {
-                            echo "<td>$parentEmail</td>";
-                        }
-                        echo "<td>$reason</td>
-                        <td>$registered</td>
-                        <td>$paid</td>
-                        <td>$unregistered</td>
-                        <td>$refundedFormated</td>
-                    </tr>";
-                    }
-                    echo "</table>";
-                    $stmt->close();
-                }
-            }
-        }
-
-        if (!$found) {
-            echo "<h1>Žádní zájemci nejsou k dispozici.</h1>";
-        }
         ?>
     </main>
     <footer>
-
+        <div class="formButtonBoxHolder">
+        <a href="./unregisteredAttendants.php"><button class="purkynkaButton">Odhlášení zájemci</button></a>
+        </div>
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>

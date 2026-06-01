@@ -149,6 +149,7 @@ class filterDisplayer
     public string $sqlName;
     public bool $defaultVisible;
     public filterSelectorType $valueFormat;
+    public string $cellClasses;
 
     /**
      * Summary of __construct
@@ -156,12 +157,13 @@ class filterDisplayer
      * @param string $displayName
      * @param bool $defaultVisible
      */
-    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT)
+    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT, string $cellClasses = "")
     {
         $this->sqlName = $sqlName;
         $this->displayName = $displayName;
         $this->defaultVisible = $defaultVisible;
         $this->valueFormat = $valueFormat;
+        $this->cellClasses = $cellClasses;
     }
 }
 
@@ -375,13 +377,13 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     $activeDisplayers = [];
     foreach ($filterDisplayers as $key => $value) {
         if ($filterDisplayersGet == null) {
-            $activeDisplayers[$value->sqlName] = [$value->defaultVisible, $value->displayName, $value->valueFormat];
+            $activeDisplayers[$value->sqlName] = [$value->defaultVisible, $value];
         } else {
-            $activeDisplayers[$value->sqlName] = [in_array($value->sqlName, $filterDisplayersGet, true), $value->displayName, $value->valueFormat];
+            $activeDisplayers[$value->sqlName] = [in_array($value->sqlName, $filterDisplayersGet, true), $value];
         }
     }
     foreach ($activeDisplayers as $key => $value) {
-        $activeDisplayersForJson[$key] = [$value[0], $value[1]];
+        $activeDisplayersForJson[$key] = [$value[0], $value[1]->displayName];
     }
 
     //Place buttons
@@ -559,33 +561,45 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
         echo "<tr>";
         foreach ($activeDisplayers as $key => $value) {
             if ($value[0]) {
+                $cellClasses = $value[1]->cellClasses;
                 if (strpos($key, "!") === 0) {
                     $call = substr($key, 1);
-                    echo "<td>" . $call($result, $paramsForFunctions) . "</td>";
+                    echo "<td class='$cellClasses'>" . $call($result, $paramsForFunctions) . "</td>";
                 } else {
                     $formated = $result[$key];
                     //Try to format bool
-                    if ($value[2] == filterSelectorType::BOOLEAN || $value[2] == filterSelectorType::BOOLEAN_NULL) {
+                    if ($value[1]->valueFormat == filterSelectorType::BOOLEAN || $value[1]->valueFormat == filterSelectorType::BOOLEAN_NULL) {
                         $parsed = filter_var($formated, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                         if ($parsed !== null) {
                             $formated = $parsed ? "Ano" : "Ne";
                         }
                     }
                     //Try to format date
-                    if ($value[2] == filterSelectorType::DATE) {
-                        $formated = (new DateTime($formated))->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                    if ($value[1]->valueFormat == filterSelectorType::DATE) {
+                        if ($formated != null) {
+                            $formated = (new DateTime($formated))->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                        }
                     }
 
                     //Try to format time
-                    if ($value[2] == filterSelectorType::TIME) {
-                        $formated = (new DateTime($formated))->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                    if ($value[1]->valueFormat == filterSelectorType::TIME) {
+                        if ($formated != null) {
+                            $formated = (new DateTime($formated))->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                        }
                     }
 
                     //Try to format datetime
-                    if ($value[2] == filterSelectorType::DATETIME) {
-                        $formated = (new DateTime($formated))->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                    if ($value[1]->valueFormat == filterSelectorType::DATETIME) {
+                        if ($formated != null) {
+                            $formated = (new DateTime($formated))->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
+                        }
                     }
-                    echo "<td>" . $formated . "</td>";
+
+                    //Format NULL
+                    if ($formated == NULL) {
+                        $formated = "Není k dispozici";
+                    }
+                    echo "<td class='$cellClasses'>" . $formated . "</td>";
                 }
             }
         }
