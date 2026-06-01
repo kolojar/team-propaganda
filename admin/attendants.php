@@ -65,7 +65,7 @@ require "./adminFunctions.php";
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ra.variable_symbol, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
+            "ra.variable_symbol, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, CONCAT(s.name, ' → ', s.address) as school, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
             "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
             "ra.id_events = ?",
             "",
@@ -80,13 +80,17 @@ require "./adminFunctions.php";
                 new filterSelector("ap.id_classrooms", "Učebna", "classroom", filterSelectorType::SELECTNUMERIC, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "classrooms"]),
                 new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS,true),
                 new filterSelector("ra.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
+                new filterSelector("school", "Základní škola", "school", filterSelectorType::TEXT, filterCompareOperator::LIKE,true,["filterFieldId" => "school"]),
             ],
             [
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
                 new filterDisplayer("!attendantClassroom", "Učebna", true),
-                new filterDisplayer("hasPaid", "Zaplaceno", true),
+                new filterDisplayer("hasPaid", "Zaplaceno", true, filterSelectorType::BOOLEAN),
+                new filterDisplayer("school", "Základní škola", true),
+                new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
+                new filterDisplayer("paid", "Datum platby", false, filterSelectorType::DATETIME),
                 new filterDisplayer("variable_symbol", "Variabilní symbol", false),
             ]
         );

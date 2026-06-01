@@ -44,6 +44,7 @@ require "./adminFunctions.php";
 
         echo "<h1>Seznam všech škol</h1>";
         setupFilteredTable($conn,
+        null,
         "purkynkaTableStripped purkynkaTableFullLines",
         "s.id_schools as id_schools, s.name as sname, s.address as address, COUNT(a.id_attendants) AS cnt, GROUP_CONCAT(a.id_attendants)",
         "attendants_teamPropaganda a RIGHT JOIN schools_teamPropaganda s ON s.id_schools = a.id_attendants",
