@@ -38,6 +38,7 @@ $accessLevels = array(
     "admin.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::LEFT, "Hlavní menu"),
     "attendant.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "attendants.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_EVENT, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Zájemci"),
+    "unregisteredAttendants.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_EVENT, array(userRole::ADMIN)),
     "school.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "schools.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_EVENT, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Školy"),
     "schoolsAll.php" => new accessLevel(userType::KLAL, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
