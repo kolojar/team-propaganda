@@ -257,9 +257,9 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     $filterKeysWhere = "";
     $filterKeysHaving = "";
     foreach ($filterSelectors as $key => $value) {
-        logToConsole("Checking: " . $value->getter);
+        //logToConsole("Checking: " . $value->getter);
         if (isset($_GET[$value->getter])) {
-            logToConsole("Present: " . $value->getter);
+            //logToConsole("Present: " . $value->getter);
             $activeFilters[$value->getter] = [true, $value->displayName];
             //Prepare input
             $type = "";
@@ -297,8 +297,8 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
             $label = $value->displayName;
             $getter = $value->getter;
             $get = $_GET[$getter];
-            logToConsole($get);
-            if($get == NULL) {
+            //logToConsole($get);
+            if ($get == NULL) {
                 $get = "null";
             }
             $get = $get == "NULL" ? NULL : $get;
@@ -308,7 +308,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
             $max = isset($value->settings["max"]) ? (" max='" . $value->settings["max"] . "'") : "";
             $filterFieldId = isset($value->settings["filterFieldId"]) ? ("filter-field-id=" . $value->settings["filterFieldId"]) : "";
             $getValueString = $get === NULL ? "NULL" : $get;
-            logToConsole($getValueString);
+            //logToConsole($getValueString);
             echo "<form-input label='$label' getter='$getter' type='$type' original-value='$getValueString' value='$getValueString' do-change-check list='$list' $min $max $filterFieldId></form-input>";
 
             //Sort special types
@@ -381,7 +381,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
         }
     }
     foreach ($activeDisplayers as $key => $value) {
-            $activeDisplayersForJson[$key] = [$value[0],$value[1]];
+        $activeDisplayersForJson[$key] = [$value[0], $value[1]];
     }
 
     //Place buttons
@@ -515,11 +515,11 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     //Process SQL
     while ($result = $res->fetch_assoc()) {
         $compare = true;
-        logToConsole("Processing entry");
+        //logToConsole("Processing entry");
         //Compare filters
         if (count($filterSelectorsFunctions) != 0) {
             foreach ($filterSelectorsFunctions as $key => $value) {
-                logToConsole("Filtering");
+                //logToConsole("Filtering");
                 $compare = false;
                 $call = substr($value->sqlName, 1);
                 $callResult = $call($result, $paramsForFunctions);
@@ -555,7 +555,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
         }
 
         //Put rows
-        logToConsole("Writing entry");
+        //logToConsole("Writing entry");
         echo "<tr>";
         foreach ($activeDisplayers as $key => $value) {
             if ($value[0]) {
