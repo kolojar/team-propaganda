@@ -313,7 +313,8 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                     $comparator = $getCheck ? filterCompareOperator::IS->value : filterCompareOperator::ISNOT->value;
                 }
             } else if ($value->type == filterSelectorType::BOOLEAN) {
-                $get = $get == true ? 1 : 0;
+                $getCheck = filter_var($get, FILTER_VALIDATE_BOOLEAN);
+                $get = $getCheck ? 1 : 0;
             }
 
             //Build WHERE or HAVING
