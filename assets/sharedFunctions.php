@@ -94,20 +94,22 @@ enum filterSelectorType
     case TIME;
     case DATETIME;
     case SELECT;
+    case SELECTNUMERIC;
     case TEXTAREA;
 }
 
 enum filterCompareOperator: string
 {
-    case LIKE = "LIKE";
-    case EQUALS = "=";
-    case NOTEQUALS = "!=";
-    case IS = "IS";
-    case ISNOT = "IS NOT";
-    case LESS = "<";
-    case LESSEQUALS = "<=";
-    case MORE = ">";
-    case MOREEQUALS = ">=";
+    case LIKE = "{COLUMN_NAME} LIKE ?";
+    case EQUALS = "{COLUMN_NAME} = ?";
+    case EQUALSNULLABLE = "((? IS NULL AND {COLUMN_NAME} IS NULL) OR {COLUMN_NAME} = ?)";
+    case NOTEQUALS = "{COLUMN_NAME} != ?";
+    case IS = "{COLUMN_NAME} IS ?";
+    case ISNOT = "{COLUMN_NAME} IS NOT ?";
+    case LESS = "{COLUMN_NAME} < ?";
+    case LESSEQUALS = "{COLUMN_NAME} <= ?";
+    case MORE = "{COLUMN_NAME} > ?";
+    case MOREEQUALS = "{COLUMN_NAME} >= ?";
 }
 
 class filterSelector
@@ -121,13 +123,13 @@ class filterSelector
     public bool $isHaving;
     /**
      * Summary of __construct
-     * @param string $sqlName Needs full SQL name, Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
+     * @param string $sqlName Needs full SQL name or HAVING with alias, Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
      * @param string $displayName
      * @param string $getter
      * @param filterSelectorType $type
      * @param filterCompareOperator $sqlCompareOperator [SQL VALUE] OPERATOR [FILTER VALUE]
      * @param bool $isHaving
-     * @param array|null $settings
+     * @param array|null $settings Configurate input field: list, min, max
      */
     public function __construct(string $sqlName, string $displayName, string $getter, filterSelectorType $type, filterCompareOperator $sqlCompareOperator, bool $isHaving = false, array|null $settings = null)
     {
@@ -281,6 +283,9 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             } else if ($value->type == filterSelectorType::SELECT) {
                 $type = "select";
                 $keySQL = "s";
+            }else if ($value->type == filterSelectorType::SELECTNUMERIC) {
+                $type = "select";
+                $keySQL = "i";
             } else if ($value->type == filterSelectorType::TEXTAREA) {
                 $type = "textarea";
                 $keySQL = "s";
@@ -290,24 +295,52 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             $label = $value->displayName;
             $getter = $value->getter;
             $get = $_GET[$getter];
+            $get = $get == "NULL" ? NULL : $get;
             $list = isset($value->settings["listId"]) ? $value->settings["listId"] : "";
             $min = isset($value->settings["min"]) ? (" min='" . $value->settings["min"] . "'") : "";
             $max = isset($value->settings["max"]) ? (" max='" . $value->settings["max"] . "'") : "";
-            echo "<form-input label='$label' getter='$getter' type='$type' original-value='$get' value='$get' do-change-check list='$list' . $min . $max></form-input>";
+            $getValueString = $get == NULL ? "NULL" : $get;
+            echo "<form-input label='$label' getter='$getter' type='$type' original-value='$getValueString' value='$getValueString' do-change-check list='$list' . $min . $max></form-input>";
+
+            //Sort special types
+            $comparator = $value->sqlCompareOperator->value;
+            if($value->type == filterSelectorType::BOOLEAN_NULL) {
+                $getCheck = filter_var($get,FILTER_VALIDATE_BOOLEAN);
+                $get = NULL;
+                if($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
+                    $comparator = $getCheck ? filterCompareOperator::ISNOT->value : filterCompareOperator::IS->value;
+                } else if($value->sqlCompareOperator == filterCompareOperator::IS) {
+                    $comparator = $getCheck ? filterCompareOperator::IS->value : filterCompareOperator::ISNOT->value;
+                } 
+            }
 
             //Build WHERE or HAVING
             if (strpos($value->sqlName, "!") !== 0) {
-                $islike = $value->sqlCompareOperator == filterCompareOperator::LIKE ? "%" : "";
+                //Prepare added values
+                if($value->sqlCompareOperator == filterCompareOperator::LIKE) {
+                    $get = "%" . $get . "%";
+                }
                 $add = ($value->isHaving ? $filterHaving : $filterWhere);
-                $add .= ((strlen($add) == 0) ? "" : " AND ") . $value->sqlName . " " . $value->sqlCompareOperator->value . " ?";
+                $add .= ((strlen($add) == 0) ? "" : " AND ");
+
+                //Fill comparator
+                $comparator = str_replace("{COLUMN_NAME}",$value->sqlName,$comparator);
+                $countOfValues = substr_count($comparator,"?");
+                $add .= $comparator;
+
+                //Add to correct place
                 if ($value->isHaving) {
                     $filterHaving = $add;
-                    $valuesHaving[] = $islike . $get . $islike;
-                    $filterKeysHaving .= $keySQL;
+                    for ($i=0; $i < $countOfValues; $i++) { 
+                        $valuesHaving[] = $get;
+                    }
+                    $filterKeysHaving .= str_repeat($keySQL,$countOfValues);
                 } else {
                     $filterWhere = $add;
-                    $valuesWhere[] = $islike . $get . $islike;
-                    $filterKeysWhere .= $keySQL;
+                    for ($i=0; $i < $countOfValues; $i++) { 
+                        $valuesWhere[] = $get;
+                    }
+                    $filterKeysWhere .= str_repeat($keySQL,$countOfValues);
                 }
             }
         } else {
