@@ -25,54 +25,67 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
-        function attendantEmail($result) {
+        function attendantEmail($result)
+        {
             $email = $result["email"];
             $uid = $result["id_parent"];
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
-        }      
+        }
+        function attendantClassroom($result)
+        {
+            if ($result->subeventId == null) {
+                return "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
+            } else if ($result["id_classrooms"] == null) {
+                return "<a href='./subevent.php?subevent=$result->subeventId'>Zařaďte žáka automaticky do učebny</a>";
+            }
+            return $result["cname"];
+        }
         $resultEventId = $result->eventId;
         $resultSubeventId = $result->subeventId;
 
         //Get classrooms for subevent
         $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms WHERE cs.id_subevents = ?;");
-        if(!$stmt->bind_param("i",$resultSubeventId) || !$stmt->execute() || !$stmt->store_result()) {
+        if (!$stmt->bind_param("i", $resultSubeventId) || !$stmt->execute() || !$stmt->store_result()) {
             $stmt->close();
             echo "<h1>Nelze získat informace o učebnách.</h1>";
             die();
         }
         echo "<datalist id='classrooms'>";
         echo "<option label='Žádná' value='NULL'></option>";
-        for ($i=0; $i < $stmt->num_rows; $i++) { 
+        for ($i = 0; $i < $stmt->num_rows; $i++) {
             $stmt->bind_result($idClassroom, $classroomName);
             $stmt->fetch();
             echo "<option label='$classroomName' value='$classroomId'></option>";
         }
         echo "</datalist>";
 
+        //Echo registered attendants
         echo "<h1>Zájemci přihlášení na akci</h1>";
         setupFilteredTable(
             $conn,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ra.variable_symbol, ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
+            "ra.variable_symbol, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
             "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
             "ra.id_events = ?",
             "",
             "",
             "",
             "ii",
-            [$result->subeventId,$result->eventId],
+            [$result->subeventId, $result->eventId],
             [
-                new filterSelector("aFullName", "Jméno a přijmení","aFullName",filterSelectorType::TEXT,filterCompareOperator::LIKE,true),
-                new filterSelector("uFullName", "Zákonný zástupce","uFullName",filterSelectorType::TEXT,filterCompareOperator::LIKE,true),
-                new filterSelector("email","Email zákonného zástupce","email",filterSelectorType::TEXT,filterCompareOperator::LIKE),
-                new filterSelector("ap.id_classrooms","Učebna","classroom",filterSelectorType::SELECTNUMERIC,filterCompareOperator::EQUALSNULLABLE,false, ["listId" => "classrooms"]),
+                new filterSelector("aFullName", "Jméno a přijmení", "aFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
+                new filterSelector("uFullName", "Zákonný zástupce", "uFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
+                new filterSelector("email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("ap.id_classrooms", "Učebna", "classroom", filterSelectorType::SELECTNUMERIC, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "classrooms"]),
+                new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS,true),
                 new filterSelector("ra.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
             ],
             [
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
-                new filterDisplayer("!attendantEmail","Email zákonného zástupce",true),
-                new filterDisplayer("id_classrooms","Učebna",true),
+                new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
+                new filterDisplayer("!attendantClassroom", "Učebna", true),
+                new filterDisplayer("hasPaid", "Zaplaceno", true),
                 new filterDisplayer("variable_symbol", "Variabilní symbol", false),
             ]
         );
