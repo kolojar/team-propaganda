@@ -59,43 +59,37 @@ if (isset($_POST["action"])) {
     </header>
     <main>
         <?php
-        //Request classrooms
-        $stmt = $conn->prepare("SELECT id_classrooms, name,places_to_sit,  note FROM classrooms_teamPropaganda");
-        if (!$stmt->execute() || !$stmt->store_result()) {
-            echo "<h1>Nelze získat seznam učeben.</h1>";
-            echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
-            $stmt->close();
-            die();
+        function actionButtons($result, $setup) {
+            $id = $result["id_classrooms"];
+            return "<a tabindex='-1' href='./classroom.php?classroom=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>";
         }
 
-        //Generate HTML
-        echo "<h1>Všechny dostupné učebny v databázi</h1>";
-        echo "<table>";
-        echo "<tr>";
-        echo "<th>Akce</th>";
-        echo "<th>Název učebny</th>";
-        echo "<th>Počet míst k sezení</th>";
-        echo "<th>Poznámka</th>";
-        echo "</tr>";
-
-        //List all classrooms in table
-        for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($id, $name, $placesToSit, $note);
-            $stmt->fetch();
-            $tab1 = $i * 2 + 200;
-            $tab2 = $tab1 + 1;
-            echo "<tr class='clickHighlightRow'>
-                        <td class='formButtonBoxTable'>
-                            <a tabindex='-1' href='./classroom.php?classroom=$id'><button tabindex='$tab1' form-icon='!edit' class='purkynkaButton'></button></a><button tabindex='$tab2' form-icon='!delete' class='purkynkaButton btnTableDelete' classroom='$id'></button>
-                        </td>
-                        <td>$name</td>
-                        <td>$placesToSit</td>
-                        <td>$note</td>
-                    </tr>";
-        }
-        $stmt->free_result();
+        setupFilteredTable(
+            $conn,
+            null,
+            "purkynkaTableStripped purkynkaTableFullLines",
+            "id_classrooms, name, places_to_sit, note",
+            "classrooms_teamPropaganda",
+            "",
+            "",
+            "",
+            "",
+            "",
+            [],
+            [
+                new filterSelector("name", "Název učebny", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE, false),
+                new filterSelector("places_to_sit", "Počet míst k sezení", "placesToSit", filterSelectorType::NUMBER, filterCompareOperator::EQUALS, false),
+                new filterSelector("places_to_sit", "Minimální počet míst k sezení", "placesToSitMin", filterSelectorType::NUMBER, filterCompareOperator::MOREEQUALS, false),
+                new filterSelector("places_to_sit", "Maximální počet míst k sezení", "placesToSitMax", filterSelectorType::NUMBER, filterCompareOperator::LESSEQUALS, false),
+            ],
+            [
+                new filterDisplayer("!actionButtons", "Akce", true,filterSelectorType::TEXT,'formButtonBoxTable'),
+                new filterDisplayer("name", "Název učebny", true),
+                new filterDisplayer("places_to_sit", "Počet míst k sezení", true),
+                new filterDisplayer("note", "Poznámka", true),
+            ]
+        );
         ?>
-        </table>
         <a tabindex='-1' href='./classroom.php?newClassroom=1'><button tabindex='1' class='formButton purkynkaButton' form-icon="!add"><span>Vytvořit učebnu</span></button></a>
     </main>
     <footer>
