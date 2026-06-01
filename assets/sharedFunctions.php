@@ -283,7 +283,7 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
             } else if ($value->type == filterSelectorType::SELECT) {
                 $type = "select";
                 $keySQL = "s";
-            }else if ($value->type == filterSelectorType::SELECTNUMERIC) {
+            } else if ($value->type == filterSelectorType::SELECTNUMERIC) {
                 $type = "select";
                 $keySQL = "i";
             } else if ($value->type == filterSelectorType::TEXTAREA) {
@@ -304,43 +304,45 @@ function setupFilteredTable(mysqli $conn, string $tableStyleClasses, string $raw
 
             //Sort special types
             $comparator = $value->sqlCompareOperator->value;
-            if($value->type == filterSelectorType::BOOLEAN_NULL) {
-                $getCheck = filter_var($get,FILTER_VALIDATE_BOOLEAN);
+            if ($value->type == filterSelectorType::BOOLEAN_NULL) {
+                $getCheck = filter_var($get, FILTER_VALIDATE_BOOLEAN);
                 $get = NULL;
-                if($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
+                if ($value->sqlCompareOperator == filterCompareOperator::ISNOT) {
                     $comparator = $getCheck ? filterCompareOperator::ISNOT->value : filterCompareOperator::IS->value;
-                } else if($value->sqlCompareOperator == filterCompareOperator::IS) {
+                } else if ($value->sqlCompareOperator == filterCompareOperator::IS) {
                     $comparator = $getCheck ? filterCompareOperator::IS->value : filterCompareOperator::ISNOT->value;
-                } 
+                }
+            } else if ($value->type == filterSelectorType::BOOLEAN) {
+                $get = $get == true ? 1 : 0;
             }
 
             //Build WHERE or HAVING
             if (strpos($value->sqlName, "!") !== 0) {
                 //Prepare added values
-                if($value->sqlCompareOperator == filterCompareOperator::LIKE) {
+                if ($value->sqlCompareOperator == filterCompareOperator::LIKE) {
                     $get = "%" . $get . "%";
                 }
                 $add = ($value->isHaving ? $filterHaving : $filterWhere);
                 $add .= ((strlen($add) == 0) ? "" : " AND ");
 
                 //Fill comparator
-                $comparator = str_replace("{COLUMN_NAME}",$value->sqlName,$comparator);
-                $countOfValues = substr_count($comparator,"?");
+                $comparator = str_replace("{COLUMN_NAME}", $value->sqlName, $comparator);
+                $countOfValues = substr_count($comparator, "?");
                 $add .= $comparator;
 
                 //Add to correct place
                 if ($value->isHaving) {
                     $filterHaving = $add;
-                    for ($i=0; $i < $countOfValues; $i++) { 
+                    for ($i = 0; $i < $countOfValues; $i++) {
                         $valuesHaving[] = $get;
                     }
-                    $filterKeysHaving .= str_repeat($keySQL,$countOfValues);
+                    $filterKeysHaving .= str_repeat($keySQL, $countOfValues);
                 } else {
                     $filterWhere = $add;
-                    for ($i=0; $i < $countOfValues; $i++) { 
+                    for ($i = 0; $i < $countOfValues; $i++) {
                         $valuesWhere[] = $get;
                     }
-                    $filterKeysWhere .= str_repeat($keySQL,$countOfValues);
+                    $filterKeysWhere .= str_repeat($keySQL, $countOfValues);
                 }
             }
         } else {
