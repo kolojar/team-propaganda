@@ -25,13 +25,13 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
-        function attendantEmail($result,$setup)
+        function attendantEmail($result, $setup)
         {
             $email = $result["email"];
             $uid = $result["id_parent"];
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
         }
-        function attendantClassroom($result,$setup)
+        function attendantClassroom($result, $setup)
         {
             if ($setup->subeventId == null) {
                 return "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
@@ -39,6 +39,12 @@ require "./adminFunctions.php";
                 return "<a href='./subevent.php?subevent=$setup->subeventId'>Zařaďte žáka automaticky do učebny</a>";
             }
             return $result["cname"];
+        }
+        function attendantActionButtons($result, $setup)
+        {
+            $attendantId = $result["id_attendants"];
+            $variableSymbol = $result["variable_symbol"];
+            return "<a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>";
         }
         $resultEventId = $result->eventId;
         $resultSubeventId = $result->subeventId;
@@ -78,11 +84,12 @@ require "./adminFunctions.php";
                 new filterSelector("uFullName", "Zákonný zástupce", "uFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
                 new filterSelector("email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("ap.id_classrooms", "Učebna", "classroom", filterSelectorType::SELECTNUMERIC, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "classrooms"]),
-                new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS,true),
+                new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
                 new filterSelector("ra.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
-                new filterSelector("school", "Základní škola", "school", filterSelectorType::TEXT, filterCompareOperator::LIKE,true,["filterFieldId" => "school"]),
+                new filterSelector("school", "Základní škola", "school", filterSelectorType::TEXT, filterCompareOperator::LIKE, true, ["filterFieldId" => "school"]),
             ],
             [
+                new filterDisplayer("!attendantActionButtons", "Akce", true),
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
@@ -94,176 +101,6 @@ require "./adminFunctions.php";
                 new filterDisplayer("variable_symbol", "Variabilní symbol", false),
             ]
         );
-
-        ////Get highlighted schools
-        //$highlightSchools = [];
-        //if(isset($_GET['schools'])) {
-        //    $highlightSchools = explode(',',$_GET["schools"]);
-        //}
-        
-        $found = false;
-        //Request paid attendants
-        if ($result->roleType->role == userRole::ADMIN) {
-            $resultEventId = $result->eventId;
-            $resultSubeventId = $result->subeventId;
-            $stmt = $conn->prepare("SELECT ra.variable_symbol, ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NOT NULL AND ra.id_events = ?;");
-            if (!$stmt->bind_param("ii", $resultSubeventId, $resultEventId) || !$stmt->execute() || !$stmt->store_result()) {
-                echo "<h1>Nelze získat informace o registrovaných a zaplacených zájemcích.</h1>";
-                $stmt->close();
-            } else {
-                if ($stmt->num_rows > 0) {
-                    $found = true;
-                    //Echo header
-                    echo "<h1>Registrovaní a zaplacení zájemci: " . $stmt->num_rows . "</h1>
-                  <table>
-                      <tr>
-                          <th>Akce</th>
-                          <th>Jméno a přijmení</th>
-                          <th>Zákonný zástupce</th>
-                          <th>Email zákonného zástupce</th>
-                          <th>Učebna</th>
-                          <th>Základní škola</th>
-                          <th>Datum registrace</th>
-                          <th>Datum platby</th>
-                      </tr>";
-
-                    //List all attendants in table
-                    for ($i = 0; $i < $stmt->num_rows; $i++) {
-                        if (!$stmt->bind_result($variableSymbol, $registered, $paid, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName) || !$stmt->fetch()) {
-                            $attendantName = "CHYBA";
-                            $attendantSurname = "CHYBA";
-                            $parentName = "CHYBA";
-                            $parentSurname = "CHYBA";
-                            $parentEmail = "CHYBA";
-                            $parentId = "NULL";
-                            $schoolName = "CHYBA";
-                            $schoolAddress = "CHYBA";
-                            $registered = "CHYBA";
-                            $paid = "CHYBA";
-                            $attendantId = "NULL";
-                            $schoolId = "NULL";
-                            $classroomId = "NULL";
-                            $classroomName = "CHYBA";
-                            $variableSymbol = "NULL";
-                        } else {
-                            $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                            $paid = new DateTime($paid)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                        }
-
-                        //Classroom name field
-                        $classroomNameText = $classroomName;
-                        if ($result->subeventId == null) {
-                            $classroomNameText = "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
-                        } else if ($classroomId == null) {
-                            $classroomNameText = "<a href='./subevent.php?subevent=$result->subeventId'>Zařaďte žáka automaticky do učebny</a>";
-                        }
-
-                        //Highlight
-                        $highlightSchoolClass = "";
-                        if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                            $highlightSchoolClass = "trHighlight";
-                        }
-
-                        //Put in table
-                        echo "<tr class='clickHighlightRow $highlightSchoolClass'>
-                        <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>
-                        </td>
-                        <td>$attendantName $attendantSurname</td>
-                        <td>$parentName $parentSurname</td>
-                        <td> <a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
-                        <td>$classroomNameText</td>
-                        <td>$schoolName → $schoolAddress</td>
-                        <td>$registered</td>
-                        <td>$paid</td>
-                    </tr>";
-                    }
-                    echo "</table>";
-                    $stmt->close();
-                }
-            }
-        }
-        ////Get highlighted schools
-        //$highlightSchools = [];
-        //if(isset($_GET['schools'])) {
-        //    $highlightSchools = explode(',',$_GET["schools"]);
-        //}
-        
-        //Request not paid attendants
-        $stmt = $conn->prepare("SELECT ra.registered, ra.paid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, ap.id_classrooms,c.name FROM registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms WHERE ra.paid IS NULL AND ra.id_events = ?;");
-        if (!$stmt->bind_param("ii", $resultSubeventId, $resultEventId) || !$stmt->execute() || !$stmt->store_result()) {
-            echo "<h1>Nelze získat informace o registrovaných a nezaplacených zájemcích.</h1>";
-            $stmt->free_result();
-        } else {
-            if ($stmt->num_rows > 0) {
-                $found = true;
-                //Echo header
-                echo "<h1>Registrovaní a nezaplacení zájemci: " . $stmt->num_rows . "</h1>
-                  <table>
-                  <tr>
-                      <th>Akce</th>
-                      <th>Jméno a přijmení</th>
-                      <th>Zákonný zástupce</th>
-                      <th>Email zákonného zástupce</th>
-                      <th>Učebna</th>
-                      <th>Základní škola</th>
-                      <th>Datum registrace</th>
-                  </tr>";
-
-                //List all attendants in table
-                for ($i = 0; $i < $stmt->num_rows; $i++) {
-                    if (!$stmt->bind_result($registered, $variableSymbol, $attendantId, $attendantName, $attendantSurname, $parentId, $parentName, $parentSurname, $parentEmail, $schoolId, $schoolName, $schoolAddress, $classroomId, $classroomName) || !$stmt->fetch()) {
-                        $registered = "CHYBA";
-                        $variableSymbol = null;
-                        $attendantId = null;
-                        $attendantName = "CHYBA";
-                        $attendantSurname = "CHYBA";
-                        $parentId = null;
-                        $parentName = "CHYBA";
-                        $parentSurname = "CHYBA";
-                        $parentEmail = "CHYBA";
-                        $schoolId = null;
-                        $schoolName = "CHYBA";
-                        $schoolAddress = "CHYBA";
-                        $classroomId = null;
-                        $classroomName = "CHYBA";
-                        $variableSymbolFormated = "CHYBA";
-                    } else {
-                        $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
-                        $registered = new DateTime($registered)->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
-                    }
-
-                    //Classroom name field
-                    $classroomNameText = $classroomName;
-                    if ($result->subeventId == null) {
-                        $classroomNameText = "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
-                    } else if ($classroomId == null) {
-                        $classroomNameText = "<a href='./payments.php?variableSymbol=$variableSymbol'>Čeká na platbu</a>";
-                    }
-
-                    //Highlight
-                    $highlightSchoolClass = "";
-                    if (isset($_GET["school"]) && $_GET["school"] == $schoolId) {
-                        $highlightSchoolClass = "trHighlight";
-                    }
-
-                    //Put in table
-                    echo "<tr class='clickHighlightRow $highlightSchoolClass'>
-                        <td class='formButtonBoxTable'>
-                            <a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton formButtonInline purkynkaButton btnUnregisterTable' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>
-                        </td>
-                        <td>$attendantName $attendantSurname</td>
-                        <td>$parentName $parentSurname</td>
-                        <td><a href='./sendMail.php?uid=$parentId&isNILE=0'>$parentEmail</td>
-                        <td>$classroomNameText</td>
-                        <td>$schoolName → $schoolAddress</td>
-                        <td>$registered</td>
-                    </tr>";
-                }
-                echo "</table>";
-                $stmt->close();
-            }
-        }
 
         //Request rejected attendants
         if ($result->roleType->role == userRole::ADMIN) {
