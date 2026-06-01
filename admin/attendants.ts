@@ -1,5 +1,5 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
-import { SendToast } from "../formWebScripts/js/formScript.js";
+import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 import { setupTableDeleteButtons } from "../assets/sharedScripts.js";
 
@@ -10,7 +10,7 @@ for (const button of document.getElementsByClassName("btnUnregisterTable")) {
             SendToast("Odhlásit zájemce", "Odhlášení zájmece zrušeno.", "info")
             return
         }
-        const reason = await dialogManager.ShowPromptAsync<string | null>("Odhlásit zájemce", "Zadejte důvod odhlášení.", null, "text",{placeholder: "Důvod odhlášení"})
+        const reason = await dialogManager.ShowPromptAsync<string | null>("Odhlásit zájemce", "Zadejte důvod odhlášení.", null, "text", { placeholder: "Důvod odhlášení" })
         if (reason == null) {
             SendToast("Odhlásit zájemce", "Odhlášení zájmece zrušeno.", "info")
             return
@@ -26,7 +26,7 @@ for (const button of document.getElementsByClassName("btnUnregisterTable")) {
         if (!ok) {
             progress?.CloseDialog()
             SendToast("Odhlásit zájemce", "Nepodařilo se odhlásit zájemce!", "error")
-            await dialogManager.ShowAlertAsync("Odhlásit zájemce","Nepodařilo se odhlásit zájemce, zkuste to prosím znovu a později.<br>Důvod: " + responce )
+            await dialogManager.ShowAlertAsync("Odhlásit zájemce", "Nepodařilo se odhlásit zájemce, zkuste to prosím znovu a později.<br>Důvod: " + responce)
             return
         }
         SendToast("Odhlásit zájemce", "Zájemce odhlášen!", "ok")
@@ -60,3 +60,28 @@ for (const button of document.getElementsByClassName("btnDeleteTotalTable")) {
         }, 1000)
     })
 }
+
+//Make attendant change school field work
+const schools = async () => {
+for (const element of document.querySelectorAll("[filter-field-id='school']")) {
+    const filterSchool = element as HTMLFormInputElement
+    filterSchool.validationFunction = async (value: string | boolean) => {
+        const timestamp = new Date()
+        const data = new FormData(undefined, null)
+        console.log(filterSchool.value);
+        data.set("query", filterSchool.valueRaw.toString())
+        const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data)
+        const options = new Map()
+        for (const school of JSON.parse(msg)) {
+            console.log(school);
+            options.set(school.name + " → " + school.address, school.name + " → " + school.address)
+        }
+        console.log(options);
+        filterSchool.setOptions(options, timestamp)
+        return Promise.resolve(true);
+    }
+    filterSchool.isStrictList = false;
+    await filterSchool.validate()
+}
+}
+schools()

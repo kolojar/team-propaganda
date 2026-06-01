@@ -55,4 +55,28 @@ for (const button of document.getElementsByClassName("btnDeleteTotalTable")) {
         }, 1000);
     });
 }
+//Make attendant change school field work
+const schools = async () => {
+    for (const element of document.querySelectorAll("[filter-field-id='school']")) {
+        const filterSchool = element;
+        filterSchool.validationFunction = async (value) => {
+            const timestamp = new Date();
+            const data = new FormData(undefined, null);
+            console.log(filterSchool.value);
+            data.set("query", filterSchool.valueRaw.toString());
+            const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data);
+            const options = new Map();
+            for (const school of JSON.parse(msg)) {
+                console.log(school);
+                options.set(school.name + " → " + school.address, school.name + " → " + school.address);
+            }
+            console.log(options);
+            filterSchool.setOptions(options, timestamp);
+            return Promise.resolve(true);
+        };
+        filterSchool.isStrictList = false;
+        await filterSchool.validate();
+    }
+};
+schools();
 //# sourceMappingURL=attendants.js.map
