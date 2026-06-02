@@ -60,12 +60,11 @@ require "./adminFunctions.php";
         new filterSelector("cnt","Počet zájemců","count",filterSelectorType::NUMBER,filterCompareOperator::EQUALS,true,["min"=>0]),
         new filterSelector("cnt","Minimální počet zájemců","countmin",filterSelectorType::NUMBER,filterCompareOperator::MOREEQUALS, true,["min"=>0]),
         new filterSelector("cnt","Maximální počet zájemců","countmax",filterSelectorType::NUMBER,filterCompareOperator::LESSEQUALS, true,["min"=>0]),
-        new filterSelector("!test","Test","test",filterSelectorType::NUMBER,filterCompareOperator::EQUALS, true,["min"=>0])
         ],[
             new filterDisplayer("!putFirstCell","Akce",true),
             new filterDisplayer("sname","Název",true),
             new filterDisplayer("address","Adresa",true),
-            new filterDisplayer("cnt","Počet zájemcu",true)
+            new filterDisplayer("cnt","Počet zájemcu",true,filterSelectorType::NUMBER)
         ])
             ?>
     </main>
