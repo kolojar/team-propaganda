@@ -595,8 +595,15 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                         }
                     }
 
+                    //Try to format number
+                    if ($value[1]->valueFormat == filterSelectorType::NUMBER) {
+                        if ($formated == null) {
+                            $formated = 0;
+                        }
+                    }
+
                     //Format NULL
-                    if ($formated == NULL) {
+                    if ($formated === NULL) {
                         $formated = "Není k dispozici";
                     }
                     echo "<td class='$cellClasses'>" . $formated . "</td>";
