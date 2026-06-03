@@ -104,8 +104,8 @@ enum filterCompareOperator: string
     case EQUALS = "{COLUMN_NAME} = ?";
     case EQUALSNULLABLE = "((? IS NULL AND {COLUMN_NAME} IS NULL) OR {COLUMN_NAME} = ?)";
     case NOTEQUALS = "{COLUMN_NAME} != ?";
-    case IS = "{COLUMN_NAME} IS ?";
-    case ISNOT = "{COLUMN_NAME} IS NOT ?";
+    case IS = "{COLUMN_NAME} IS NULL";
+    case ISNOT = "{COLUMN_NAME} IS NOT NULL";
     case LESS = "{COLUMN_NAME} < ?";
     case LESSEQUALS = "{COLUMN_NAME} <= ?";
     case MORE = "{COLUMN_NAME} > ?";
@@ -239,6 +239,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     //Convert filter selectors
     $filterSelectors = [];
     foreach ($filterSelectorsRaw as $key => $value) {
+        if($value == null) {continue;}
         if (str_contains($value->sqlName, ",")) {
             errorToConsole("SQL name can not contain \",\": " . $value->sqlName);
         }
@@ -276,7 +277,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                 $type = "time";
                 $keySQL = "s";
             } else if ($value->type == filterSelectorType::DATETIME) {
-                $type = "datetime";
+                $type = "datetime-local";
                 $keySQL = "s";
             } else if ($value->type == filterSelectorType::NUMBER) {
                 $type = "number";
@@ -323,7 +324,6 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                 } else if ($value->sqlCompareOperator == filterCompareOperator::IS) {
                     $comparator = $getCheck ? filterCompareOperator::IS->value : filterCompareOperator::ISNOT->value;
                 }
-                continue;
             } else if ($value->type == filterSelectorType::BOOLEAN) {
                 $getCheck = filter_var($get, FILTER_VALIDATE_BOOLEAN);
                 $get = $getCheck ? 1 : 0;
@@ -346,16 +346,20 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                 //Add to correct place
                 if ($value->isHaving) {
                     $filterHaving = $add;
+                    if($value->type != filterSelectorType::BOOLEAN_NULL) {
                     for ($i = 0; $i < $countOfValues; $i++) {
                         $valuesHaving[] = $get;
                     }
                     $filterKeysHaving .= str_repeat($keySQL, $countOfValues);
+                    }
                 } else {
                     $filterWhere = $add;
+                    if($value->type != filterSelectorType::BOOLEAN_NULL) {
                     for ($i = 0; $i < $countOfValues; $i++) {
                         $valuesWhere[] = $get;
                     }
                     $filterKeysWhere .= str_repeat($keySQL, $countOfValues);
+                    }
                 }
             }
         } else {
@@ -377,6 +381,7 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     }
     $activeDisplayers = [];
     foreach ($filterDisplayers as $key => $value) {
+        if($value == null) {continue;}
         if ($filterDisplayersGet == null) {
             $activeDisplayers[$value->sqlName] = [$value->defaultVisible, $value];
         } else {
