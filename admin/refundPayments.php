@@ -156,27 +156,61 @@ if (isset($_POST["action"])) {
             }
         }
 
+        function attendantEmail($result, $setup)
+        {
+            $email = $result["email"];
+            $uid = $result["id_parent"];
+            if ($email == "") {
+                return "Není k dispozici";
+            }
+            return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
+        }
+
+        function action($result, $setup)
+        {
+            $variableSymbol = $result['vs'];
+            $bankAccount = $result['bank_account'];
+            $eventPrice = $result['price'];
+            if ($result['paid'] != null) {
+                return "<button class='purkynkaButton btnRefundTable' variableSymbol='$variableSymbol' bankAccount='$bankAccount' price='$eventPrice' form-icon='!refund'></button>";
+            }
+        }
+
         //Request waiting for refund attendats and paid attendants
         setupFilteredTable(
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ua.variable_symbol as vs, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email,e.price",
+            "ua.variable_symbol as vs, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email,e.price CONCAT(ua.name, ' ', ua.surname) as aName, CONCAT(u.name, ' ', u.surname) as uName",
             "unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events",
-            ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "ua.refunded IS NULL AND ua.paid IS NOT NULL AND e.price != 0;",
+            ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "e.price != 0;",
             "",
             "",
             "",
             "i",
             [$resultEventId],
             [
-
+                new filterSelector("ua.variable_symbol","Variabilní symbol","vs",filterSelectorType::NUMBER,filterCompareOperator::EQUALS),
+                new filterSelector("aName","Jméno a přijmení","aName",filterSelectorType::TEXT,filterCompareOperator::LIKE,true),
+                new filterSelector("uName","Zákonný zástupce","uName",filterSelectorType::TEXT,filterCompareOperator::LIKE,true),
+                new filterSelector("email","Email zákonného zástupce","email",filterSelectorType::TEXT,filterCompareOperator::LIKE,true),
+                new filterSelector("ua.refunded","Vráceno","isRefunded",filterSelectorType::BOOLEAN_NULL,filterCompareOperator::ISNOT),
+                new filterSelector("ua.registered","Datum registrace","registered",filterSelectorType::TEXT,filterCompareOperator::EQUALS),
+                new filterSelector("ua.paid","Datum platby","paid",filterSelectorType::TEXT,filterCompareOperator::EQUALS),
+                new filterSelector("ua.unregistered","Datum odhlášení","unregistered",filterSelectorType::TEXT,filterCompareOperator::EQUALS),
+                new filterSelector("ua.refunded","Datum vrácení platby","refunded",filterSelectorType::TEXT,filterCompareOperator::EQUALS),
             ],
             [
-                new filterDisplayer("vs","Variabilní symbol",false),
-                new filterDisplayer("registered","Datum registrace",false,filterSelectorType::DATETIME),
-                new filterDisplayer("vs","Variabilní symbol",false),
-                new filterDisplayer("vs","Variabilní symbol",false),
+                new filterDisplayer("!action", "Akce", true, filterSelectorType::TEXT, 'formButtonBoxTable'),
+                new filterDisplayer("vs", "Variabilní symbol", true, filterSelectorType::TEXT, "fontMono"),
+                new filterDisplayer("aName", "Jméno a přijmení", true),
+                new filterDisplayer("uName", "Zákonný zástupce", true),
+                new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
+                new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
+                new filterDisplayer("paid", "Datum platby", false, filterSelectorType::DATETIME),
+                new filterDisplayer("unregistered", "Datum odhlášení", false, filterSelectorType::DATETIME),
+                new filterDisplayer("refunded", "Datum vrácení platby", true, filterSelectorType::DATETIME),
+                new filterDisplayer("reason", "Důvod oodhlášení", true),
             ]
         );
 
