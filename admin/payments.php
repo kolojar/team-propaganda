@@ -173,10 +173,7 @@ if (isset($_POST["action"])) {
 
             ],
             [
-                new filterDisplayer("vs","Variabilní symbol",false),
-                new filterDisplayer("registered","Datum registrace",false,filterSelectorType::DATETIME),
-                new filterDisplayer("vs","Variabilní symbol",false),
-                new filterDisplayer("vs","Variabilní symbol",false),
+                new filterDisplayer("vs","Variabilní symbol",false)
             ]
         );
 
