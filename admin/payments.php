@@ -77,16 +77,16 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid) || !$stmt->fetch() || !$stmt->close()) {
+        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account, registered, paid, user_paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid,$userPaid) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o zájemci.";
             die();
         }
 
         //Insert SQL entry
-        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
-        if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]) || !$stmt->execute() || !$stmt->close()) {
+        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason,user_paid) VALUES (?,?,?,?,?,?,?,?)");
+        if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"],$userPaid) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze vložit informace o odhlášení zájemce.";
             die();
@@ -173,7 +173,7 @@ if (isset($_POST["action"])) {
 
             ],
             [
-                new filterDisplayer("vs","Variabilní symbol",false)
+                new filterDisplayer("vs", "Variabilní symbol", false)
             ]
         );
 
@@ -538,7 +538,9 @@ if (isset($_POST["action"])) {
         ?>
     </main>
     <footer>
-
+        <div class="formButtonBoxHolder">
+            <a href="./refundPayments.php"><button class="purkynkaButton">Platby na vrácení</button></a>
+        </div>
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
