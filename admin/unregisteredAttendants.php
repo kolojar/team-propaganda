@@ -45,75 +45,60 @@ require "./adminFunctions.php";
         }
         function attendantActionButtons($result, $setup)
         {
-            $attendantId = $result["id_attendants"];
+            $disableDelete = $result["refunded"] == null ? "disabled" : "";
             $variableSymbol = $result["variable_symbol"];
-            return "<a href='./attendant.php?attendant=$attendantId'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a><button class='formButton btnUnregisterTable formButtonInline purkynkaButton' variableSymbol='$variableSymbol' form-icon='!removePerson'></button>";
+            return "<button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol' form-icon='!delete'></button>";
         }
         $resultEventId = $result->eventId;
         $resultSubeventId = $result->subeventId;
 
-        //Get classrooms for subevent
-        $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms WHERE cs.id_subevents = ?;");
-        if (!$stmt->bind_param("i", $resultSubeventId) || !$stmt->execute() || !$stmt->store_result()) {
-            $stmt->close();
-            echo "<h1>Nelze získat informace o učebnách.</h1>";
-            die();
-        }
-        echo "<datalist id='classrooms'>";
-        echo "<option label='Žádná' value='NULL'></option>";
-        for ($i = 0; $i < $stmt->num_rows; $i++) {
-            $stmt->bind_result($idClassroom, $classroomName);
-            $stmt->fetch();
-            echo "<option label='$classroomName' value='$idClassroom'></option>";
-        }
-        echo "</datalist>";
-
-        //Echo registered attendants
-        echo "<h1>Zájemci přihlášení na akci</h1>";
+        //Echo unregistered attendants
+        echo "<h1>Odhlášení zájemci z akce</h1>";
         setupFilteredTable(
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ra.variable_symbol, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, CONCAT(s.name, ' → ', s.address) as school, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
-            "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.variable_symbol = ra.variable_symbol AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
-            "ra.id_events = ?",
+            "ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, (ua.paid IS NOT NULL) as hasPaid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, (ua.refunded IS NOT NULL) as hasReturned, a.name, a.surname, CONCAT(a.name, ' ', a.surname) AS aFullName, a.id_parent, u.name, u.surname, CONCAT(u.name, ' ', u.surname) AS uFullName, u.email, e.price",
+            "unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events",
+            "ua.id_events = ?",
             "",
             "",
             "",
-            "ii",
-            [$result->subeventId, $result->eventId],
+            "i",
+            [$result->eventId],
             [
                 new filterSelector("aFullName", "Jméno a přijmení", "aFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
                 new filterSelector("uFullName", "Zákonný zástupce", "uFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
-                new filterSelector("email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
-                new filterSelector("ap.id_classrooms", "Učebna", "classroom", filterSelectorType::SELECTNUMERIC, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "classrooms"]),
+                new filterSelector("u.email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
-                new filterSelector("ra.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
-                new filterSelector("school", "Základní škola", "school", filterSelectorType::TEXT, filterCompareOperator::LIKE, true, ["filterFieldId" => "school"]),
+                new filterSelector("hasReturned", "Vráceno", "hasReturned", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
+                new filterSelector("ua.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
             ],
             [
                 new filterDisplayer("!attendantActionButtons", "Akce", true),
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
-                new filterDisplayer("!attendantClassroom", "Učebna", true),
+                new filterDisplayer("variable_symbol", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
                 new filterDisplayer("hasPaid", "Zaplaceno", true, filterSelectorType::BOOLEAN),
-                new filterDisplayer("school", "Základní škola", true),
+                new filterDisplayer("hasReturned", "Vráceno", true, filterSelectorType::BOOLEAN),
                 new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
                 new filterDisplayer("paid", "Datum platby", false, filterSelectorType::DATETIME),
-                new filterDisplayer("variable_symbol", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
+                new filterDisplayer("unregistered", "Datum odhlášení", false, filterSelectorType::DATETIME),
+                new filterDisplayer("refunded", "Datum vrácení platby", false, filterSelectorType::DATETIME),
+                new filterDisplayer("reason", "Důvod odhlášení", true),
             ]
         );
         ?>
     </main>
     <footer>
         <div class="formButtonBoxHolder">
-        <a href="./unregisteredAttendants.php"><button class="purkynkaButton">Odhlášení zájemci</button></a>
+        <a href="./attendants.php"><button class="purkynkaButton">Přihlášení zájemci</button></a>
         </div>
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type='module' src='../assets/sharedScripts.js'></script>
-<script type='module' src='./attendants.js'></script>
+<script type='module' src='./unregisteredAttendants.js'></script>
 
 </html>

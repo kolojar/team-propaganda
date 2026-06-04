@@ -32,27 +32,28 @@ for (const button of document.getElementsByClassName("btnUnregisterTable")) {
         }, 1000);
     });
 }
-for (const button of document.getElementsByClassName("btnDeleteTotalTable")) {
-    button.addEventListener("click", async () => {
-        if (!await dialogManager.ShowConfirmAsync("Odstranit zájemce", "Opravdu chcete odstranit zájemce?")) {
-            SendToast("Odstranit zájemce", "Odstranění zájmece zrušeno.", "info");
-            return;
-        }
-        //Send XHR
-        const progress = dialogManager.ShowProgress("Odstranit zájemce", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
-        const formData = new FormData();
-        formData.set("action", "delete");
-        formData.set("id", button.getAttribute("variableSymbol"));
-        const [ok, _] = await SendPOSTDataToServerAsync("./attendant.php", formData);
-        if (!ok) {
-            progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
-            SendToast("Odstranit zájemce", "Nepodařilo se odstranit zájemce!", "error");
-            return;
-        }
-        SendToast("Odstranit zájemce", "Zájemce odstraněn!", "ok");
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
-    });
-}
+//Make attendant change school field work
+const schools = async () => {
+    for (const element of document.querySelectorAll("[filter-field-id='school']")) {
+        const filterSchool = element;
+        filterSchool.validationFunction = async (value) => {
+            const timestamp = new Date();
+            const data = new FormData(undefined, null);
+            console.log(filterSchool.value);
+            data.set("query", filterSchool.valueRaw.toString());
+            const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data);
+            const options = new Map();
+            for (const school of JSON.parse(msg)) {
+                console.log(school);
+                options.set(school.name + " → " + school.address, school.name + " → " + school.address);
+            }
+            console.log(options);
+            filterSchool.setOptions(options, timestamp);
+            return Promise.resolve(true);
+        };
+        filterSchool.isStrictList = false;
+        await filterSchool.validate();
+    }
+};
+schools();
 //# sourceMappingURL=attendants.js.map

@@ -21,61 +21,44 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn, "schools.php") ?>
+        <?php $result = setupTitlebarAdmin($conn, "schools.php") ?>
     </header>
     <main>
         <?php
-        $isFirst = true;
-        //Request schools with student
-        $stmt = $conn->prepare("SELECT s.id_schools, s.name, s.address, COUNT(a.id_attendants), GROUP_CONCAT(a.id_attendants) FROM attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools WHERE ra.id_events = ?;");
-        if (!$stmt->bind_param("i", $_COOKIE["adminEventId"]) || !$stmt->execute() || !$stmt->store_result()) {
-            $stmt->close();
-            echo "<h1>Nelze získat informace o školách.</h1>";
-        } else if ($stmt->num_rows > 0) {
-
-            //List all schools with students in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                if (!$stmt->bind_result($id, $name, $address, $count, $users) || !$stmt->fetch()) {
-                    $id = null;
-                    $name = "CHYBA";
-                    $address = "CHYBA";
-                    $coun = "CHYBA";
-                    $users = "";
-                }
-                //HTML Header
-                if ($isFirst) {
-                    if ($count == 0) {
-                        echo "<h1>Žádní zájemci nejsou k dispozici</h1>";
-                        continue;
-                    }
-                    echo "<h1>Školy, které mají nahlášené zájemce</h1>
-                      <table>
-                          <tr>
-                              <th>Akce</th>
-                              <th>Počet zájemců</th>
-                              <th>Název</th>
-                              <th>Adresa</th>
-                          </tr>";
-                    $isFirst = false;
-                }
-
-                //HTML data
-                echo "<tr class='clickHighlightRow'>
-                        <td class='formButtonBoxTable'>
-                            <a href='./school.php?school=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>
-                            <a href='./attendants.php?school=$id'><button form-icon='!highlightUsers' class='formButton formButtonInline purkynkaButton'></button></a>
-                        </td>
-                        <td>$count</td>
-                        <td>$name</td>
-                        <td>$address</td>
-                    </tr>";
-            }
-            echo "</table>";
-            $stmt->close();
-        } else {
-            echo "<h1>Žádné školy se zájemci nejsou k dispozici.</h1>";
-            $stmt->close();
+        function putFirstCell($result, $setup)
+        {
+            $id = $result["id_schools"];
+            $res = "<a href='./school.php?school=$id'><button class='formButton formButtonInline purkynkaButton' form-icon='!edit'></button></a>";
+            $res .= "<a href='./attendants.php?school=$id'><button class='formButton formButtonInline purkynkaButton' form-icon='!highlightUsers'></button></a>";
+            return $res;
         }
+
+        setupFilteredTable(
+            $conn,
+            null,
+            "purkynkaTableStripped purkynkaTableFullLines",
+            "s.id_schools, s.name, s.address as address, COUNT(a.id_attendants) as cnt",
+            "attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools",
+            "ra.id_events = ?;",
+            "s.id_schools",
+            "",
+            "",
+            "i",
+            [$result->eventId],
+            [
+                new filterSelector("s.name", "Název", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("s.address", "Adresa", "address", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("cnt", "Počet zájemců", "count", filterSelectorType::NUMBER, filterCompareOperator::EQUALS, true, ["min" => 0]),
+                new filterSelector("cnt", "Minimální počet zájemců", "countmin", filterSelectorType::NUMBER, filterCompareOperator::MOREEQUALS, true, ["min" => 0]),
+                new filterSelector("cnt", "Maximální počet zájemců", "countmax", filterSelectorType::NUMBER, filterCompareOperator::LESSEQUALS, true, ["min" => 0]),
+            ],
+            [
+                new filterDisplayer("!putFirstCell", "Akce", true),
+                new filterDisplayer("name", "Název", true),
+                new filterDisplayer("address", "Adresa", true),
+                new filterDisplayer("cnt", "Počet zájemcu", true,filterSelectorType::NUMBER)
+            ]
+        );
         ?>
         <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton" form-icon='!add'><span>Přidat novou školu</span></button></a>
         <a href="./schoolsAll.php"><button class="formButton purkynkaButton" form-icon='!listTable'><span>Zobrazit všechny školy</span></button></a>

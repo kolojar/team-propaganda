@@ -26,68 +26,69 @@ require "./adminFunctions.php";
         ?>
     </header>
     <main>
+        <h1>Seznam uživatelů systému</h1>
         <?php
+        function role($result, $setup) {
+            return userRole::{$result["role"]}->value;
+        }
+        function type($result, $setup) {
+            return userType::{$result["type"]}->value;
+        }
+
+        //List all roles
+        echo "<datalist id='roles'>";
+        foreach (userRole::cases() as $key => $value) {
+            $name = $value->name;
+            $valueValue = $value->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
+
+        //List all types
+        echo "<datalist id='types'>";
+        foreach (userType::cases() as $key => $value) {
+            $name = $value->name;
+            $valueValue = $value->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
+
+        setupFilteredTable(
+            $conn,
+            $result,
+            "purkynkaTableStripped purkynkaTableFullLines",
+            "id_users, name,surname, email,role,type,last_login",
+            "users_teamPropaganda",
+            "",
+            "",
+            "",
+            "",
+            "",
+            [],
+            [
+                new filterSelector("name", "Jméno", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("surname", "Příjmení", "surname", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("email", "Email", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
+                new filterSelector("role", "Role", "role", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "roles"]),
+                new filterSelector("type", "Typ", "type", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "types"]),
+                new filterSelector("last_login", "Minimální datum posledního přihlášení", "lastLoginMin", filterSelectorType::DATETIME, filterCompareOperator::MOREEQUALS),
+                new filterSelector("last_login", "Maximální datum posledního přihlášení", "lastLoginMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
+            ],
+            [
+                new filterDisplayer("name", "Jméno", true),
+                new filterDisplayer("surname", "Přijmení", true),
+                new filterDisplayer("email", "Email", true),
+                new filterDisplayer("!role", "Role", true),
+                new filterDisplayer("!type", "Typ", true),
+                new filterDisplayer("last_login", "Datum posledního přihlášení", false),
+            ]
+        );
         ////Get highlighted schools
         //$highlightSchools = [];
         //if(isset($_GET['schools'])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
         
-        //Request users
-        $stmt = $conn->prepare("SELECT id_users, name,surname, email,role,type,lastLogin FROM users_teamPropaganda", );
-        if (!$stmt->execute() || !$stmt->store_result()) {
-            echo "<h1>Nelze získat informace o uživatelích.</h1>";
-        } else if ($stmt->num_rows > 0) {
-            //Echo header
-            echo "<h1>Uživatelé</h1>";
-            echo "<table>";
-            echo "<tr>";
-            echo "<th>Akce</th>";
-            echo "<th>Jméno a přijmení</th>";
-            echo "<th>Email</th>";
-            echo "<th>Role</th>";
-            echo "<th>Typ</th>";
-            echo "<th>Naposledy přihlášen</th>";
-            echo "</tr>";
-
-            //List all users in table
-            for ($i = 0; $i < $stmt->num_rows; $i++) {
-                if (!$stmt->bind_result($id, $name, $surname, $email, $role, $type, $lastLogin) || !$stmt->fetch()) {
-                    $id = null;
-                    $name = "CHYBA";
-                    $surname = "CHYBA";
-                    $email = "CHYBA";
-                    $role = "CHYBA";
-                    $type = "CHYBA";
-                    $lastLogin = "CHYBA";
-                    $lastLoginFormat = "CHYBA";
-                } else {
-                    $lastLoginFormat = DateTime::createFromFormat('Y-m-d H:i:s', $lastLogin)->format("d. m. Y H:i:s");
-                }
-
-                //Put in table
-                $typeUser = userType::{$type};
-                if ($typeUser == $resultUserType || $resultUserType == userType::GENERIC) {
-                    $isNILEType = $typeUser->getIsNILE();
-                    echo "<tr class='clickHighlightRow'>
-                        <td class='formButtonBoxTable'>
-                            <a href='./user.php?user=$id'><button form-icon='!edit' class='purkynkaButton'></button></a>
-                            <button form-icon='!delete' class='purkynkaButton btnTableDelete' user='$id'></button>
-                        </td>
-                        <td>$name $surname</td>
-                        <td><a href='./sendMail.php?uid=$id&isNILE=$isNILEType'>$email</a></td>
-                        <td>$role</td>
-                        <td>$type</td>
-                        <td>$lastLoginFormat</td>
-                    </tr>";
-                }
-            }
-            echo "</table>";
-            $stmt->close();
-        } else {
-            echo "<h1>Žádní uživatelé nejsou k dispozici.</h1>";
-            $stmt->close();
-        }
         ?>
     </main>
     <footer>
