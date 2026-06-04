@@ -5,11 +5,11 @@ const STANDARD_CZECH_TIME_FORMAT_FULL = 'H:i:s';
 const JS_TIME_FORMAT = 'Y-m-d\\TH:i';
 const USE_LOG_COLOR = true;
 
-enum userType
+enum userType: string
 {
-    case GENERIC;
-    case KLAL;
-    case NILE;
+    case GENERIC = "Obecný" ;
+    case KLAL = "KLAL";
+    case NILE = "NILE";
     function getIsNILE(): int
     {
         return match ($this) {
@@ -28,12 +28,12 @@ enum userType
     }
 }
 
-enum userRole
+enum userRole: string
 {
-    case ADMIN;
-    case ACCOUNTANT;
-    case USER;
-    case ANY;
+    case ADMIN = "Správce systému";
+    case ACCOUNTANT = "Účetní";
+    case USER = "Uživatel";
+    case ANY = "Obecný";
 }
 
 class userRoleType
@@ -54,7 +54,7 @@ function getUserRoleType(mysqli $conn, int $id): userRoleType
     $stmt->store_result();
     $stmt->bind_result($role, $type);
     $stmt->fetch();
-    return new userRoleType(((isset($role) && ($role != null)) ? userRole::{strtoupper($role)} : null), ((isset($type) && ($type != null)) ? userType::{strtoupper($type)} : null));
+    return new userRoleType(((isset($role) && ($role != null)) ? userRole::from(strtoupper($role)) : null), ((isset($type) && ($type != null)) ? userType::from(strtoupper($type)) : null));
 }
 
 function getUserName(int $id): array
