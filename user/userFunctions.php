@@ -23,7 +23,7 @@ function setupTitlebarUser(mysqli $conn): userRoleType
         die();
     }
 
-    return new userRoleType(userRole::from($role), userType::from($type));
+    return new userRoleType(userRole::{$role}, userType::{$type});
 }
 
 function echoCheckIfParentMatches(mysqli $conn, string $attendantId)

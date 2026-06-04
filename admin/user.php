@@ -32,7 +32,7 @@ if (isset($_POST["action"])) {
 
         //Security check
         $roleType = getUserRoleType($conn, $_POST["id"]);
-        if (($roleType->role != userRole::from($_POST["role"]) && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::from($_POST["type"]) && $roleType->type == userType::GENERIC)) {
+        if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
             echoCheckAdminDelete($conn, $roleType);
         }
         //Make SQL Update
@@ -75,7 +75,7 @@ if (isset($_POST["action"])) {
 
         //Security check
         $roleType = getUserRoleType($conn, $_POST["id"]);
-        if (($roleType->role != userRole::from($_POST["role"]) && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::from($_POST["type"]) && $roleType->type == userType::GENERIC)) {
+        if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
             echoCheckAdminDelete($conn, $roleType);
         }
 
