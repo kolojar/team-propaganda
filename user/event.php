@@ -21,7 +21,7 @@ if (isset($_POST["action"])) {
         $stmt = $conn->prepare("SELECT e.price FROM events_teamPropaganda e JOIN registered_attendants_teamPropaganda ra ON e.id_events = ra.id_events WHERE ra.variable_symbol = ?;");
         if (!$stmt->bind_param("i", $_POST["variable_symbol"]) || !$stmt->execute()) {
             http_response_code(400);
-            echo "Entry could not be CHECKED.";
+            echo "Nepodařilo se získat data z databáze.";
             die();
         }
         $res = $stmt->get_result()->fetch_assoc();
@@ -39,11 +39,11 @@ if (isset($_POST["action"])) {
         $stmt = $conn->prepare("UPDATE registered_attendants_teamPropaganda SET user_paid=CURRENT_TIMESTAMP(), bank_account=? WHERE variable_symbol=?");
         if ($stmt->bind_param("si", $_POST["bank_account"], $_POST["variable_symbol"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
-            echo "Entry updated.";
+            echo "Data zapsána do databáze.";
             die();
         } else {
             http_response_code(400);
-            echo "Entry could not be updated.";
+            echo "Nepodařilo se zapsat data do databáze.";
             die();
         }
     } else if ($_POST["action"] == "unregisterFromEvent") {
@@ -59,19 +59,19 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("i", $_POST["id"]);
         if (!$stmt->execute()) {
             http_response_code(400);
-            echo "Entry could not be CHECKED.";
+            echo "Nepodařilo se získat data z databáze.";
             die();
         }
         $res = $stmt->get_result()->fetch_assoc();
         //$stmt->fetch();
         if ($res["id_parent"] != $_SESSION["userId"]) {
             http_response_code(400);
-            echo "Invalid usage of function - current user is not parent";
+            echo "Neplatné použití funkce - tento uživatel není rodičem vybraného dítěte.";
             die();
         }
         if (new DateTime($res["registration_close"]) < new DateTime()) {
             http_response_code(400);
-            echo "Invalid usage of function - cannot unregister after time limit";
+            echo "Neplatné použití funkce - nelze odhlásit uživatele po ukončení registrace.";
             die();
         }
 
@@ -80,7 +80,7 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("i", $_POST["id"]);
         if (!$stmt->execute()) {
             http_response_code(400);
-            echo "Entry could not be SELECTed.";
+            echo "Nepodařilo se získat data z databáze.";
             die();
         }
         $stmt->store_result();
@@ -92,7 +92,7 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]);
         if (!$stmt->execute()) {
             http_response_code(400);
-            echo "Entry could not be INSERTed.";
+            echo "Nepodařilo se zapsat data do databáze.";
             die();
         }
 
@@ -101,7 +101,7 @@ if (isset($_POST["action"])) {
         $stmt->bind_param("i", $_POST["id"]);
         if (!$stmt->execute()) {
             http_response_code(400);
-            echo "Entry could not be DELETEd.";
+            echo "Nepodařilo se smazat data z databáze.";
             die();
         } else {
             http_response_code(201);
@@ -140,6 +140,24 @@ if (isset($_POST["action"])) {
             echo "Nepodařilo se zapsat data do databáze.";
             die;
         }
+    } else if ($_POST["action"] == "addPres") {
+        if (!isset($_POST["id"]) || !isset($_POST["idCD"])) {
+            http_response_code(400);
+            echo "Neplatné použití funkce - chybí parametr";
+            die();
+        }
+        if (!$conn->query("INSERT INTO presentations_teamPropaganda (id_companies) VALUES (" . $_POST["id"] . ")")) {
+            http_response_code(400);
+            echo "Nepodařilo se zapsat data do databáze.";
+            die;
+        }
+        if (!$conn->query("INSERT INTO sites_teamPropaganda (id_company_days, id_companies, id_presentations, isClass) VALUES (" . $_POST["idCD"] . ", " . $_POST["id"] . ", " . $conn->insert_id . ", 1)")) {
+            http_response_code(400);
+            echo "Nepodařilo se zapsat data do databáze.";
+            die;
+        }
+        echo "Data zapsána do databáze úspěšně.";
+        die;
     } else {
         http_response_code(400);
         echo "Neplatné použití funkce - neplatná akce";
@@ -321,7 +339,7 @@ if (isset($_POST["action"])) {
         <?php
             } else {
                 $cd = $conn->query("SELECT * FROM company_days_teamPropaganda WHERE id_company_days = " . $_GET["cd"])->fetch_assoc();
-                $stmt2 = $conn->query("SELECT s.id_sites, s.seats, s.electricity, s.id_presentations FROM sites_teamPropaganda s WHERE id_company_days = " . $_GET["cd"] . " and id_companies = " . $_SESSION["companyId"]);
+                $stmt2 = $conn->query("SELECT s.id_sites, s.seats, s.electricity FROM sites_teamPropaganda s WHERE id_presentations IS NULL and id_company_days = " . $_GET["cd"] . " and id_companies = " . $_SESSION["companyId"]);
 
                 $registrationCloseDate = new DateTime($cd["registration_close"]);
                 $registrationCloseFormated = $registrationCloseDate->format(STANDARD_CZECH_DATETIME_FORMAT_FULL);
@@ -353,10 +371,7 @@ if (isset($_POST["action"])) {
                 while ($row = $stmt2->fetch_assoc()) {
                     echo "<fieldset class='siteInfo' site='" . $row["id_sites"] . "'>";
                     echo "<form-input value-id='seats' $disabledRemove label='Počet osob na stánku:' class='validate' type='number' do-change-check='true' value='" . $row["seats"] . "' original-value='" . $row["seats"] . "'></form-input>";
-                    //======
-                    //add checkbox selector for electricity
-                    //======
-
+                    echo "<form-toggle value-id='electricity' $disabledRemove label-before='Potřebuji přístup k zásuvce:' class='validate' type='checkbox' do-change-check='true' original-checked='" . (($row["electricity"] == 1) ? "true" : "false") . "' " . (($row["electricity"] == 1) ? "checked" : "") . "></form-toggle><br>";
 
                     echo "<button class='formButton purkynkaButton rmSite' $disabledRemove site='" . $row["id_sites"] . "'>Odstranit stánek</button>
                           <div class='formButtonBox formJustifyRight'>
@@ -365,6 +380,31 @@ if (isset($_POST["action"])) {
                           </div>
                           </fieldset>";
                 }
+
+                $stmt3 = $conn->query("SELECT s.id_sites, s.seats, s.electricity, p.name, p.description, p.schedule FROM sites_teamPropaganda s NATURAL JOIN presentations_teamPropaganda p WHERE s.id_presentations IS NOT NULL and s.id_company_days = " . $_GET["cd"] . " and s.id_companies = " . $_SESSION["companyId"]);
+
+                echo "</fieldset><br><fieldset>";
+                echo "<legend>Prezentace</legend>";
+                echo "<div class='formButtonBoxHolder'>";
+                echo "    <div class='formButtonBox formJustifyLeft'>";
+                echo "        <button class='formButton purkynkaButton' $disabledRemove id='btnAddPres' comp='" . $_SESSION["companyId"] . "'>Přidat prezentaci</button>";
+                echo "    </div>";
+                echo "</div>";
+
+                while ($row = $stmt3->fetch_assoc()) {
+                    echo "<fieldset class='presInfo' site='" . $row["id_sites"] . "'>";
+                    echo "<form-input value-id='seats' $disabledRemove label='Počet prezentujících:' class='validate' type='number' do-change-check='true' value='" . $row["seats"] . "' original-value='" . $row["seats"] . "'></form-input>";
+                    echo "<form-input value-id='name' $disabledRemove label='Název prezentace:' class='validate' type='text' do-change-check='true' value='" . $row["name"] . "' original-value='" . $row["name"] . "'></form-input>";
+                    echo "<form-input value-id='description' $disabledRemove label='Popis prezentace:' class='validate' type='textarea' do-change-check='true' value='" . $row["description"] . "' original-value='" . $row["description"] . "'></form-input>";
+
+                    echo "<button class='formButton purkynkaButton rmPres' $disabledRemove site='" . $row["id_sites"] . "'>Odstranit prezentaci</button>
+                          <div class='formButtonBox formJustifyRight'>
+                              <button class='formButton purkynkaButton btnCancel'>Zrušit provedené změny</button>
+                              <button class='formButton purkynkaButton btnSave' $disabledRemove>Uložit změny</button>
+                          </div>
+                          </fieldset>";
+                }
+                echo "</fieldset>";
             }
         ?>
         </fieldset><a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>

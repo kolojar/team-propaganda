@@ -96,7 +96,7 @@ if (isset($_POST["action"])) {
         <?php
         $name = "";
         $type = "";
-        $description = "-";
+        $description = "";
         $activeSinceDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
         $activeUntilDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
         $registrationOpenDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d H:i:s');
@@ -125,10 +125,10 @@ if (isset($_POST["action"])) {
         $registrationClose = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format(JS_TIME_FORMAT);
         $repeatStart = DateTime::createFromFormat('Y-m-d H:i:s', $repeatStartDB)->format(JS_TIME_FORMAT);
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
-        
+
         //Set minimums
         $activeSinceMinimum = "";
-        if($exists == "true") {
+        if ($exists == "true") {
             $activeSinceMinimum = $activeSince;
         }
 

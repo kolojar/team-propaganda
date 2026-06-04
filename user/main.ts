@@ -17,7 +17,7 @@ for (const element of document.getElementsByClassName("companyInfo")) {
 //Make move email button work
 document.getElementById("btnChangeEmail")?.addEventListener("click", async () => {
     //Ask for email
-    const email = await dialogManager.ShowPromptAsync<null | string>("Přenos na jiný účet", "Zadejte nový Email, kterým se budete přihlašovat do aplikace. Starý přístup zanikne.", null, "email", {placeholder:"Email"})
+    const email = await dialogManager.ShowPromptAsync<null | string>("Přenos na jiný účet", "Zadejte nový Email, kterým se budete přihlašovat do aplikace. Starý přístup zanikne.", null, "email", { placeholder: "Email" })
     if (email == null) {
         SendToast("Přenos účtu na jiný Email zrušen!", "Akce byla zrušena úspěšně.", "ok")
         return
@@ -117,9 +117,37 @@ document.getElementById("addNew")?.addEventListener("click", async (e) => {
 
     if (!ok2) {
         SendToast("Odpověď serveru", res2, "error")
-    } else { SendToast("Odpověď serveru", res2, "ok"); window.location.reload() }
+    } else {
+        SendToast("Odpověď serveru", res2, "ok");
+        window.location.reload()
+    }
 })
 
+document.getElementById("fieldSelect")?.addEventListener("click", async (e) => {
+    const companyId = (e.target as HTMLButtonElement).getAttribute("company");
+    const selectedFields = (e.target as HTMLButtonElement).getAttribute("fields")?.split(",");
+    const data = new FormData();
+    data.append("action", "getFields")
+    const fields = JSON.parse((await SendPOSTDataToServerAsync("./company.php", data) as [boolean, string])[1]);
+    const values = new Map();
+    for (let field of fields) {
+        if (!selectedFields?.includes(field.id_fields)) values.set(field.name, { value: field.id_fields, checked: false })
+        else values.set(field.name, { value: field.id_fields, checked: true })
+    }
+    let result = await dialogManager.ShowCheckboxSelectAsync("Obory", "Vyberte obory které by mohla vaše firma zajímat.", null, values)
+    let data2 = new FormData();
+    data2.append("action", "addFields");
+    data2.append("fields", JSON.stringify(result));
+    data2.append("id", companyId as string);
+    let [ok, res] = await SendPOSTDataToServerAsync("./company.php", data2);
+
+    if (!ok) {
+        SendToast("Odpověď serveru", res, "error")
+    } else {
+        SendToast("Odpověď serveru", res, "ok");
+        window.location.reload()
+    }
+})
 
 //Make attendant change school field work
 const getSchoolsStart = async () => {
@@ -129,7 +157,7 @@ const getSchoolsStart = async () => {
         attendantSchool.validationFunction = async (value: string | boolean) => {
             const timestamp = new Date()
             const data = new FormData(undefined, null)
-            console.log(attendantSchool.value); 
+            console.log(attendantSchool.value);
             data.set("query", attendantSchool.valueRaw.toString())
             const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data)
             const options = new Map()
