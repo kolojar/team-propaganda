@@ -37,10 +37,10 @@ require "./adminFunctions.php";
             $conn,
             null,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "s.id_schools, s.name as sname, s.address as address, COUNT(a.id_attendants) as cnt",
+            "s.id_schools, s.name, s.address as address, COUNT(a.id_attendants) as cnt",
             "attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools",
             "ra.id_events = ?;",
-            "",
+            "s.id_schools",
             "",
             "",
             "i",
@@ -54,7 +54,7 @@ require "./adminFunctions.php";
             ],
             [
                 new filterDisplayer("!putFirstCell", "Akce", true),
-                new filterDisplayer("sname", "Název", true),
+                new filterDisplayer("name", "Název", true),
                 new filterDisplayer("address", "Adresa", true),
                 new filterDisplayer("cnt", "Počet zájemcu", true,filterSelectorType::NUMBER)
             ]

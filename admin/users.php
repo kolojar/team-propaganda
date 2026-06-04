@@ -29,8 +29,29 @@ require "./adminFunctions.php";
         <h1>Seznam uživatelů systému</h1>
         <?php
         function role($result, $setup) {
-            return userRole::from($result["role"])->value;
+            return userRole::{$result["role"]}->value;
         }
+        function type($result, $setup) {
+            return userType::{$result["type"]}->value;
+        }
+
+        //List all roles
+        echo "<datalist id='roles'>";
+        foreach (userRole::cases() as $key => $value) {
+            $name = $value->name;
+            $valueValue = $value->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
+
+        //List all types
+        echo "<datalist id='types'>";
+        foreach (userType::cases() as $key => $value) {
+            $name = $value->name;
+            $valueValue = $value->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
 
         setupFilteredTable(
             $conn,
@@ -48,8 +69,8 @@ require "./adminFunctions.php";
                 new filterSelector("name", "Jméno", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("surname", "Příjmení", "surname", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("email", "Email", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
-                new filterSelector("!role", "Role", "role", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "roles"]),
-                new filterSelector("!type", "Typ", "type", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "types"]),
+                new filterSelector("role", "Role", "role", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "roles"]),
+                new filterSelector("type", "Typ", "type", filterSelectorType::SELECT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "types"]),
                 new filterSelector("last_login", "Minimální datum posledního přihlášení", "lastLoginMin", filterSelectorType::DATETIME, filterCompareOperator::MOREEQUALS),
                 new filterSelector("last_login", "Maximální datum posledního přihlášení", "lastLoginMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
             ],
@@ -57,8 +78,8 @@ require "./adminFunctions.php";
                 new filterDisplayer("name", "Jméno", true),
                 new filterDisplayer("surname", "Přijmení", true),
                 new filterDisplayer("email", "Email", true),
-                new filterDisplayer("role", "Role", true),
-                new filterDisplayer("type", "Typ", true),
+                new filterDisplayer("!role", "Role", true),
+                new filterDisplayer("!type", "Typ", true),
                 new filterDisplayer("last_login", "Datum posledního přihlášení", false),
             ]
         );

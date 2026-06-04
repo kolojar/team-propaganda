@@ -54,7 +54,7 @@ function getUserRoleType(mysqli $conn, int $id): userRoleType
     $stmt->store_result();
     $stmt->bind_result($role, $type);
     $stmt->fetch();
-    return new userRoleType(((isset($role) && ($role != null)) ? userRole::from(strtoupper($role)) : null), ((isset($type) && ($type != null)) ? userType::from(strtoupper($type)) : null));
+    return new userRoleType(((isset($role) && ($role != null)) ? userRole::{strtoupper($role)} : null), ((isset($type) && ($type != null)) ? userType::{strtoupper($type)} : null));
 }
 
 function getUserName(int $id): array
