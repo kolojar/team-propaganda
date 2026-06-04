@@ -24,6 +24,8 @@ require "./adminFunctions.php";
         <?php $result = setupTitlebarAdmin($conn, "schools.php") ?>
     </header>
     <main>
+        <h1>Seznam škol</h1>
+        <i>Tip: Pro filtrování škol na určitou událost otevřte pohled pomocí správy událostí.</i>
         <?php
         function putFirstCell($result, $setup)
         {
@@ -38,13 +40,13 @@ require "./adminFunctions.php";
             null,
             "purkynkaTableStripped purkynkaTableFullLines",
             "s.id_schools, s.name, s.address as address, COUNT(a.id_attendants) as cnt",
-            "attendants_teamPropaganda a JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools",
-            "ra.id_events = ?;",
+            "attendants_teamPropaganda a RIGHT JOIN registered_attendants_teamPropaganda ra ON a.id_attendants = ra.id_attendants RIGHT JOIN schools_teamPropaganda s ON s.id_schools = a.id_schools",
+            "(? IS NULL OR ra.id_events = ?)",
             "s.id_schools",
             "",
             "",
-            "i",
-            [$result->eventId],
+            "ii",
+            [$result->eventId, $result->eventId],
             [
                 new filterSelector("s.name", "Název", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("s.address", "Adresa", "address", filterSelectorType::TEXT, filterCompareOperator::LIKE),
@@ -56,15 +58,15 @@ require "./adminFunctions.php";
                 new filterDisplayer("!putFirstCell", "Akce", true),
                 new filterDisplayer("name", "Název", true),
                 new filterDisplayer("address", "Adresa", true),
-                new filterDisplayer("cnt", "Počet zájemcu", true,filterSelectorType::NUMBER)
+                new filterDisplayer("cnt", "Počet zájemcu", true, filterSelectorType::NUMBER)
             ]
         );
         ?>
-        <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton" form-icon='!add'><span>Přidat novou školu</span></button></a>
-        <a href="./schoolsAll.php"><button class="formButton purkynkaButton" form-icon='!listTable'><span>Zobrazit všechny školy</span></button></a>
     </main>
     <footer>
-
+        <div class="formButtonBoxHolder">
+            <a href="./school.php?newSchool=1"><button class="formButton purkynkaButton" form-icon='!add'><span>Přidat novou školu</span></button></a>
+        </div>
     </footer>
 </body>
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
