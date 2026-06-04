@@ -21,7 +21,7 @@ require "./adminFunctions.php";
 
 <body class="pageHolder">
     <header>
-        <?php $result = setupTitlebarAdmin($conn, "unregisteredAttendants.php"); ?>
+        <?php $result = setupTitlebarAdmin($conn, "attendants.php"); ?>
     </header>
     <main>
         <?php
