@@ -78,7 +78,7 @@ if (isset($_POST["action"])) {
 
         //Get SQL info
         $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account, registered, paid, user_paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid,$userPaid) || !$stmt->fetch() || !$stmt->close()) {
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid, $userPaid) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o zájemci.";
             die();
@@ -86,7 +86,7 @@ if (isset($_POST["action"])) {
 
         //Insert SQL entry
         $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason,user_paid) VALUES (?,?,?,?,?,?,?,?)");
-        if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"],$userPaid) || !$stmt->execute() || !$stmt->close()) {
+        if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"], $userPaid) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze vložit informace o odhlášení zájemce.";
             die();
@@ -130,6 +130,9 @@ if (isset($_POST["action"])) {
         <?php $result = setupTitlebarAdmin($conn, "payments.php") ?>
     </header>
     <main>
+        <h1>Čekající platby na schválení</h1>
+        <i>Doporučení: Při kontrole plateb se doporučuje počkat několik dní. Některým bankám trvají převody delší dobu.</i> <br>
+        <i>Tip: Pro filtrování plateb na určitou událost otevřte pohled pomocí správy událostí.</i>
         <?php
         ////Get highlighted schools
         //$highlightSchools = [];
@@ -137,6 +140,10 @@ if (isset($_POST["action"])) {
         //    $highlightSchools = explode(',',$_GET["schools"]);
         //}
         
+        function action($result, $setup) {
+
+        }
+
         $found = false;
         $resultEventId = $result->eventId;
 
@@ -161,19 +168,41 @@ if (isset($_POST["action"])) {
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ua.variable_symbol as vs, ua.bank_account, ua.registered,ua.paid, ua.unregistered, ua.reason, ua.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname,u.email,e.price",
-            "unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events",
-            ($resultEventId == null ? "" : "ua.id_events = ? AND ") . "ua.refunded IS NULL AND ua.paid IS NOT NULL AND e.price != 0;",
+            "ra.id_events, ra.registered, ra.variable_symbol as vs, ra.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname, u.email, CONCAT(a.name, ' ', a.surname) as aName, CONCAT(u.name, ' ', u.surname) as uName, (ra.paid IS NOT NULL) as hasPaid, (ra.user_paid IS NOT NULL) as hasPaidUser",
+            "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users",
+            "(? IS NULL AND ra.id_events = ?)",
             "",
             "",
             "",
-            "i",
-            [$resultEventId],
+            "ii",
+            [$result->eventId,$result->eventId],
             [
-
+                new filterSelector("ra.variable_symbol", "Variabilní symbol", "vs", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
+                new filterSelector("aName", "Jméno a přijmení", "aName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
+                new filterSelector("uName", "Zákonný zástupce", "uName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
+                new filterSelector("email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
+                new filterSelector("ra.user_paid", "Zaplaceno", "isUserPaid", filterSelectorType::BOOLEAN_NULL, filterCompareOperator::ISNOT),
+                new filterSelector("ra.paid", "Zaplacení ověřeno účetní", "isPaid", filterSelectorType::BOOLEAN_NULL, filterCompareOperator::ISNOT),
+                new filterSelector("ra.registered", "Minimální datum registrace", "registeredMin", filterSelectorType::DATETIME, filterCompareOperator::MOREEQUALS),
+                new filterSelector("ra.registered", "Maximální datum registrace", "registeredMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
+                new filterSelector("ra.user_paid", "Minimální datum platby", "userPaidMin", filterSelectorType::DATETIME, filterCompareOperator::MOREEQUALS),
+                new filterSelector("ra.user_paid", "Maximální datum platby", "userPaidMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
+                new filterSelector("ra.paid", "Minimální datum oveření platby", "paidMin", filterSelectorType::DATETIME, filterCompareOperator::MOREEQUALS),
+                new filterSelector("ra.paid", "Maximální datum oveření platby", "paidMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
+                $result->eventId === null ? new filterSelector("ua.id_events", "Událost", "event", filterSelectorType::TEXT, filterCompareOperator::EQUALSNULLABLE, false, ["listId" => "events"]) : null,
             ],
             [
-                new filterDisplayer("vs", "Variabilní symbol", false)
+                new filterDisplayer("!action", "Akce", true, filterSelectorType::TEXT, 'formButtonBoxTable'),
+                new filterDisplayer("vs", "Variabilní symbol", true, filterSelectorType::TEXT, "fontMono"),
+                new filterDisplayer("aName", "Jméno a přijmení", true),
+                new filterDisplayer("uName", "Zákonný zástupce", true),
+                new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
+                new filterDisplayer("hasPaidUser", "Zaplaceno", true, filterSelectorType::BOOLEAN),
+                new filterDisplayer("hasPaid", "Zaplacení ověřeno účetní", true, filterSelectorType::BOOLEAN),
+                new filterDisplayer("eName", "Událost", false),
+                new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
+                new filterDisplayer("user_paid", "Datum platby", false, filterSelectorType::DATETIME),
+                new filterDisplayer("paid", "Datum ověření platby", false, filterSelectorType::DATETIME),
             ]
         );
 
