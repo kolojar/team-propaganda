@@ -35,9 +35,25 @@ if (isset($_POST["action"])) {
         if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
             echoCheckAdminDelete($conn, $roleType);
         }
+
+        //Security check
+        $newRole = userRole::{$_POST["role"]};
+        $roleType = getUserRoleType($conn, $_SESSION["userId"]);
+        if ($roleType->role != $newRole && $roleType->role != userRole::ADMIN) {
+            http_response_code(400);
+            echo "Na použití této funkce nemáte oprávnění.";
+            die();
+        }
+        $newType = userType::{$_POST["type"]};
+        if ($roleType->type != $newType && $roleType->type != userType::GENERIC) {
+            http_response_code(400);
+            echo "Na použití této funkce nemáte oprávnění.";
+            die();
+        }
+
         //Make SQL Update
         $stmt = $conn->prepare("UPDATE users_teamPropaganda SET email=?, name=?, surname=?, role=?, type=? WHERE id_users=?");
-        if ($stmt->bind_param("sssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"],$_POST["type"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
+        if ($stmt->bind_param("sssssi", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["role"], $_POST["type"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Uživatel upraven.";
             die();
@@ -54,9 +70,24 @@ if (isset($_POST["action"])) {
             die();
         }
 
+        //Security check
+        $newRole = userRole::{$_POST["role"]};
+        $roleType = getUserRoleType($conn, $_SESSION["userId"]);
+        if ($roleType->role != $newRole && $roleType->role != userRole::ADMIN) {
+            http_response_code(400);
+            echo "Na použití této funkce nemáte oprávnění.";
+            die();
+        }
+        $newType = userType::{$_POST["type"]};
+        if ($roleType->type != $newType && $roleType->type != userType::GENERIC) {
+            http_response_code(400);
+            echo "Na použití této funkce nemáte oprávnění.";
+            die();
+        }
+
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, type, role, lastLogin) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP())");
-        if ($stmt->bind_param("sssss", $_POST["email"], $_POST["name"], $_POST["surname"],  $_POST["type"],$_POST["role"]) && $stmt->execute() && $stmt->close()) {
+        if ($stmt->bind_param("sssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["type"], $_POST["role"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Uživatel vytvořen.";
             die();
@@ -114,20 +145,40 @@ if (isset($_POST["action"])) {
 
 <body class="pageHolder">
     <header>
-        <?php setupTitlebarAdmin($conn, "user.php") ?>
-        <datalist id="userRoles">
-            <option label="Správce systému" value="ADMIN"></option>
-            <option label="Účetní" value="ACCOUNTANT"></option>
-            <option label="Uživatel" value="USER"></option>
-        </datalist>
-        <datalist id="userTypes">
-            <option label="Obecný / Univezální" value="GENERIC"></option>
-            <option label="Kurzy a přijímačky (KLAL)" value="KLAL"></option>
-            <option label="Den firem (NILE)" value="NILE"></option>
-        </datalist>
+        <?php $result = setupTitlebarAdmin($conn, "user.php") ?>
     </header>
     <main>
         <?php
+        //List all roles
+        echo "<datalist id='roles'>";
+        if ($result->roleType->role == userRole::ADMIN) {
+            foreach (userRole::cases() as $key => $value) {
+                $name = $value->name;
+                $valueValue = $value->value;
+                echo "<option label='$valueValue' value='$name'></option>";
+            }
+        } else {
+            $name = $result->roleType->role->name;
+            $valueValue = $result->roleType->role->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
+
+        //List all types
+        echo "<datalist id='types'>";
+        if ($result->roleType->type == userType::GENERIC) {
+            foreach (userType::cases() as $key => $value) {
+                $name = $value->name;
+                $valueValue = $value->value;
+                echo "<option label='$valueValue' value='$name'></option>";
+            }
+        } else {
+            $name = $result->roleType->type->name;
+            $valueValue = $result->roleType->type->value;
+            echo "<option label='$valueValue' value='$name'></option>";
+        }
+        echo "</datalist>";
+
         //Get user info
         $id = $_GET["user"];
         $name = "";
@@ -141,7 +192,7 @@ if (isset($_POST["action"])) {
             echo "<h1>Vytvořit nového uživatele</h1>";
             $exists = "false";
         } else {
-            $stmt = $conn->prepare("SELECT name, surname, email,role, type, lastLogin FROM users_teamPropaganda WHERE id_users = ?;");
+            $stmt = $conn->prepare("SELECT name, surname, email,role, type, last_login FROM users_teamPropaganda WHERE id_users = ?;");
             if (!$stmt->bind_param("i", $_GET["user"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($name, $surname, $email, $role, $type, $lastLogin) || !$stmt->fetch() || !$stmt->close()) {
                 echo "<h1>Nelze získat informace o uživateli.</h1>";
                 echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
@@ -157,8 +208,8 @@ if (isset($_POST["action"])) {
         //echo "<p class='allowSelect'>Email: <a class='allowSelect' href='./sendMail.php?uid=$id&isNILE=$isNILE'>$email</a></p>";
         echo "<form-input icon='!email' label='Email:' class='validate' do-change-check type='email' value-id='email' original-value='$email' value='$email' placeholder='$email'></form-input>";
         //echo "<p>Základní škola: <a id='schoolIdHolder' schoolId='$schoolId' href='?view=school&school=$schoolId'>$schoolName → $schoolAddress</a> <button class='formButton formWarnColor' id='attendantBtnChangeSchool'>Změnit školu</button></p>";
-        echo "<form-input icon='!userRole' list='userRoles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check value-id='role' original-value='$role' value='$role' ></form-input>";
-        echo "<form-input icon='!userRole' list='userTypes' is-strict-list='true' label='Typ:' class='validate' type='select' do-change-check value-id='type' original-value='$type' value='$type' ></form-input>";
+        echo "<form-input icon='!userRole' list='roles' is-strict-list='true' label='Role:' class='validate' type='select' do-change-check value-id='role' original-value='$role' value='$role' ></form-input>";
+        echo "<form-input icon='!userRole' list='types' is-strict-list='true' label='Typ:' class='validate' type='select' do-change-check value-id='type' original-value='$type' value='$type' ></form-input>";
         if ($exists == "true") {
             echo "<p>Naposledy přihlášen: $lastLoginFormat</p>";
         }

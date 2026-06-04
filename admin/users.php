@@ -34,6 +34,10 @@ require "./adminFunctions.php";
         function type($result, $setup) {
             return userType::{$result["type"]}->value;
         }
+        function action($result, $setup) {
+            $id = $result["id_users"];
+            return "<a tabindex='-1' href='./user.php?user=$id'><button form-icon='!edit' class='purkynkaButton'></button></a><button form-icon='!delete' class='purkynkaButton btnTableDelete' user='$id'></button>";
+        }
 
         //List all roles
         echo "<datalist id='roles'>";
@@ -59,12 +63,12 @@ require "./adminFunctions.php";
             "purkynkaTableStripped purkynkaTableFullLines",
             "id_users, name,surname, email,role,type,last_login",
             "users_teamPropaganda",
+            "(? = 'GENERIC' OR type = ?) AND (? = 'ADMIN' OR role = ?)",
             "",
             "",
             "",
-            "",
-            "",
-            [],
+            "ssss",
+            [$result->roleType->type->name,$result->roleType->type->name,$result->roleType->role->name,$result->roleType->role->name],
             [
                 new filterSelector("name", "Jméno", "name", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("surname", "Příjmení", "surname", filterSelectorType::TEXT, filterCompareOperator::LIKE),
@@ -75,6 +79,7 @@ require "./adminFunctions.php";
                 new filterSelector("last_login", "Maximální datum posledního přihlášení", "lastLoginMax", filterSelectorType::DATETIME, filterCompareOperator::LESSEQUALS),
             ],
             [
+                new filterDisplayer("!action", "Akce", true),
                 new filterDisplayer("name", "Jméno", true),
                 new filterDisplayer("surname", "Přijmení", true),
                 new filterDisplayer("email", "Email", true),
