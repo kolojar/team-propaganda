@@ -43,6 +43,10 @@ require "./adminFunctions.php";
             }
             return $result["cname"];
         }
+
+        function formatVariableSymbol($value) {
+            return str_pad($value,10,"0",STR_PAD_LEFT);
+        }
         function attendantActionButtons($result, $setup)
         {
             $attendantId = $result["id_attendants"];
@@ -101,7 +105,7 @@ require "./adminFunctions.php";
                 new filterDisplayer("school", "Základní škola", true),
                 new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
                 new filterDisplayer("paid", "Datum platby", false, filterSelectorType::DATETIME),
-                new filterDisplayer("id_registered_attendants", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
+                new filterDisplayer("id_registered_attendants", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono","formatVariableSymbol"),
             ]
         );
         ?>

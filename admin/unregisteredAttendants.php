@@ -29,7 +29,7 @@ require "./adminFunctions.php";
         {
             $email = $result["email"];
             $uid = $result["id_parent"];
-            if($email == "") {
+            if ($email == "") {
                 return "Není k dispozici";
             }
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
@@ -42,6 +42,11 @@ require "./adminFunctions.php";
                 return "<a href='./subevent.php?subevent=$setup->subeventId'>Zařaďte žáka automaticky do učebny</a>";
             }
             return $result["cname"];
+        }
+
+        function formatVariableSymbol($value)
+        {
+            return str_pad($value, 10, "0", STR_PAD_LEFT);
         }
         function attendantActionButtons($result, $setup)
         {
@@ -79,7 +84,7 @@ require "./adminFunctions.php";
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
-                new filterDisplayer("id_registered_attendants", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
+                new filterDisplayer("id_registered_attendants", "Variabilní symbol", false, filterSelectorType::TEXT, "fontMono", "formatVariableSymbol"),
                 new filterDisplayer("hasPaid", "Zaplaceno", true, filterSelectorType::BOOLEAN),
                 new filterDisplayer("hasReturned", "Vráceno", true, filterSelectorType::BOOLEAN),
                 new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
@@ -93,7 +98,7 @@ require "./adminFunctions.php";
     </main>
     <footer>
         <div class="formButtonBoxHolder">
-        <a href="./attendants.php"><button class="purkynkaButton">Přihlášení zájemci</button></a>
+            <a href="./attendants.php"><button class="purkynkaButton">Přihlášení zájemci</button></a>
         </div>
     </footer>
 </body>

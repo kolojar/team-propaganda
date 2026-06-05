@@ -7,7 +7,7 @@ const USE_LOG_COLOR = true;
 
 enum userType: string
 {
-    case GENERIC = "Obecný" ;
+    case GENERIC = "Obecný";
     case KLAL = "KLAL";
     case NILE = "NILE";
     function getIsNILE(): int
@@ -123,7 +123,7 @@ class filterSelector
     public bool $isHaving;
     /**
      * Summary of __construct
-     * @param string $sqlName Needs full SQL name or HAVING with alias, Prefix with ! to make it callable -> function($result), function must RETURN value that will be compared to filter, not echo
+     * @param string $sqlName Needs full SQL name or HAVING with alias, Prefix with ! to make it callable -> function($result,$paramsForFunctions), function must RETURN value that will be compared to filter, not echo
      * @param string $displayName
      * @param string $getter
      * @param filterSelectorType $type
@@ -150,22 +150,23 @@ class filterDisplayer
     public bool $defaultVisible;
     public filterSelectorType $valueFormat;
     public string $cellClasses;
-    public string $cellValueFormatFunc;
+    public string | null $cellValueFormatFunc;
 
     /**
      * Summary of __construct
      * @param string $sqlName Needs aliases, Prefix with ! to make it callable -> function($result), function must RETURN, not echo
      * @param string $displayName
      * @param bool $defaultVisible
+     * @param null | callable $cellValueFormatFunc function($value), function must RETURN, not echo
      */
-    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT, string $cellClasses = "", callable | null $cellValueFormatFunc)
+    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT, string $cellClasses = "", callable|null $cellValueFormatFunc = null)
     {
         $this->sqlName = $sqlName;
         $this->displayName = $displayName;
         $this->defaultVisible = $defaultVisible;
         $this->valueFormat = $valueFormat;
         $this->cellClasses = $cellClasses;
-        $this->
+        $this->cellValueFormatFunc = $cellValueFormatFunc;
     }
 }
 
@@ -241,7 +242,9 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     //Convert filter selectors
     $filterSelectors = [];
     foreach ($filterSelectorsRaw as $key => $value) {
-        if($value == null) {continue;}
+        if ($value == null) {
+            continue;
+        }
         if (str_contains($value->sqlName, ",")) {
             errorToConsole("SQL name can not contain \",\": " . $value->sqlName);
         }
@@ -348,19 +351,19 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                 //Add to correct place
                 if ($value->isHaving) {
                     $filterHaving = $add;
-                    if($value->type != filterSelectorType::BOOLEAN_NULL) {
-                    for ($i = 0; $i < $countOfValues; $i++) {
-                        $valuesHaving[] = $get;
-                    }
-                    $filterKeysHaving .= str_repeat($keySQL, $countOfValues);
+                    if ($value->type != filterSelectorType::BOOLEAN_NULL) {
+                        for ($i = 0; $i < $countOfValues; $i++) {
+                            $valuesHaving[] = $get;
+                        }
+                        $filterKeysHaving .= str_repeat($keySQL, $countOfValues);
                     }
                 } else {
                     $filterWhere = $add;
-                    if($value->type != filterSelectorType::BOOLEAN_NULL) {
-                    for ($i = 0; $i < $countOfValues; $i++) {
-                        $valuesWhere[] = $get;
-                    }
-                    $filterKeysWhere .= str_repeat($keySQL, $countOfValues);
+                    if ($value->type != filterSelectorType::BOOLEAN_NULL) {
+                        for ($i = 0; $i < $countOfValues; $i++) {
+                            $valuesWhere[] = $get;
+                        }
+                        $filterKeysWhere .= str_repeat($keySQL, $countOfValues);
                     }
                 }
             }
@@ -383,7 +386,9 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
     }
     $activeDisplayers = [];
     foreach ($filterDisplayers as $key => $value) {
-        if($value == null) {continue;}
+        if ($value == null) {
+            continue;
+        }
         if ($filterDisplayersGet == null) {
             $activeDisplayers[$value->sqlName] = [$value->defaultVisible, $value];
         } else {
@@ -608,6 +613,12 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                         if ($formated == null) {
                             $formated = 0;
                         }
+                    }
+
+                    //Try to format using function
+                    if ($value[1]->cellValueFormatFunc !== null) {
+                        $call = $value[1]->cellValueFormatFunc;
+                        $formated = $call($formated);
                     }
 
                     //Format NULL

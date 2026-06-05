@@ -188,6 +188,10 @@ if (isset($_POST["action"])) {
             return "<a href='./sendMail.php?uid=$uid&isNILE=0'>$email</a>";
         }
 
+function formatVariableSymbol($value) {
+            return str_pad($value,10,"0",STR_PAD_LEFT);
+        }
+
         function action($result, $setup)
         {
             $variableSymbol = $result['vs'];
@@ -240,7 +244,7 @@ if (isset($_POST["action"])) {
             ],
             [
                 new filterDisplayer("!action", "Akce", true, filterSelectorType::TEXT, 'formButtonBoxTable'),
-                new filterDisplayer("vs", "Variabilní symbol", true, filterSelectorType::TEXT, "fontMono"),
+                new filterDisplayer("vs", "Variabilní symbol", true, filterSelectorType::TEXT, "fontMono","formatVariableSymbol"),
                 new filterDisplayer("aName", "Jméno a přijmení", true),
                 new filterDisplayer("uName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
