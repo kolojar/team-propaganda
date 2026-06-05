@@ -13,7 +13,7 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT user_paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("SELECT user_paid FROM registered_attendants_teamPropaganda WHERE id_registered_attendants = ?");
         if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($userPaid) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o zájemci.";
@@ -28,12 +28,12 @@ if (isset($_POST["action"])) {
         if ($_POST["unregistered"] == "1") {
             $table = "unregistered_attendants_teamPropaganda";
         }
-        $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,user_paid=?,bank_account=? WHERE variable_symbol=?;");
+        $stmt = $conn->prepare("UPDATE " . $table . " SET paid=?,user_paid=?,bank_account=? WHERE id_registered_attendants=?;");
         if ($stmt->bind_param("sssi", $_POST["paid"], $userPaid, $_POST["bank_account"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             logToConsole("SELECT price FROM events_teamPropaganda WHERE id_events = " . $_POST["id_events"]);
             $res = $conn->query("SELECT price FROM events_teamPropaganda WHERE id_events = " . $_POST["id_events"])->fetch_assoc();
             $message = file_get_contents("../assets/PaymentOk.html");
-            $message = str_replace("\${variable_symbol}", str_pad($_POST["id"], 10, "0", STR_PAD_LEFT), $message);
+            $message = str_replace("\${id_registered_attendants}", str_pad($_POST["id"], 10, "0", STR_PAD_LEFT), $message);
             $date = new DateTime($_POST["paid"]);
             $d = $date->format('d. m. Y H:i:s');
             $message = str_replace("\${payment_date}", $d, $message);
@@ -58,7 +58,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE unregistered_attendants_teamPropaganda SET refunded = CURRENT_TIMESTAMP() WHERE variable_symbol = ?;");
+        $stmt = $conn->prepare("UPDATE unregistered_attendants_teamPropaganda SET refunded = CURRENT_TIMESTAMP() WHERE id_registered_attendants = ?;");
         if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Platba odebrána.";
@@ -77,7 +77,7 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account, registered, paid, user_paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account, registered, paid, user_paid FROM registered_attendants_teamPropaganda WHERE id_registered_attendants = ?");
         if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid, $userPaid) || !$stmt->fetch() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze získat informace o zájemci.";
@@ -85,7 +85,7 @@ if (isset($_POST["action"])) {
         }
 
         //Insert SQL entry
-        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason,user_paid) VALUES (?,?,?,?,?,?,?,?)");
+        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(id_registered_attendants, id_attendants, id_events, bank_account, registered, paid, reason,user_paid) VALUES (?,?,?,?,?,?,?,?)");
         if (!$stmt->bind_param("iiissss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"], $userPaid) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze vložit informace o odhlášení zájemce.";
@@ -93,7 +93,7 @@ if (isset($_POST["action"])) {
         }
 
         //Delete SQL entry
-        $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE id_registered_attendants = ?");
         if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->close()) {
             http_response_code(400);
             echo "Nelze odebrat přihlášeného zájemce.";
@@ -206,7 +206,7 @@ if (isset($_POST["action"])) {
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ra.id_events, ra.registered, ra.variable_symbol as vs, ra.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname, u.email, CONCAT(a.name, ' ', a.surname) as aName, CONCAT(u.name, ' ', u.surname) as uName, (ra.paid IS NOT NULL) as hasPaid, (ra.user_paid IS NOT NULL) as hasPaidUser",
+            "ra.id_events, ra.registered, ra.id_registered_attendants as vs, ra.id_attendants, a.name, a.surname, a.id_parent, u.name, u.surname, u.email, CONCAT(a.name, ' ', a.surname) as aName, CONCAT(u.name, ' ', u.surname) as uName, (ra.paid IS NOT NULL) as hasPaid, (ra.user_paid IS NOT NULL) as hasPaidUser",
             "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users",
             "(? IS NULL OR ra.id_events = ?)",
             "",
@@ -215,7 +215,7 @@ if (isset($_POST["action"])) {
             "ii",
             [$result->eventId, $result->eventId],
             [
-                new filterSelector("ra.variable_symbol", "Variabilní symbol", "vs", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
+                new filterSelector("ra.id_registered_attendants", "Variabilní symbol", "vs", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
                 new filterSelector("aName", "Jméno a přijmení", "aName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
                 new filterSelector("uName", "Zákonný zástupce", "uName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
                 new filterSelector("email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),

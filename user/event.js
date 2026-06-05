@@ -87,7 +87,7 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     const formData2 = new FormData();
     formData2.set("action", "addPayment");
     formData2.set("bank_account", bankAccount);
-    formData2.set("variable_symbol", responce3);
+    formData2.set("id_registered_attendants", responce3);
     const [ok2, responce2] = await SendPOSTDataToServerAsync("./event.php", formData2);
     progress2 === null || progress2 === void 0 ? void 0 : progress2.CloseDialog();
     if (ok2) {

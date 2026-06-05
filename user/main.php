@@ -73,7 +73,7 @@ require '../assets/sharedFunctions.php';
                 <form-input value-id='school' label='Základní škola:' class='validate schoolValue' type='select' do-change-check original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' ></form-input>";
 
                 //Get events of attendant
-                $stmt2 = $conn->prepare("SELECT ra.variable_symbol, ra.id_events, ra.paid, e.name, e.price FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.id_attendants = ?;");
+                $stmt2 = $conn->prepare("SELECT ra.id_registered_attendants, ra.id_events, ra.paid, e.name, e.price FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.id_attendants = ?;");
                 $stmt2->bind_param("i", $id);
                 $stmt2->execute();
                 $stmt2->store_result();

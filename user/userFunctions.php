@@ -70,7 +70,7 @@ function echoCheckIfParentMatches2(mysqli $conn, string $variableSymbol)
 
 function checkIfParentMatches2(mysqli $conn, string $variableSymbol): bool
 {
-    $stmtAttendant = $conn->prepare("SELECT a.id_parent FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants WHERE ra.variable_symbol = ?;");
+    $stmtAttendant = $conn->prepare("SELECT a.id_parent FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants WHERE ra.id_registered_attendants = ?;");
     if ($stmtAttendant == false) {
         return false;
     }

@@ -33,7 +33,7 @@ class classroomInfo
 function classroomOrdererInsert(mysqli $conn, $valuesToInsert)
 {
     //Do Insert
-    $stmt = $conn->prepare("INSERT INTO attendants_presence_teamPropaganda(id_subevents, variable_symbol, id_classrooms) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO attendants_presence_teamPropaganda(id_subevents, id_registered_attendants, id_classrooms) VALUES (?, ?, ?)");
     if (!$stmt->bind_param("iii", $_POST["id"], $variableSymbol, $classroom)) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
@@ -68,7 +68,7 @@ function classroomOrdererInsert(mysqli $conn, $valuesToInsert)
 function classroomOrdererUpdate(mysqli $conn, $valuesToUpdate)
 {
     //Do Update
-    $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = ? WHERE id_subevents = ? AND variable_symbol = ?");
+    $stmt = $conn->prepare("UPDATE attendants_presence_teamPropaganda SET id_classrooms = ? WHERE id_subevents = ? AND id_registered_attendants = ?");
     if (!$stmt->bind_param("iii", $classroom, $_POST["id"], $variableSymbol)) {
         http_response_code(400);
         echo "Nebylo možno přiřadit zájemce do učebny.";
@@ -103,7 +103,7 @@ function classroomOrdererUpdate(mysqli $conn, $valuesToUpdate)
 function classroomOrderer(mysqli $conn, $variableSymbolToSchools)
 {
     //Get classrooms
-    $stmt = $conn->prepare("SELECT cs.id_classrooms, c.places_to_sit, COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON cs.id_classrooms = ap.id_classrooms AND cs.id_subevents = ap.variable_symbol WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms;");
+    $stmt = $conn->prepare("SELECT cs.id_classrooms, c.places_to_sit, COUNT(ap.id_registered_attendants) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON cs.id_classrooms = ap.id_classrooms AND cs.id_subevents = ap.id_registered_attendants WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms;");
     if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
         http_response_code(400);
         echo "Nepodařilo se načíst seznam učeben.";
@@ -387,7 +387,7 @@ if (isset($_POST["action"])) {
         $variableSymbolToSchools = [];
         if ($_POST["force"] == "1") {
             //Get force = all attendants will recalculate class
-            $stmt = $conn->prepare("SELECT ra.variable_symbol, a.id_schools, ap.variable_symbol IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND s.id_subevents = ap.id_subevents WHERE ra.paid IS NOT NULL AND s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
+            $stmt = $conn->prepare("SELECT ra.id_registered_attendants, a.id_schools, ap.id_registered_attendants IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND s.id_subevents = ap.id_subevents WHERE ra.paid IS NOT NULL AND s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
             if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
                 http_response_code(400);
                 echo "Nepodařilo se načíst seznam studentů.";
@@ -419,7 +419,7 @@ if (isset($_POST["action"])) {
             //Check if there is something to do
             if (count($variableSymbols) > 0) {
                 //Get needed attendants
-                $stmt = $conn->prepare("SELECT ra.variable_symbol, a.id_schools, ap.variable_symbol IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND ra.paid IS NOT NULL AND ap.id_subevents = ? WHERE ra.variable_symbol IN (" . str_repeat("?,", count($variableSymbols) - 1) . "?" . ") ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
+                $stmt = $conn->prepare("SELECT ra.id_registered_attendants, a.id_schools, ap.id_registered_attendants IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND ra.paid IS NOT NULL AND ap.id_subevents = ? WHERE ra.id_registered_attendants IN (" . str_repeat("?,", count($variableSymbols) - 1) . "?" . ") ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
                 if (!$stmt->bind_param("i" . str_repeat("i", count($variableSymbols)), $_POST["id"], ...$variableSymbols) || !$stmt->execute() || !$stmt->store_result()) {
                     http_response_code(400);
                     echo "Nepodařilo se načíst seznam studentů.";
@@ -474,7 +474,7 @@ if (isset($_POST["action"])) {
         //Get all attendants
         $variableSymbolToIsInTable = [];
         $order = [];
-        $stmt = $conn->prepare("SELECT ra.variable_symbol, ap.variable_symbol IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND s.id_subevents = ap.id_subevents WHERE s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
+        $stmt = $conn->prepare("SELECT ra.id_registered_attendants, ap.id_registered_attendants IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND s.id_subevents = ap.id_subevents WHERE s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
         if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result()) {
             http_response_code(400);
             echo "Nepodařilo se načíst seznam studentů.";
@@ -527,7 +527,7 @@ if (isset($_POST["action"])) {
         }
 
         //Copy classrooms to attendants
-        $stmt = $conn->prepare("SELECT variable_symbol, id_classrooms FROM attendants_presence_teamPropaganda WHERE id_subevents = ?;");
+        $stmt = $conn->prepare("SELECT id_registered_attendants, id_classrooms FROM attendants_presence_teamPropaganda WHERE id_subevents = ?;");
         if (!$stmt->bind_param("i", $_POST["source_id"]) || !$stmt->execute() || !$stmt->store_result()) {
             http_response_code(400);
             echo "Nepodařilo se získat seznam zájemců k učebnám ze zdrojové události.";
@@ -671,7 +671,7 @@ if (isset($_POST["action"])) {
                 $totalCountWithoutClassroom = 0;
                 $attendantsWithoutClassroomInTable = "";
                 $attendantsWithoutClassroomNotInTable = "";
-                $stmt = $conn->prepare("SELECT ap.id_subevents IS NOT NULL as in_table, GROUP_CONCAT(ra.id_attendants), COUNT(ra.id_attendants) FROM subevents_teamPropaganda s JOIN events_teamPropaganda e ON s.id_events = e.id_events LEFT JOIN registered_attendants_teamPropaganda ra ON ra.id_events = e.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.variable_symbol = ap.variable_symbol AND ap.id_subevents = s.id_subevents WHERE ap.id_classrooms IS NULL AND s.id_subevents = ? AND ra.paid IS NOT NULL GROUP BY in_table;");
+                $stmt = $conn->prepare("SELECT ap.id_subevents IS NOT NULL as in_table, GROUP_CONCAT(ra.id_attendants), COUNT(ra.id_attendants) FROM subevents_teamPropaganda s JOIN events_teamPropaganda e ON s.id_events = e.id_events LEFT JOIN registered_attendants_teamPropaganda ra ON ra.id_events = e.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND ap.id_subevents = s.id_subevents WHERE ap.id_classrooms IS NULL AND s.id_subevents = ? AND ra.paid IS NOT NULL GROUP BY in_table;");
                 if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result()) {
                     $stmt->close();
                     echo "<p id='withoutClassroom' count='0' not-in-table='' in-table=''><b>Nelze získat informace o žácích mimo učebnu.</b></p>";
@@ -696,7 +696,7 @@ if (isset($_POST["action"])) {
                 }
 
                 //Get info about active classrooms for event
-                $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.variable_symbol), COUNT(ap.variable_symbol) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON (ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms) WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms, c.name, c.places_to_sit;");
+                $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.id_registered_attendants), COUNT(ap.id_registered_attendants) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON (ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms) WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms, c.name, c.places_to_sit;");
                 if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result()) {
                     echo "<p>Nelze získat aktivní učebny.</p>";
                     $stmt->close();

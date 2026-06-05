@@ -150,6 +150,7 @@ class filterDisplayer
     public bool $defaultVisible;
     public filterSelectorType $valueFormat;
     public string $cellClasses;
+    public string $cellValueFormatFunc;
 
     /**
      * Summary of __construct
@@ -157,13 +158,14 @@ class filterDisplayer
      * @param string $displayName
      * @param bool $defaultVisible
      */
-    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT, string $cellClasses = "")
+    public function __construct(string $sqlName, string $displayName, bool $defaultVisible, filterSelectorType $valueFormat = filterSelectorType::TEXT, string $cellClasses = "", callable | null $cellValueFormatFunc)
     {
         $this->sqlName = $sqlName;
         $this->displayName = $displayName;
         $this->defaultVisible = $defaultVisible;
         $this->valueFormat = $valueFormat;
         $this->cellClasses = $cellClasses;
+        $this->
     }
 }
 

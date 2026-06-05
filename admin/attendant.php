@@ -32,7 +32,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("DELETE FROM unregistered_attendants_teamPropaganda WHERE variable_symbol=?");
+        $stmt = $conn->prepare("DELETE FROM unregistered_attendants_teamPropaganda WHERE id_registered_attendants=?");
         if ($stmt->bind_param("i", $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Zájemce odstraněn.";

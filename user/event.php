@@ -11,15 +11,15 @@ require '../assets/sharedFunctions.php';
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "addPayment") {
         //Check if values set
-        if (!isset($_POST["variable_symbol"]) || !isset($_POST["bank_account"])) {
+        if (!isset($_POST["id_registered_attendants"]) || !isset($_POST["bank_account"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Security check
-        $stmt = $conn->prepare("SELECT e.price FROM events_teamPropaganda e JOIN registered_attendants_teamPropaganda ra ON e.id_events = ra.id_events WHERE ra.variable_symbol = ?;");
-        if (!$stmt->bind_param("i", $_POST["variable_symbol"]) || !$stmt->execute()) {
+        $stmt = $conn->prepare("SELECT e.price FROM events_teamPropaganda e JOIN registered_attendants_teamPropaganda ra ON e.id_events = ra.id_events WHERE ra.id_registered_attendants = ?;");
+        if (!$stmt->bind_param("i", $_POST["id_registered_attendants"]) || !$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se získat data z databáze.";
             die();
@@ -36,8 +36,8 @@ if (isset($_POST["action"])) {
         $stmt->close();
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE registered_attendants_teamPropaganda SET user_paid=CURRENT_TIMESTAMP(), bank_account=? WHERE variable_symbol=?");
-        if ($stmt->bind_param("si", $_POST["bank_account"], $_POST["variable_symbol"]) && $stmt->execute() && $stmt->close()) {
+        $stmt = $conn->prepare("UPDATE registered_attendants_teamPropaganda SET user_paid=CURRENT_TIMESTAMP(), bank_account=? WHERE id_registered_attendants=?");
+        if ($stmt->bind_param("si", $_POST["bank_account"], $_POST["id_registered_attendants"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Data zapsána do databáze.";
             die();
@@ -76,7 +76,7 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT variable_symbol, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?");
+        $stmt = $conn->prepare("SELECT id_registered_attendants, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?");
         $stmt->bind_param("i", $_POST["attendant"],$_POST["event"]);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -88,7 +88,7 @@ if (isset($_POST["action"])) {
         $stmt->fetch();
 
         //Insert SQL entry
-        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
+        $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(id_registered_attendants, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
         $stmt->bind_param("issssss", $variableSymbol, $_POST["attendant"],$_POST["event"], $bankAccount, $registered, $paid, $_POST["reason"]);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -97,7 +97,7 @@ if (isset($_POST["action"])) {
         }
 
         //Delete SQL entry
-        $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
+        $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE id_registered_attendants = ?");
         $stmt->bind_param("i", $variableSymbol);
         if (!$stmt->execute()) {
             http_response_code(400);
@@ -205,7 +205,7 @@ if (isset($_POST["action"])) {
                 echo "<h1>Nebyly zadány identifikační údaje události.</h1>";
                 die();
             }
-            $stmt = $conn->prepare("SELECT variable_symbol FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?;");
+            $stmt = $conn->prepare("SELECT id_registered_attendants FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?;");
             if (!$stmt->bind_param("ii", $_GET["attendant"], $_GET["event"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($variableSymbol) || !$stmt->fetch() || !$stmt->close()) {
                 $stmt->close();
                 echo "<h1>Nelze získat variabilní symbol!</h1>";
@@ -232,7 +232,7 @@ if (isset($_POST["action"])) {
             <?php
             if ($result->type == userType::KLAL) {
                 //Get info from DB
-                $stmt = $conn->prepare("SELECT ra.*, e.id_events, e.name ename, e.description, e.registration_close, e.price, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = s.id_subevents AND ap.variable_symbol = ra.variable_symbol LEFT JOIN classrooms_teamPropaganda c ON ap.id_classrooms = c.id_classrooms WHERE ra.variable_symbol=?;");
+                $stmt = $conn->prepare("SELECT ra.*, e.id_events, e.name ename, e.description, e.registration_close, e.price, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = s.id_subevents AND ap.id_registered_attendants = ra.id_registered_attendants LEFT JOIN classrooms_teamPropaganda c ON ap.id_classrooms = c.id_classrooms WHERE ra.id_registered_attendants=?;");
                 $stmt->bind_param("i", $variableSymbol);
                 $stmt->execute();
                 $res = $stmt->get_result()->fetch_assoc();
@@ -320,7 +320,7 @@ if (isset($_POST["action"])) {
                     //Get all subevents
                     $attendantId = $_GET["attendant"];
                     $eventId = $_GET["event"];
-                    $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.variable_symbol = ? OR ap.variable_symbol IS NULL);");
+                    $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.id_registered_attendants = ? OR ap.id_registered_attendants IS NULL);");
                     $stmt->bind_param("ii", $res["id_events"], $variableSymbol);
                     $stmt->execute();
                     $res = $stmt->get_result();

@@ -46,7 +46,7 @@ require "./adminFunctions.php";
         function attendantActionButtons($result, $setup)
         {
             $disableDelete = $result["refunded"] == null ? "disabled" : "";
-            $variableSymbol = $result["variable_symbol"];
+            $variableSymbol = $result["id_registered_attendants"];
             return "<button class='formButton formButtonInline purkynkaButton btnDeleteTotalTable' $disableDelete variableSymbol='$variableSymbol' form-icon='!delete'></button>";
         }
         $resultEventId = $result->eventId;
@@ -58,7 +58,7 @@ require "./adminFunctions.php";
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ua.variable_symbol, ua.bank_account, ua.registered,ua.paid, (ua.paid IS NOT NULL) as hasPaid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, (ua.refunded IS NOT NULL) as hasReturned, a.name, a.surname, CONCAT(a.name, ' ', a.surname) AS aFullName, a.id_parent, u.name, u.surname, CONCAT(u.name, ' ', u.surname) AS uFullName, u.email, e.price",
+            "ua.id_registered_attendants, ua.bank_account, ua.registered,ua.paid, (ua.paid IS NOT NULL) as hasPaid, ua.unregistered, ua.reason, ua.id_attendants, ua.refunded, (ua.refunded IS NOT NULL) as hasReturned, a.name, a.surname, CONCAT(a.name, ' ', a.surname) AS aFullName, a.id_parent, u.name, u.surname, CONCAT(u.name, ' ', u.surname) AS uFullName, u.email, e.price",
             "unregistered_attendants_teamPropaganda ua LEFT JOIN attendants_teamPropaganda a ON ua.id_attendants = a.id_attendants LEFT JOIN users_teamPropaganda u ON a.id_parent = u.id_users LEFT JOIN events_teamPropaganda e ON ua.id_events = e.id_events",
             "ua.id_events = ?",
             "",
@@ -72,14 +72,14 @@ require "./adminFunctions.php";
                 new filterSelector("u.email", "Email zákonného zástupce", "email", filterSelectorType::TEXT, filterCompareOperator::LIKE),
                 new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
                 new filterSelector("hasReturned", "Vráceno", "hasReturned", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
-                new filterSelector("ua.variable_symbol", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
+                new filterSelector("ua.id_registered_attendants", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
             ],
             [
                 new filterDisplayer("!attendantActionButtons", "Akce", true),
                 new filterDisplayer("aFullName", "Jméno a příjmení", true),
                 new filterDisplayer("uFullName", "Zákonný zástupce", true),
                 new filterDisplayer("!attendantEmail", "Email zákonného zástupce", true),
-                new filterDisplayer("variable_symbol", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
+                new filterDisplayer("id_registered_attendants", "Variabilní symbol", false,filterSelectorType::TEXT,"fontMono"),
                 new filterDisplayer("hasPaid", "Zaplaceno", true, filterSelectorType::BOOLEAN),
                 new filterDisplayer("hasReturned", "Vráceno", true, filterSelectorType::BOOLEAN),
                 new filterDisplayer("registered", "Datum registrace", false, filterSelectorType::DATETIME),
