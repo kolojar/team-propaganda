@@ -198,12 +198,27 @@ if (isset($_POST["action"])) {
     </header>
     <main>
         <?php
+        //Get variable symbol
+        $variableSymbol = null;
+        if (!isset($_GET["cd"])) {
+            if (!isset($_GET["attendant"]) || !isset($_GET["event"])) {
+                echo "<h1>Nebyly zadány identifikační údaje události.</h1>";
+                die();
+            }
+            $stmt = $conn->prepare("SELECT variable_symbol FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?;");
+            if (!$stmt->bind_param("ii", $_GET["attendant"], $_GET["event"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($variableSymbol) || !$stmt->fetch() || !$stmt->close()) {
+                $stmt->close();
+                echo "<h1>Nelze získat variabilní symbol!</h1>";
+                die();
+            }
+        }
+
         //Security check
-        if (!isset($_GET["variableSymbol"]) && !isset($_GET["cd"])) {
+        if ($variableSymbol === null && !isset($_GET["cd"])) {
             echo "<h1>Nebyl zadán platní variabilní symbol!</h1>";
             die();
         }
-        if (isset($_GET["variableSymbol"]) && !checkIfParentMatches2($conn, $_GET["variableSymbol"])) {
+        if ($variableSymbol !== null && !checkIfParentMatches2($conn, $variableSymbol)) {
             echo "<h1>Nejste rodičem tohoto zájemce!</h1>";
             die();
         }
@@ -218,7 +233,7 @@ if (isset($_POST["action"])) {
             if ($result->type == userType::KLAL) {
                 //Get info from DB
                 $stmt = $conn->prepare("SELECT ra.*, e.id_events, e.name ename, e.description, e.registration_close, e.price, c.name cname, s.id_subevents,s.date,s.start_time,s.end_time FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events LEFT JOIN (SELECT id_subevents, date, start_time, end_time FROM subevents_teamPropaganda WHERE (date = CURRENT_DATE() AND (start_time >= CURRENT_TIME() OR (start_time <= CURRENT_TIME() AND end_time >= CURRENT_TIME()))) OR date > CURRENT_DATE() ORDER BY date ASC, start_time ASC LIMIT 1) s ON 1=1 LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_subevents = s.id_subevents AND ap.variable_symbol = ra.variable_symbol LEFT JOIN classrooms_teamPropaganda c ON ap.id_classrooms = c.id_classrooms WHERE ra.variable_symbol=?;");
-                $stmt->bind_param("i", $_GET["variableSymbol"]);
+                $stmt->bind_param("i", $variableSymbol);
                 $stmt->execute();
                 $res = $stmt->get_result()->fetch_assoc();
                 //$stmt->bind_result($attendantId, $eventId, $registered, $userPaid, $paid, $eventName, $eventDescription, $registrationClose, $price, $classroomId, $classroomName, $subeventIdNext, $subeventDate, $subeventStart, $subeventEnd);
@@ -252,11 +267,11 @@ if (isset($_POST["action"])) {
                 echo "    </div>";
                 echo "</div>";
 
-            ?>
-        </fieldset><br>
-        <fieldset id='paymentInfo'>
-            <legend>Informace o platbě</legend>
-            <?php
+                ?>
+            </fieldset><br>
+            <fieldset id='paymentInfo'>
+                <legend>Informace o platbě</legend>
+                <?php
                 //Sort payment info
                 if ($res["price"] == 0) {
                     echo "<p>Tato událost je zdarma.</p>";
@@ -280,7 +295,7 @@ if (isset($_POST["action"])) {
 
                     //Disable remove from action button
                     $disabledRemove2 = "";
-                    $variableSymbolFormated = str_pad($_GET["variableSymbol"], 10, "0", STR_PAD_LEFT);
+                    $variableSymbolFormated = str_pad($variableSymbol, 10, "0", STR_PAD_LEFT);
                     if ($res["user_paid"] != null) {
                         $disabledRemove2 = "disabled";
                         echo "<p>Variabilní symbol: <span class='fontMono'>$variableSymbolFormated</span></p>";
@@ -295,48 +310,49 @@ if (isset($_POST["action"])) {
                     echo "</div>";
                     echo "<p><i>Poznámka: Prosíme o trpělivost, jelikož peníze mohou někdy cestovat několik dní.</i></p>";
                 }
-            ?>
-        </fieldset><br>
-        <fieldset id='subeventsInfo'>
-            <legend>Události</legend>
-            <p>Proběhlé události se zobrazují ve formátu: DATUM → OD - DO = DOCHÁZKA - kliknutím na modrý název zobrazíte podrobnosti a materiály:</p>
-            <ol>
-                <?php
-                //Get all subevents
-                $variableSymbol = $_GET["variableSymbol"];
-                $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.variable_symbol = ? OR ap.variable_symbol IS NULL);");
-                $stmt->bind_param("ii", $res["id_events"], $variableSymbol);
-                $stmt->execute();
-                $res = $stmt->get_result();
-                if ($res->num_rows > 0) {
-                    while ($row = $res->fetch_assoc()) {
-                        //Format dates of subevents
-                        $dateFormated = new DateTime($row["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
-                        $startTimeFormated = new DateTime($row["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                        $endTimeFormated = new DateTime($row["end_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
-                        $currentDate = new DateTime();
-
-                        //Sort presence
-                        $presence = $row["present"] == 1 ? "Přítomen" : "Nepřítomen";
-                        if ($row["present"] == null) {
-                            $startCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $startTimeFormated);
-                            $endCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $endTimeFormated);
-                            if ($startCombined > $currentDate) {
-                                $presence = "Událost ještě neproběhla.";
-                            } else if ($currentDate >= $startCombined && $currentDate <= $endCombined) {
-                                $presence = "Událost probíhá, docházka zatím nezapsána.";
-                            } else {
-                                $presence = "Docházka neznámá";
-                            }
-                        }
-
-                        //Put to HTML
-                        echo "<li><a href='./subevent.php?subeventId=" . $row["id_subevents"] . "&variableSymbol=$variableSymbol'>$dateFormated → $startTimeFormated - $endTimeFormated</a> = $presence</li>";
-                    }
-                }
                 ?>
-            </ol>
-        <?php
+            </fieldset><br>
+            <fieldset id='subeventsInfo'>
+                <legend>Události</legend>
+                <p>Proběhlé události se zobrazují ve formátu: DATUM → OD - DO = DOCHÁZKA - kliknutím na modrý název zobrazíte podrobnosti a materiály:</p>
+                <ol>
+                    <?php
+                    //Get all subevents
+                    $attendantId = $_GET["attendant"];
+                    $eventId = $_GET["event"];
+                    $stmt = $conn->prepare("SELECT s.id_subevents,s.date, s.start_time, s.end_time,ap.present FROM subevents_teamPropaganda s LEFT JOIN attendants_presence_teamPropaganda ap ON s.id_subevents = ap.id_subevents WHERE s.id_events = ? AND (ap.variable_symbol = ? OR ap.variable_symbol IS NULL);");
+                    $stmt->bind_param("ii", $res["id_events"], $variableSymbol);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+                    if ($res->num_rows > 0) {
+                        while ($row = $res->fetch_assoc()) {
+                            //Format dates of subevents
+                            $dateFormated = new DateTime($row["date"])->format(STANDARD_CZECH_DATE_FORMAT_FULL);
+                            $startTimeFormated = new DateTime($row["start_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                            $endTimeFormated = new DateTime($row["end_time"])->format(STANDARD_CZECH_TIME_FORMAT_FULL);
+                            $currentDate = new DateTime();
+
+                            //Sort presence
+                            $presence = $row["present"] == 1 ? "Přítomen" : "Nepřítomen";
+                            if ($row["present"] == null) {
+                                $startCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $startTimeFormated);
+                                $endCombined = DateTime::createFromFormat(STANDARD_CZECH_DATETIME_FORMAT_FULL, $dateFormated . ' ' . $endTimeFormated);
+                                if ($startCombined > $currentDate) {
+                                    $presence = "Událost ještě neproběhla.";
+                                } else if ($currentDate >= $startCombined && $currentDate <= $endCombined) {
+                                    $presence = "Událost probíhá, docházka zatím nezapsána.";
+                                } else {
+                                    $presence = "Docházka neznámá";
+                                }
+                            }
+
+                            //Put to HTML
+                            echo "<li><a href='./subevent.php?subeventId=" . $row["id_subevents"] . "&attendant=$attendantId&event=$eventId'>$dateFormated → $startTimeFormated - $endTimeFormated</a> = $presence</li>";
+                        }
+                    }
+                    ?>
+                </ol>
+                <?php
             } else {
                 $cd = $conn->query("SELECT * FROM company_days_teamPropaganda WHERE id_company_days = " . $_GET["cd"])->fetch_assoc();
                 $stmt2 = $conn->query("SELECT s.id_sites, s.seats, s.electricity FROM sites_teamPropaganda s WHERE id_presentations IS NULL and id_company_days = " . $_GET["cd"] . " and id_companies = " . $_SESSION["companyId"]);
@@ -406,7 +422,7 @@ if (isset($_POST["action"])) {
                 }
                 echo "</fieldset>";
             }
-        ?>
+            ?>
         </fieldset><a href='./'><button class='formButton purkynkaButton'>Zpět na domovskou stránku</button></a>
     </main>
     <script type='module' src='../formWebScripts/js/formScript.js'></script>

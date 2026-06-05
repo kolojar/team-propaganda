@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION["userId"] = 7;
+$_SESSION["userId"] = 6;
 if (!isset($_SESSION["userId"])) {
     header("Location: ./");
     exit();
@@ -82,7 +82,7 @@ require '../assets/sharedFunctions.php';
                     for ($j = 0; $j < $stmt2->num_rows; $j++) {
                         $stmt2->bind_result($variableSymbol, $eventId, $paid, $eventName, $price);
                         $stmt2->fetch();
-                        echo "<li><a href='./event.php?variableSymbol=$variableSymbol'>$eventName</a>";
+                        echo "<li><a href='./event.php?attendant=$id&event=$eventId'>$eventName</a>";
                         if ($paid == null) {
                             echo "<span> → Potřeba uhradit poplatek!</span>";
                         }
