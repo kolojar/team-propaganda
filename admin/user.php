@@ -123,7 +123,7 @@ if (isset($_POST["action"])) {
         }
     } else {
         http_response_code(400);
-        echo "Neplatné použití funkce - neplatná akc";
+        echo "Neplatné použití funkce - Neplatná akce";
         die();
     }
 }

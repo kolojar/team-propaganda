@@ -55,7 +55,7 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false);
     const formData = new FormData();
     formData.set("action", "getBankAccount");
-    const [ok, responce] = await SendPOSTDataToServerAsync("../settingsManager.php", formData);
+    const [ok, responce] = await SendPOSTDataToServerAsync("../assets/settingsManager.php", formData);
     if (!ok) {
         progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
         SendToast("Načítání dat selhalo", "Data nemohla být načtena.", "error");

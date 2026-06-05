@@ -57,7 +57,7 @@ btnPay?.addEventListener("click", async () => {
     const progress = dialogManager.ShowProgress("Načítání dat", "Probíhá načítání dat, čekejte prosím...", () => { }, 0, false)
     const formData = new FormData()
     formData.set("action", "getBankAccount")
-    const [ok, responce] = await SendPOSTDataToServerAsync("../settingsManager.php", formData)
+    const [ok, responce] = await SendPOSTDataToServerAsync("../assets/settingsManager.php", formData)
     if (!ok) {
         progress?.CloseDialog();
         SendToast("Načítání dat selhalo", "Data nemohla být načtena.", "error")

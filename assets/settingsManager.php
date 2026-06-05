@@ -1,12 +1,14 @@
 <?php
-session_start();
-require "./assets/config.php";
-require "./assets/sharedFunctions.php";
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/sharedFunctions.php";
 
 function loadJsonSettings(): mixed
 {
     //Read JSON    
-    $jsonString = file_get_contents("./assets/settings.json");
+    $jsonString = file_get_contents(__DIR__ ."/settings.json");
     if ($jsonString == false) {
         return null;
     }
@@ -48,7 +50,7 @@ function updateJsonSetting(string $setting, string $value): bool
     }
 
     //Write JSON
-    $result = file_put_contents("./assets/settings.json", $jsonString);
+    $result = file_put_contents(__DIR__ ."/settings.json", $jsonString);
     if ($result == false) {
         return false;
     }
@@ -68,14 +70,6 @@ if (isset($_POST["action"])) {
         //Echo
         echo $setting;
         die();
-    } else {
-        http_response_code(400);
-        echo "Neplatné použití funkce - neplatná akce parameter";
-        die();
     }
-} else {
-    http_response_code(400);
-    echo "Neplatné použití funkce - neplatná akc";
-    die();
 }
 ?>

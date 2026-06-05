@@ -2,7 +2,7 @@
 session_start();
 require "../assets/config.php";
 require "./adminFunctions.php";
-require "../settingsManager.php";
+require "../assets/settingsManager.php";
 
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "set") {
@@ -14,10 +14,10 @@ if (isset($_POST["action"])) {
         }
 
         //Do update
-        if(!updateJsonSetting($_POST["key"], $_POST["value"])) {
-           http_response_code(400);
+        if (!updateJsonSetting($_POST["key"], $_POST["value"])) {
+            http_response_code(400);
             echo "Nelze změnit nastavení.";
-            die(); 
+            die();
         }
         echo "OK";
         die();
@@ -51,22 +51,22 @@ if (isset($_POST["action"])) {
     <main>
         <h1>Správa nastavení</h1>
         <table>
-            <th>
-            <td>Akce</td>
-            <td>Název nastavení</td>
-            <td>Hodnota nastavení</td>
-            </th>
+            <tr>
+                <th>Akce</th>
+                <th>Název nastavení</th>
+                <th>Hodnota nastavení</th>
+            </tr>
+            <?php
+            $settings = loadJsonSettings();
+            foreach ($settings as $key => $value) {
+                echo "<tr>";
+                echo "<td class='formButtonBoxTable'><button class='purkynkaButton editSettingBtn' btn='$key' setting-value='$value' setting-key='$key' form-icon='!edit'></button></td>";
+                echo "<td>$key</td>";
+                echo "<td>$value</td>";
+                echo "</tr>";
+            }
+            ?>
         </table>
-        <?php
-        $settings = loadJsonSettings();
-        foreach ($settings as $key => $value) {
-            echo "<tr>";
-            echo "<td class='formButtonBoxTable'><button class='purkynkaButton editSettingBtn' btn='$key' setting-value='$value' setting-key='$key' form-icon='!edit'></button></td>";
-            echo "<td>$key</td>";
-            echo "<td>$value</td>";
-            echo "</tr>";
-        }
-        ?>
     </main>
     <footer>
 
