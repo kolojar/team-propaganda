@@ -169,7 +169,6 @@ const getSchoolsStart = async () => {
         };
         await attendantSchool.validate();
     }
-    SendToast("Načítání dat proběhlo úspěšně!", "Data načtena úspěšně.", "ok");
     progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
 };
 getSchoolsStart();

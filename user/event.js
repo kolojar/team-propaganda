@@ -56,10 +56,19 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     const formData = new FormData();
     formData.set("action", "getBankAccount");
     const [ok, responce] = await SendPOSTDataToServerAsync("../settingsManager.php", formData);
-    progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
     if (!ok) {
+        progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
         SendToast("Načítání dat selhalo", "Data nemohla být načtena.", "error");
         dialogManager.ShowConfirm("Načítání dat selhalo", "Nelze načíst data, opakujte akci později.", () => { });
+        return;
+    }
+    const formData3 = new FormData();
+    formData3.set("action", "getVariableSymbol");
+    const [ok3, responce3] = await SendPOSTDataToServerAsync("./event.php", formData3);
+    progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
+    if (!ok3) {
+        SendToast("Načítání dat selhalo", "Data nemohla být načtena.", "error");
+        dialogManager.ShowConfirm("Načítání dat selhalo", "Nelze načíst data, opakujte akci později.<br>Důvod:" + responce3, () => { });
         return;
     }
     //Get bank account
@@ -69,7 +78,7 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
         return;
     }
     //Show info for payment
-    if (!await dialogManager.ShowConfirmAsync("Odešlete prosím platbu na následující účet", "Číslo účtu: <span class='fontMono'>" + responce + "</span><br>Variabilní symbol: <span class='fontMono'>" + btnPay.getAttribute("variableSymbol") + "</span><br>Částka: <span class='fontMono'>" + (btnPay === null || btnPay === void 0 ? void 0 : btnPay.getAttribute("price")) + "</span> Kč<br>Číslo účtu pro případné vrácení peněz: <span class='fontMono'>" + bankAccount + "</span>", { allowSelect: true })) {
+    if (!await dialogManager.ShowConfirmAsync("Odešlete prosím platbu na následující účet", "Číslo účtu: <span class='fontMono'>" + responce + "</span><br>Variabilní symbol: <span class='fontMono'>" + responce3 + "</span><br>Částka: <span class='fontMono'>" + (btnPay === null || btnPay === void 0 ? void 0 : btnPay.getAttribute("price")) + "</span> Kč<br>Číslo účtu pro případné vrácení peněz: <span class='fontMono'>" + bankAccount + "</span>", { allowSelect: true })) {
         SendToast("Zaplatit", "Zaplacení platby bylo zrušeno.", "info");
         return;
     }
@@ -78,7 +87,7 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     const formData2 = new FormData();
     formData2.set("action", "addPayment");
     formData2.set("bank_account", bankAccount);
-    formData2.set("variable_symbol", urlSearchParams.get("variableSymbol"));
+    formData2.set("variable_symbol", responce3);
     const [ok2, responce2] = await SendPOSTDataToServerAsync("./event.php", formData2);
     progress2 === null || progress2 === void 0 ? void 0 : progress2.CloseDialog();
     if (ok2) {
@@ -102,7 +111,8 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     const progress = dialogManager.ShowProgress("Odhlásit zájemce z akce", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
     const formData = new FormData();
     formData.set("action", "unregisterFromEvent");
-    formData.set("id", urlSearchParams.get("variableSymbol"));
+    formData.set("attendant", urlSearchParams.get("attendant"));
+    formData.set("event", urlSearchParams.get("event"));
     formData.set("reason", reason);
     const [ok, responce] = await SendPOSTDataToServerAsync("./event.php", formData);
     progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
@@ -113,7 +123,7 @@ btnPay === null || btnPay === void 0 ? void 0 : btnPay.addEventListener("click",
     }
     else {
         SendToast("Odhlásit zájemce z akce", "Zájemce nemohl být odhlášen.", "error");
-        await dialogManager.ShowAlertAsync("Odhlásit zájemce z akce", "Informace o odhlášení nemohly být uloženy, opakujte akci později.");
+        await dialogManager.ShowAlertAsync("Odhlásit zájemce z akce", "Informace o odhlášení nemohly být uloženy, opakujte akci později.<br>Důvod: " + responce);
     }
 });
 (_b = document.getElementById("btnRemoveCD")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", async (e) => {

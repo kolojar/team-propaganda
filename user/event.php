@@ -48,15 +48,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "unregisterFromEvent") {
         //Check if values set
-        if (!isset($_POST["id"]) || !isset($_POST["reason"])) {
+        if (!isset($_POST["attendant"]) ||!isset($_POST["event"]) || !isset($_POST["reason"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Security check
-        $stmt = $conn->prepare("SELECT a.id_parent, e.registration_close FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.variable_symbol = ?;");
-        $stmt->bind_param("i", $_POST["id"]);
+        $stmt = $conn->prepare("SELECT a.id_parent, e.registration_close FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.id_attendants = ? AND ra.id_events = ?;");
+        $stmt->bind_param("ii", $_POST["attendant"],$_POST["event"]);
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se získat data z databáze.";
@@ -76,20 +76,20 @@ if (isset($_POST["action"])) {
         }
 
         //Get SQL info
-        $stmt = $conn->prepare("SELECT id_attendants, id_events, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        $stmt->bind_param("i", $_POST["id"]);
+        $stmt = $conn->prepare("SELECT variable_symbol, bank_account,registered,paid FROM registered_attendants_teamPropaganda WHERE id_attendants = ? AND id_events = ?");
+        $stmt->bind_param("i", $_POST["attendant"],$_POST["event"]);
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se získat data z databáze.";
             die();
         }
         $stmt->store_result();
-        $stmt->bind_result($attendantId, $eventId, $bankAccount, $registered, $paid);
+        $stmt->bind_result($variableSymbol, $bankAccount, $registered, $paid);
         $stmt->fetch();
 
         //Insert SQL entry
         $stmt = $conn->prepare("INSERT INTO unregistered_attendants_teamPropaganda(variable_symbol, id_attendants, id_events, bank_account, registered, paid, reason) VALUES (?,?,?,?,?,?,?)");
-        $stmt->bind_param("issssss", $_POST["id"], $attendantId, $eventId, $bankAccount, $registered, $paid, $_POST["reason"]);
+        $stmt->bind_param("issssss", $variableSymbol, $_POST["attendant"],$_POST["event"], $bankAccount, $registered, $paid, $_POST["reason"]);
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se zapsat data do databáze.";
@@ -98,7 +98,7 @@ if (isset($_POST["action"])) {
 
         //Delete SQL entry
         $stmt = $conn->prepare("DELETE FROM registered_attendants_teamPropaganda WHERE variable_symbol = ?");
-        $stmt->bind_param("i", $_POST["id"]);
+        $stmt->bind_param("i", $variableSymbol);
         if (!$stmt->execute()) {
             http_response_code(400);
             echo "Nepodařilo se smazat data z databáze.";
@@ -305,7 +305,7 @@ if (isset($_POST["action"])) {
                     //Put to HTML
                     echo "<div class='formButtonBoxHolder'>";
                     echo "    <div class='formButtonBox formJustifyLeft'>";
-                    echo "        <button class='formButton purkynkaButton' $disabledRemove2 id='btnPay' variableSymbol='$variableSymbolFormated' price='$price'>Zaplatit</button>";
+                    echo "        <button class='formButton purkynkaButton' $disabledRemove2 id='btnPay' attendant='$attendantId' event='$eventId' price='$price'>Zaplatit</button>";
                     echo "    </div>";
                     echo "</div>";
                     echo "<p><i>Poznámka: Prosíme o trpělivost, jelikož peníze mohou někdy cestovat několik dní.</i></p>";
