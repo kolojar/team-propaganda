@@ -271,5 +271,4 @@ function formatVariableSymbol($value) {
 <script type="module" src="../formWebScripts/js/formScript.js"></script>
 <script type='module' src='../assets/sharedScripts.js'></script>
 <script type='module' src='./payments.js'></script>
-
 </html>
