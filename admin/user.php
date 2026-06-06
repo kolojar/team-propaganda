@@ -86,7 +86,7 @@ if (isset($_POST["action"])) {
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, type, role, lastLogin) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP())");
+        $stmt = $conn->prepare("INSERT INTO users_teamPropaganda(email, name, surname, type, role, last_login) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP())");
         if ($stmt->bind_param("sssss", $_POST["email"], $_POST["name"], $_POST["surname"], $_POST["type"], $_POST["role"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Uživatel vytvořen.";
@@ -104,9 +104,19 @@ if (isset($_POST["action"])) {
             die();
         }
 
+        //Get helper values
+        $stmt = $conn->prepare("SELECT role, type FROM users_teamPropaganda WHERE id_users=?");
+        if (!$stmt->bind_param("i", $_POST["id"]) || !$stmt->execute() || !$stmt->store_result() || !$stmt->bind_result($role, $type) || !$stmt->fetch() || !$stmt->close()) {
+            http_response_code(400);
+            echo "Nelze získat informace o uživateli.";
+            $stmt->close();
+            die();
+        }
+        logToConsole($_POST["id"] . $role . $type);
+
         //Security check
         $roleType = getUserRoleType($conn, $_POST["id"]);
-        if (($roleType->role != userRole::{$_POST["role"]} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$_POST["type"]} && $roleType->type == userType::GENERIC)) {
+        if (($roleType->role != userRole::{$role} && $roleType->role != userRole::ADMIN) || ($roleType->type != userType::{$type} && $roleType->type == userType::GENERIC)) {
             echoCheckAdminDelete($conn, $roleType);
         }
 
@@ -119,6 +129,7 @@ if (isset($_POST["action"])) {
         } else {
             http_response_code(400);
             echo "Uživatel nemohl být odstraněn.";
+            $stmt->close();
             die();
         }
     } else {
