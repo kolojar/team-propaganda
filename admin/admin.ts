@@ -2,7 +2,7 @@ import { FormDialogCheckboxSelectData, FormDialogManager } from "../formWebScrip
 
 const dialogManager = new FormDialogManager();
 const map  = new Map<string,FormDialogCheckboxSelectData<number>>();
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 1000; i++) {
     map.set("ABC " + i,{value: i})    
 }
 dialogManager.ShowCheckboxSelect("TEST", "TEST", null, (v) => {
