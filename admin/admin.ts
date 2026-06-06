@@ -8,4 +8,4 @@ for (let i = 0; i < 100; i++) {
 dialogManager.ShowCheckboxSelect("TEST", "TEST", null, (v) => {
     console.log(v);
 
-},map,{checkboxSelectMaxCount: 4})
+},map,{checkboxSelectMinCount: 2})
