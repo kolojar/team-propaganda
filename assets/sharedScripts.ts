@@ -1,6 +1,8 @@
 import { FormDialog, FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
-import { HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
+import { GlobalLanguageManager, HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
+
+GlobalLanguageManager.ChangeLanguage("cs")
 
 export function GetChildenElementsByClassName(element: HTMLElement, className: string): HTMLElement[] {
     return Array.from(element.querySelectorAll("*")).filter(el => el.classList.contains(className)) as HTMLElement[]

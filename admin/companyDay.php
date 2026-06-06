@@ -128,9 +128,9 @@ if (isset($_POST["action"])) {
         echo "<form-input label='Registrace aktivní do:' class='eventValidate' do-change-check='$exists' type='datetime-local' value-id='registration_close' id='registration_close' original-value='$registrationClose' value='$registrationClose'></form-input>";
         echo "<div class='formButtonBoxHolder'>";
         echo "<div class='formButtonBox'>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnSave'>Uložit změny</button>";
-        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel'>Zrušit změny</button>";
-        echo "<a href='./events.php'><button class='formButton purkynkaButton'>Zpět na seznam události</button></a>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnSave' form-icon='!save'></button>";
+        echo "<button exists='$exists' class='formButton purkynkaButton btnCancel' form-icon='!dontSave'></button>";
+        echo "<a href='./events.php'><button class='formButton purkynkaButton' form-icon='!listTable'><span>Zpět na seznam událostí</span></button></a>";
         echo "</div>";
         echo "</div>";
         ?>
