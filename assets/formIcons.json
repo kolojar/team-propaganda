@@ -34,5 +34,6 @@
     "firstPage": "./icons/firstPage32.svg",
     "lastPage": "./icons/lastPage32.svg",
     "nextPage": "./icons/keyboardArrowRight32.svg",
-    "previousPage": "./icons/keyboardArrowLeft32.svg"
+    "previousPage": "./icons/keyboardArrowLeft32.svg",
+    "print": "./icons/print32.svg"
 }

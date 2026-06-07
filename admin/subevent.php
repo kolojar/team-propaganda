@@ -113,6 +113,8 @@ function classroomOrderer(mysqli $conn, $variableSymbolToSchools)
 
     //Add to array
     $classrooms = [];
+    $placesToSit = 0;
+    $usedPlaces = 0;
     for ($i = 0; $i < $stmt->num_rows; $i++) {
         if (!$stmt->bind_result($classroom, $placesToSit, $usedPlaces) || !$stmt->fetch()) {
             http_response_code(400);
@@ -194,7 +196,7 @@ if (isset($_POST["action"])) {
 
         //Make SQL Insert
         $stmt = $conn->prepare("INSERT INTO subevents_teamPropaganda(id_events,date,start_time, end_time,time_cjl,time_mat) VALUES (?,?,?,?,?,?)");
-        if ($stmt->bind_param("isssss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"],$_POST["time_cjl"], $_POST["time_mat"]) && $stmt->execute() && $stmt->close()) {
+        if ($stmt->bind_param("isssss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["time_cjl"], $_POST["time_mat"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Podudálost vytvořena.";
             die();
@@ -386,6 +388,8 @@ if (isset($_POST["action"])) {
         //Select if force
         $variableSymbolToSchools = [];
         $variableSymbol = -1;
+        $school = 0;
+        $isInTable = 0;
         if ($_POST["force"] == "1") {
             //Get force = all attendants will recalculate class
             $stmt = $conn->prepare("SELECT ra.id_registered_attendants, a.id_schools, ap.id_registered_attendants IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND s.id_subevents = ap.id_subevents WHERE ra.paid IS NOT NULL AND s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
@@ -484,6 +488,7 @@ if (isset($_POST["action"])) {
         }
 
         //Add to array
+        $isInTable = 0;
         for ($i = 0; $i < $stmt->num_rows; $i++) {
             if (!$stmt->bind_result($variableSymbol, $isInTable) || !$stmt->fetch()) {
                 http_response_code(400);
@@ -536,6 +541,7 @@ if (isset($_POST["action"])) {
             die();
         }
         $variableSymbolToClassrooms = [];
+        $classroomId = 0;
         for ($i = 0; $i < $stmt->num_rows; $i++) {
             if (!$stmt->bind_result($variableSymbol, $classroomId) || !$stmt->fetch()) {
                 http_response_code(400);
@@ -572,7 +578,6 @@ if (isset($_POST["action"])) {
         http_response_code(201);
         echo "Změny uloženy.";
         die();
-
     } else {
         http_response_code(400);
         echo "Neplatné použití funkce - neplatná akce";
@@ -609,6 +614,8 @@ if (isset($_POST["action"])) {
         $timeMATDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
         $exists = "true";
         $attendantsCount = 0;
+        $registrationCloseDB = 0;
+        $activeUntilDB = 0;
         if (isset($_GET["newSubevent"])) {
             echo "<h1>Vytvořit novou podudálost</h1>";
             $exists = "false";
@@ -644,7 +651,7 @@ if (isset($_POST["action"])) {
         $activeUntilTime = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format("H:i");
         echo "<form-input label='K události:' style='display: none' type='hidden' class='subeventValidate' original-value='$eventId' value-id='id_events' value='$eventId'></form-input>";
         //$isFunctionalString = $isFunctional == 1 ? "true" : "false";
-        
+
         //Create HTML
         echo "<fieldset>";
         echo "<legend>Nastavení podudálosi</legend>";
@@ -703,6 +710,7 @@ if (isset($_POST["action"])) {
                 }
 
                 //Get info about active classrooms for event
+                $echoHeader = false;
                 $stmt = $conn->prepare("SELECT cs.id_classrooms, c.name, c.places_to_sit, GROUP_CONCAT(ap.id_registered_attendants), COUNT(ap.id_registered_attendants) FROM classrooms_subevents_teamPropaganda cs JOIN classrooms_teamPropaganda c ON cs.id_classrooms = c.id_classrooms LEFT JOIN attendants_presence_teamPropaganda ap ON (ap.id_subevents = cs.id_subevents AND ap.id_classrooms = cs.id_classrooms) WHERE cs.id_subevents = ? GROUP BY cs.id_classrooms, c.name, c.places_to_sit;");
                 if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result()) {
                     echo "<p>Nelze získat aktivní učebny.</p>";
@@ -764,6 +772,10 @@ if (isset($_POST["action"])) {
             echo "<button tabindex='7' id='addClassroom' class='formButton purkynkaButton' form-icon='!add'><span>Přidat učebnu</span></button>";
             echo "<button tabindex='8' id='copySettings' class='formButton purkynkaButton' form-icon='!copy'><span>Kopírovat nastavení učeben z jiné podudálosti</span></button>";
             echo "<button tabindex='9' id='sortAttendants' class='formButton purkynkaButton' $disableSort form-icon='!shuffle'><span>Rozřadit zájemce do učeben</span></button>";
+            echo "</div>";
+            echo "<div class='formButtonBox formJustifyRight'>";
+            echo "<a href='../studentList2.php?seId=" . $_GET["subevent"] . "' target='_blank'><button tabindex='10' class='formButton purkynkaButton' form-icon='!print'><span>Exportovat list uživatelů (.docx)</span></button></a>";
+            echo "<a href='../studentListSign.php?seId=" . $_GET["subevent"] . "' target='_blank'><button tabindex='11' class='formButton purkynkaButton' form-icon='!print'><span>Exportovat podpisový arch (.docx)</span></button></a>";
             echo "</div>";
             echo "</div></fieldset>";
         }
