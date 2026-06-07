@@ -44,10 +44,10 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         //Process elements
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
             const inputElement = inputElementOriginal;
-            const [changed, isValid] = await inputElement.validate();
+            const [changed, isValid, validationMessage] = await inputElement.validate();
             console.log(changed, isValid);
             if (!isValid) {
-                SendToast("Nelze uložit změny!", "Pole obsahuje neplatnou hodnotu.", "error");
+                SendToast("Nelze uložit změny!", "Pole obsahuje neplatnou hodnotu → " + validationMessage, "error");
                 progress2 === null || progress2 === void 0 ? void 0 : progress2.CloseDialog();
                 return;
             }
@@ -129,8 +129,8 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         const changes = [];
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
             const inputElement = inputElementOriginal;
-            const [changed, isValid] = await inputElement.validate();
-            console.log(changed, isValid);
+            const [changed, _isValid, _validationMessage] = await inputElement.validate();
+            //console.log(changed, isValid);
             if (changed) {
                 foundChange = true;
                 changes.push("• " + inputElement.label + " " + (inputElement instanceof HTMLFormInputElement ? inputElement.originalValueRaw : inputElement.originalChecked ? "Ano" : "Ne") + " → " + (inputElement instanceof HTMLFormInputElement ? inputElement.valueRaw : inputElement.value ? "Ano" : "Ne"));

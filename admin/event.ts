@@ -32,7 +32,7 @@ registrationOpen.addEventListener("validation-done", () => {
 
 async function onSaveFunc(): Promise<boolean> {
     const price = document.getElementById("price") as HTMLFormInputElement;
-    const [changed, _] = await price.validate();
+    const [changed, _a,_b] = await price.validate();
     if (changed) {
         const currentTime = new Date()
         if (new Date(activeSince.value) <= currentTime && currentTime <= new Date(activeUntil.value)) {
