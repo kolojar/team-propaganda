@@ -32,7 +32,7 @@ if (!$classes = $conn->query("SELECT * FROM classrooms_subevents_teamPropaganda 
 }
 
 while ($class = $classes->fetch_assoc()) {
-    $stmt = $conn->query("SELECT a.name, a.surname FROM attendants_presence_teamPropaganda NATURAL JOIN `registered_attendants_teamPropaganda` NATURAL JOIN attendants_teamPropaganda a WHERE id_subevents = " . $_GET["seId"] . " AND id_classrooms = " . $class["id_classrooms"]);
+    $stmt = $conn->query("SELECT a.name, a.surname FROM attendants_presence_teamPropaganda NATURAL JOIN `registered_attendants_teamPropaganda` NATURAL JOIN attendants_teamPropaganda a WHERE id_subevents = " . $_GET["seId"] . " AND id_classrooms = " . $class["id_classrooms"] . "ORDER BY a.surname ASC");
     if ($stmt->num_rows > 0) {
         $uclass = [];
         while ($user = $stmt->fetch_assoc()) {
