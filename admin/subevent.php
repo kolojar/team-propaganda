@@ -167,15 +167,15 @@ function classroomOrderer(mysqli $conn, $variableSymbolToSchools)
 if (isset($_POST["action"])) {
     if ($_POST["action"] == "update") {
         //Check if values set
-        if (!isset($_POST["date"]) || !isset($_POST["start_time"]) || !isset($_POST["end_time"]) || !isset($_POST["id"])) {
+        if (!isset($_POST["date"]) || !isset($_POST["start_time"]) || !isset($_POST["end_time"]) || !isset($_POST["time_cjl"]) || !isset($_POST["time_mat"]) || !isset($_POST["id"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Make SQL Update
-        $stmt = $conn->prepare("UPDATE subevents_teamPropaganda SET date=?,start_time=?,end_time=? WHERE id_subevents=?");
-        if ($stmt->bind_param("sssi", $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
+        $stmt = $conn->prepare("UPDATE subevents_teamPropaganda SET date=?,start_time=?,end_time=?, time_cjl=?, time_mat=? WHERE id_subevents=?");
+        if ($stmt->bind_param("sssssi", $_POST["date"], $_POST["start_time"], $_POST["end_time"], $_POST["time_cjl"], $_POST["time_mat"], $_POST["id"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Podudálost upravena.";
             die();
@@ -186,15 +186,15 @@ if (isset($_POST["action"])) {
         }
     } else if ($_POST["action"] == "insert") {
         //Check if values set
-        if (!isset($_POST["date"]) || !isset($_POST["start_time"]) || !isset($_POST["end_time"]) || !isset($_POST["id_events"])) {
+        if (!isset($_POST["date"]) || !isset($_POST["start_time"]) || !isset($_POST["end_time"]) || !isset($_POST["time_cjl"]) || !isset($_POST["time_mat"]) || !isset($_POST["id_events"])) {
             http_response_code(400);
             echo "Neplatné použití funkce - chybí parametr";
             die();
         }
 
         //Make SQL Insert
-        $stmt = $conn->prepare("INSERT INTO subevents_teamPropaganda(id_events,date,start_time, end_time) VALUES (?,?,?,?)");
-        if ($stmt->bind_param("isss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"]) && $stmt->execute() && $stmt->close()) {
+        $stmt = $conn->prepare("INSERT INTO subevents_teamPropaganda(id_events,date,start_time, end_time,time_cjl,time_mat) VALUES (?,?,?,?,?,?)");
+        if ($stmt->bind_param("isssss", $_POST["id_events"], $_POST["date"], $_POST["start_time"], $_POST["end_time"],$_POST["time_cjl"], $_POST["time_mat"]) && $stmt->execute() && $stmt->close()) {
             http_response_code(201);
             echo "Podudálost vytvořena.";
             die();
@@ -385,6 +385,7 @@ if (isset($_POST["action"])) {
 
         //Select if force
         $variableSymbolToSchools = [];
+        $variableSymbol = -1;
         if ($_POST["force"] == "1") {
             //Get force = all attendants will recalculate class
             $stmt = $conn->prepare("SELECT ra.id_registered_attendants, a.id_schools, ap.id_registered_attendants IS NOT NULL FROM registered_attendants_teamPropaganda ra JOIN attendants_teamPropaganda a ON ra.id_attendants = a.id_attendants JOIN schools_teamPropaganda sch ON a.id_schools = sch.id_schools JOIN subevents_teamPropaganda s ON ra.id_events = s.id_events LEFT JOIN attendants_presence_teamPropaganda ap ON ra.id_registered_attendants = ap.id_registered_attendants AND s.id_subevents = ap.id_subevents WHERE ra.paid IS NOT NULL AND s.id_subevents IN (?) ORDER BY CONCAT(sch.name, ' ', sch.address), a.surname, a.name;");
@@ -604,6 +605,8 @@ if (isset($_POST["action"])) {
         $dateDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('Y-m-d');
         $startTimeDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
         $endTimeDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
+        $timeCJLDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
+        $timeMATDB = new DateTime("now", new DateTimeZone("Europe/Prague"))->format('H:i:s');
         $exists = "true";
         $attendantsCount = 0;
         if (isset($_GET["newSubevent"])) {
@@ -618,8 +621,8 @@ if (isset($_POST["action"])) {
             }
         } else {
             //Get subevent info
-            $stmt = $conn->prepare("SELECT s.id_events, s.date, s.start_time, s.end_time, COUNT(ra.id_attendants), e.name, e.registration_close,e.active_until FROM subevents_teamPropaganda s JOIN events_teamPropaganda e ON s.id_events = e.id_events LEFT JOIN registered_attendants_teamPropaganda ra ON s.id_events = ra.id_events AND ra.paid IS NOT NULL WHERE s.id_subevents = ?;");
-            if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB, $attendantsCount, $eventName, $registrationCloseDB, $activeUntilDB) || !$stmt->fetch() || !$stmt->close() || $eventId == null) {
+            $stmt = $conn->prepare("SELECT s.id_events, s.date, s.start_time, s.end_time, COUNT(ra.id_attendants), e.name, e.registration_close,e.active_until,s.time_cjl, s.time_mat FROM subevents_teamPropaganda s JOIN events_teamPropaganda e ON s.id_events = e.id_events LEFT JOIN registered_attendants_teamPropaganda ra ON s.id_events = ra.id_events AND ra.paid IS NOT NULL WHERE s.id_subevents = ?;");
+            if (!$stmt->bind_param("i", $_GET["subevent"]) || !$stmt->execute() || !$stmt->store_result() || $stmt->num_rows != 1 || !$stmt->bind_result($eventId, $dateDB, $startTimeDB, $endTimeDB, $attendantsCount, $eventName, $registrationCloseDB, $activeUntilDB, $timeCJLDB, $timeMATDB) || !$stmt->fetch() || !$stmt->close() || $eventId == null) {
                 echo "<h1>Nelze získat informace o podudálosti.</h1>";
                 echo "<a href='./admin.php'><button class='purkynkaButton'>Zpět na hlavní stránku</button></a>";
                 die();
@@ -633,6 +636,8 @@ if (isset($_POST["action"])) {
         $date = DateTime::createFromFormat('Y-m-d', $dateDB)->format("Y-m-d");
         $startTime = DateTime::createFromFormat('H:i:s', $startTimeDB)->format("H:i");
         $endTime = DateTime::createFromFormat('H:i:s', $endTimeDB)->format("H:i");
+        $timeCJL = DateTime::createFromFormat('H:i:s', $timeCJLDB)->format("H:i");
+        $timeMAT = DateTime::createFromFormat('H:i:s', $timeMATDB)->format("H:i");
         $registrationClose = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format("Y-m-d");
         $registrationCloseTime = DateTime::createFromFormat('Y-m-d H:i:s', $registrationCloseDB)->format("H:i");
         $activeUntil = DateTime::createFromFormat('Y-m-d H:i:s', $activeUntilDB)->format("Y-m-d");
@@ -647,6 +652,8 @@ if (isset($_POST["action"])) {
         echo "<form-input tabindex='1' label='Datum konání podudálosti:' class='subeventValidate' do-change-check='$exists' type='date' value-id='date'  id='date' original-value='$date' value='$date' min='$registrationClose' max='$activeUntil' minTime='$registrationCloseTime' maxTime='$activeUntilTime'></form-input>";
         echo "<form-input tabindex='2' label='Zahájení události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='start_time' id='start_time' original-value='$startTime' value='$startTime'></form-input>";
         echo "<form-input tabindex='3' label='Konec události:' class='subeventValidate' do-change-check='$exists' type='time' value-id='end_time' id='end_time' original-value='$endTime' value='$endTime'></form-input>";
+        echo "<form-input tabindex='2' label='Zahájení ČJL:' class='subeventValidate' do-change-check='$exists' type='time' value-id='time_cjl' id='time_cjl' original-value='$timeCJL' value='$timeCJL'></form-input>";
+        echo "<form-input tabindex='3' label='Zahájení MAT:' class='subeventValidate' do-change-check='$exists' type='time' value-id='time_mat' id='time_mat' original-value='$timeMAT' value='$timeMAT'></form-input>";
 
         //Echo HTML buttons
         echo "<div class='formButtonBoxHolder'>";

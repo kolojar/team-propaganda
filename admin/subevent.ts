@@ -10,10 +10,18 @@ SetupSaveCancelButtons(dialogManager, null, "./events.php", "./subevent.php", ur
 //Setup minimums and maximums
 const startTime = (document.getElementById("start_time") as HTMLFormInputElement)
 const endTime = (document.getElementById("end_time") as HTMLFormInputElement)
+const time_cjl = (document.getElementById("time_cjl") as HTMLFormInputElement)
+const time_mat = (document.getElementById("time_mat") as HTMLFormInputElement)
 const date = (document.getElementById("date") as HTMLFormInputElement)
 
 startTime.addEventListener("validation-done", () => {
     endTime.min = (startTime.value)
+    time_cjl.min = (startTime.value);
+    time_mat.min = (startTime.value);
+})
+endTime.addEventListener("validation-done", () => {
+    time_cjl.max = (endTime.value);
+    time_mat.max = (endTime.value);
 })
 date.addEventListener("validation-done", () => {
     console.log(date.value == date.min);

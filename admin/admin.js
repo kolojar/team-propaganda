@@ -1,7 +1,7 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 const dialogManager = new FormDialogManager();
 const map = new Map();
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 100; i++) {
     map.set("ABC " + i, { value: i });
 }
 dialogManager.ShowCheckboxSelect("TEST", "TEST", null, (v) => {
