@@ -188,7 +188,7 @@ function setupTitlebarAdmin(mysqli $conn, string $page): titlebarSetupResult
     //======
     //fix formJustifyRight
     //======
-    echo '<a href="./events.php" style="all: unset; cursor: pointer;"><h1> Akce: ' . $result->message . '</h1></a><h1 class="formJustifyRight">' . $result->username . '</h1>';
+    echo '<div class="formButtonBoxHolder"><a href="./events.php" style="all: unset; cursor: pointer;"><h1> Akce: ' . $result->message . '</h1></a><h1 class="formJustifyRight">' . $result->username . '</h1></div>';
     echo "<div class='formButtonBoxHolder'>";
 
     //Generate buttons
