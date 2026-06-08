@@ -123,14 +123,12 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                 $res = ($isNILE == 2) ? $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE role = 'USER';") : $conn->query("SELECT id_users, name, surname, email FROM users_teamPropaganda WHERE type='" . $userType->toString() . "' AND role='USER';");
                 $uid = $_GET["uid"];
                 while ($row = $res->fetch_object()) {
-                    echo "<tr><td><input type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
+                    echo "<tr><td><form-toggle type='checkbox' name='users' " . (($row->id_users == $uid) ? "checked " : " ") . "value='$row->id_users'/></td><td>$row->name $row->surname</td><td>$row->email</td></tr>";
                 }
                 ?>
             </table>
-            <input type="checkbox" tabindex='1' id="checkall" name="checkall">
-            <label for="checkall">Vybrat všechny</label><br>
-            <input type="checkbox" tabindex='2' id="global" name="global">
-            <label for="global">Globální oznámení</label><br>
+            <form-toggle label="Vybrat všechny" type="checkbox" tabindex='1' id="checkall" name="checkall"></form-toggle><br>
+            <form-toggle label="Globální oznámení" type="checkbox" tabindex='2' id="global" name="global"></form-toggle>
         </fieldset>
         <fieldset>
             <legend>Obsah zprávy</legend>
@@ -146,8 +144,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             <form-input tabindex='3' type='text' id='subject' label="Předmět"></form-input>
             <form-input tabindex='4' type='textarea' id='message' label="Zpráva"></form-input>
             <form-input tabindex='5' type='select' id='templates' list="templatesList" label="Předvolby / šablony"></form-input>
-            <input tabindex='6' type="checkbox" checked id="now" name="now">
-            <label for="now">Odeslat ihned</label><br>
+            <form-toggle label="Odeslat ihned" tabindex='6' type="checkbox" checked id="now" name="now"></form-toggle>
             <form-input tabindex='7' type='date' id='date' name="date" label="Datum odeslání" disabled></form-input>
             <form-input tabindex='8' type="number" id="hour" name="hour" min=0 max=23 value=12 label='Hodina odeslání' disabled></form-input>
             <div id="attachments">
@@ -174,8 +171,8 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
         document.getElementById("now").addEventListener("change", () => {
             const disabled = document.getElementById("now").checked;
-            document.getElementById("date").disable(disabled);
-            document.getElementById("hour").disable(disabled);
+            document.getElementById("date").disabled = disabled;
+            document.getElementById("hour").disabled = disabled;
         });
 
         document.getElementById("global").addEventListener("change", () => {
@@ -185,9 +182,9 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             }
         })
 
-        document.getElementById("templates").addEventListener("change", (e) => {
+        document.getElementById("templates").addEventListener("change", async (e) => {
             let template = document.getElementById("templates").value;
-            if (!confirm("Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
+            if (!await dm.ShowConfirmAsync("Změna předvolby", "Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
                 template = selectedTemplate;
                 //document.getElementById(selectedTemplate).selected = true;
                 selectedTemplate = template;
@@ -196,9 +193,11 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             if (template == "none") {
                 document.getElementById("message").value = "";
             } else {
+                let wait = dm.ShowProgress("Načítání předvolby", "prosím počkejte", () => {}, 0, false)
                 var request = new XMLHttpRequest();
                 request.open('GET', "./templates/" + template, true);
                 request.onload = function() {
+                    wait.CloseDialog()
                     if (request.status >= 200 && request.status < 400) {
                         document.getElementById("message").value = request.responseText;
                     } else {
@@ -206,6 +205,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
                     }
                 };
                 request.onerror = function() {
+                    wait.CloseDialog()
                     SendToast("Odpověď serveru", "connection error", "error")
                 };
                 request.send();
@@ -291,32 +291,35 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
         }
 
+        let options = new Map();
+        let files = {};
+        <?php
+        $files = ($isNILE == 2) ? $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda`") : $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda` WHERE isNILE = 2 OR isNILE = " . $isNILE);
+        while ($file = $files->fetch_assoc()) {
+            echo "files['" . $file["id_files"] . "'] = '" . $file["name"] . "'\n";
+            if ($file["isDir"] == 1 && is_dir("../files/" . $file["name"])) {
+                echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n"; //but yellow
+            } else if ($file["isdir"] == 0 && file_exists("../files/" . $file["name"])) {
+                echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n";
+            }
+        }
+        ?>
+
         document.getElementById("addAttachment").addEventListener("click", async (e) => {
             e.preventDefault()
-            let options = new Map();
-            let files = {};
 
-            <?php
-            $files = ($isNILE == 2) ? $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda`") : $conn->query("SELECT id_files, name, isDir FROM `files_teamPropaganda` WHERE isNILE = 2 OR isNILE = " . $isNILE);
-            while ($file = $files->fetch_assoc()) {
-                echo "files['" . $file["id_files"] . "'] = '" . $file["name"] . "'\n";
-                if ($file["isDir"] == 1 && is_dir("../files/" . $file["name"])) {
-                    echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n"; //but yellow
-                } else if ($file["isdir"] == 0 && file_exists("../files/" . $file["name"])) {
-                    echo "options.set('" . $file["name"] . "','" . $file["id_files"] . "')\n";
-                }
-            }
-            ?>
             console.log(options)
 
             let file = await dm.ShowSelectAsync("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
             console.log(file)
+            options.delete(files[file])
             if (file) {
                 let btn = document.createElement("button")
                 btn.classList.add("atch")
                 btn.setAttribute("file", file)
                 btn.innerHTML = files[file]
                 btn.addEventListener("click", (e) => {
+                    options.set(files[file], file);
                     btn.remove();
                 })
                 document.getElementById("attachments").append(btn)
