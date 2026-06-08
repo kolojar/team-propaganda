@@ -83,6 +83,10 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         else
             SendToast("Odpověď serveru", res, "error");
     }
+    else if (file == null) {
+        SendToast("Nahrávání souboru", "Akce zrušena", "info");
+        return;
+    }
     else {
         SendToast("Nahrávání souboru", "Soubor se nepodařilo nahrát", "error");
         return;
@@ -134,6 +138,11 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
             values.set(field.name, { value: field.id_fields, checked: true });
     }
     let result = await dialogManager.ShowCheckboxSelectAsync("Obory", "Vyberte obory které by mohla vaše firma zajímat.", null, values);
+    console.log(result);
+    if (result == null) {
+        SendToast("Výběr oborů", "Akce zrušena", "info");
+        return;
+    }
     let data2 = new FormData();
     data2.append("action", "addFields");
     data2.append("fields", JSON.stringify(result));

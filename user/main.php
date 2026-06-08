@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION["userId"] = 6;
+$_SESSION["userId"] = 7;
 if (!isset($_SESSION["userId"])) {
     header("Location: ./");
     exit();
@@ -130,8 +130,6 @@ require '../assets/sharedFunctions.php';
                 <form-input value-id='short_info' label='Krátký popis:' class='validate' type='text' do-change-check min-len='300' value='" . $row["short_info"] . "' original-value='" . $row["short_info"] . "'></form-input>
                 <form-input value-id='long_info' label='Dlouhý popis:' class='validate' type='text' do-change-check value='" . $row["long_info"] . "' original-value='" . $row["long_info"] . "'></form-input>
                 <div id='fields'><label>Vybrané cílené skupiny: </label>" . join(", ", $formatedFields) . "</div><button class='formButton purkynkaButton' id='fieldSelect' company='" . $row["id_companies"] . "' fields='" . join(",", $selectedFields) . "'>Vybrat cílenou skupinu zájemců.</button><br><br>";
-
-
 
                 //Get events of attendant
 
