@@ -616,6 +616,13 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                         }
                     }
 
+                    //Try to format sellect
+                    if ($value[1]->valueFormat == filterSelectorType::SELECT) {
+                        if ($formated == null) {
+                            $formated = "-";
+                        }
+                    }
+
                     //Try to format using function
                     if ($value[1]->cellValueFormatFunc !== null) {
                         $call = $value[1]->cellValueFormatFunc;

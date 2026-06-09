@@ -24,7 +24,7 @@ require "./adminFunctions.php";
     </header>
     <main>
         <?php
-        function attendantEmail($result, $setup)
+        function userEmail($result, $setup)
         {
             $email = $result["email"];
             $uid = $result["id_parent"];
@@ -33,20 +33,7 @@ require "./adminFunctions.php";
             }
             return "<a href='./sendMail.php?uid=$uid&isNILE=1'>$email</a>";
         }
-        function attendantClassroom($result, $setup)
-        {
-            if ($setup->subeventId == null) {
-                return "<a href='./events.php?noSubeventId=1'>Vyberte podudálost</a>";
-            } else if ($result["id_classrooms"] == null) {
-                return "<a href='./subevent.php?subevent=$setup->subeventId'>Zařaďte žáka automaticky do učebny</a>";
-            }
-            return $result["cname"];
-        }
-
-        function formatVariableSymbol($value) {
-            return str_pad($value,10,"0",STR_PAD_LEFT);
-        }
-        function attendantActionButtons($result, $setup)
+        function actions($result, $setup)
         {
             $attendantId = $result["id_attendants"];
             $variableSymbol = $result["id_registered_attendants"];
@@ -77,14 +64,14 @@ require "./adminFunctions.php";
             $conn,
             $result,
             "purkynkaTableStripped purkynkaTableFullLines",
-            "ra.id_registered_attendants, ra.registered, ra.paid, (ra.paid IS NOT NULL) as hasPaid, ra.id_attendants, a.name, a.surname, a.id_parent, u.name,u.surname,u.email,a.id_schools, s.name,s.address, CONCAT(s.name, ' → ', s.address) as school, ap.id_classrooms,c.name AS cname, CONCAT(a.name, ' ', a.surname) AS aFullName, CONCAT(u.name, ' ', u.surname) AS uFullName",
-            "registered_attendants_teamPropaganda AS ra JOIN attendants_teamPropaganda AS a ON ra.id_attendants = a.id_attendants JOIN users_teamPropaganda AS u ON a.id_parent = u.id_users JOIN schools_teamPropaganda AS s ON a.id_schools = s.id_schools LEFT JOIN attendants_presence_teamPropaganda ap ON ap.id_registered_attendants = ra.id_registered_attendants AND ap.id_subevents = ? LEFT JOIN classrooms_teamPropaganda AS c ON ap.id_classrooms = c.id_classrooms",
-            "ra.id_events = ?",
-            "",
+            "c.id_companies, c.name as cName, c.icon, c.short_info, c.long_info, CONCAT(u.name, ' ', u.surname) AS uFullName, u.email, GROUP_CONCAT(cf.id_fields) AS wanted, GROUP_CONCAT(CONCAT(f.name, ' (', f.short,')')) AS wantedNames",
+            "companies_teamPropaganda c JOIN users_teamPropaganda u ON c.id_users = u.id_users LEFT JOIN company_days_companies_teamPropaganda cdc ON c.id_companies = cdc.id_companies LEFT JOIN companies_fields_teamPropaganda cf ON c.id_companies = cf.id_companies LEFT JOIN fields_teamPropaganda f ON cf.id_fields = f.id_fields",
+            "(? IS NULL OR cdc.id_company_days = ?)",
+            "c.id_companies;",
             "",
             "",
             "ii",
-            [$result->subeventId, $result->eventId],
+            [$result->companyDayId, $result->companyDayId],
             [
                 new filterSelector("cName", "Název společnosti", "cName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
                 new filterSelector("uFullName", "Zástupce firmy", "uFullName", filterSelectorType::TEXT, filterCompareOperator::LIKE, true),
@@ -92,7 +79,7 @@ require "./adminFunctions.php";
                 new filterSelector("c.short_info", "Krátký popis", "shortInfo", filterSelectorType::TEXT, filterCompareOperator::LIKE, false),
                 new filterSelector("c.long_info", "Dlouhý popis", "longInfo", filterSelectorType::TEXTAREA, filterCompareOperator::LIKE,false),
                 new filterSelector("wanted", "Zájem o obor", "wanted", filterSelectorType::SELECT, filterCompareOperator::IN,true),
-                new filterSelector("event", "Událost", "event", filterSelectorType::SELECT, filterCompareOperator::IN,true),
+                new filterSelector("event", "Den firem", "cdc.id_company_days", filterSelectorType::SELECT, filterCompareOperator::IN,true,["listId" => "daysList"]),
             ],
             [
                 new filterDisplayer("!actions", "Akce", true),
@@ -101,7 +88,7 @@ require "./adminFunctions.php";
                 new filterDisplayer("!userEmail", "Email zástupce firmy", true),
                 new filterDisplayer("short_info", "Krátký popis", true),
                 new filterDisplayer("long_info", "Dlouhý popis", false, filterSelectorType::TEXTAREA),
-                new filterDisplayer("wantedNames", "Zájem o obory", true),
+                new filterDisplayer("wantedNames", "Zájem o obory", true,filterSelectorType::SELECT),
             ]
         );
         ?>
