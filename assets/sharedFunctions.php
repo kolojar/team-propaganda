@@ -110,6 +110,7 @@ enum filterCompareOperator: string
     case LESSEQUALS = "{COLUMN_NAME} <= ?";
     case MORE = "{COLUMN_NAME} > ?";
     case MOREEQUALS = "{COLUMN_NAME} >= ?";
+    case IN = "{COLUMN_NAME} IN (?)";
 }
 
 class filterSelector
