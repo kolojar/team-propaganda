@@ -164,9 +164,8 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             SendToast
         } from "../formWebScripts/js/formScript.js";
         import {
-            FormDialogManager
+            GlobalDialogManager
         } from "../formWebScripts/js/formDialogScript.js";
-        let dm = new FormDialogManager();
         let selectedTemplate = "none";
 
         document.getElementById("now").addEventListener("change", () => {
@@ -184,7 +183,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
         document.getElementById("templates").addEventListener("change", async (e) => {
             let template = document.getElementById("templates").value;
-            if (!await dm.ShowConfirmAsync("Změna předvolby", "Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
+            if (!await GlobalDialogManager.ShowConfirmAsync("Změna předvolby", "Opradu si přejete změnit template?\nVšechny změny budou smazány.")) {
                 template = selectedTemplate;
                 //document.getElementById(selectedTemplate).selected = true;
                 selectedTemplate = template;
@@ -193,7 +192,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             if (template == "none") {
                 document.getElementById("message").value = "";
             } else {
-                let wait = dm.ShowProgress("Načítání předvolby", "prosím počkejte", () => {}, 0, false)
+                let wait = GlobalDialogManager.ShowProgress("Načítání předvolby", "prosím počkejte", () => {}, 0, false)
                 var request = new XMLHttpRequest();
                 request.open('GET', "./templates/" + template, true);
                 request.onload = function() {
@@ -310,7 +309,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
 
             console.log(options)
 
-            let file = await dm.ShowSelectAsync("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
+            let file = await GlobalDialogManager.ShowSelectAsync("Příloha", "Vyberte přílohu z nabídky.<br><a href='../admin/fs.php' target='_blank'>Přidat novou přílohu.</a>", null, options)
             console.log(file)
             options.delete(files[file])
             if (file) {
