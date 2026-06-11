@@ -23,6 +23,9 @@ class accessLevel
     public accessLevelTitlebarButton $titlebarButton;
     public string $titlebarButtonText;
     public string $titlebarButtonColorClass;
+    /**
+     * @param array<int,mixed> $accessRoles
+     */
     public function __construct(userType $eventType, accessLevelEventNeedence $eventNeedance, array $accessRoles, accessLevelTitlebarButton $titlebarButton = accessLevelTitlebarButton::NONE, string $titlebarButtonText = "", string $titlebarButtonColorClass = "formOkColor")
     {
         $this->eventType = $eventType;
@@ -52,6 +55,7 @@ $accessLevels = array(
     "companyDay.php" => new accessLevel(userType::NILE, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "user.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "map.php" => new accessLevel(userType::NILE, accessLevelEventNeedence::NEEDS_COMPANY_DAY, array(userRole::ADMIN), accessLevelTitlebarButton::LEFT, "Mapa"),
+    "company.php" => new accessLevel(userType::NILE,accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN)),
     "companies.php" => new accessLevel(userType::NILE,accessLevelEventNeedence::NEEDS_COMPANY_DAY, array(userRole::ADMIN),accessLevelTitlebarButton::LEFT,"Firmy"),
     "settings.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::RIGHT, "Správa nastavení"),
     "events.php" => new accessLevel(userType::GENERIC, accessLevelEventNeedence::NEEDS_NONE, array(userRole::ADMIN, userRole::ACCOUNTANT), accessLevelTitlebarButton::RIGHT, "Správa událostí"),

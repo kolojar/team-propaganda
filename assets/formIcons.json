@@ -35,5 +35,9 @@
     "lastPage": "./icons/lastPage32.svg",
     "nextPage": "./icons/keyboardArrowRight32.svg",
     "previousPage": "./icons/keyboardArrowLeft32.svg",
-    "print": "./icons/print32.svg"
+    "print": "./icons/print32.svg",
+    "companyName": "./icons/domain32.svg",
+    "image": "./icons/image32.svg",
+    "companyDescriptionShort": "./icons/chatInfo32.svg",
+    "companyDescriptionLong": "./icons/dataInfoAlert32.svg"
 }

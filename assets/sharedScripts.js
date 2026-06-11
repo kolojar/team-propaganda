@@ -1,13 +1,14 @@
+import { GlobalDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { GlobalLanguageManager, HTMLFormInputElement, HTMLFormToggleElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 GlobalLanguageManager.ChangeLanguage("cs");
 export function GetChildenElementsByClassName(element, className) {
-    return Array.from(element.querySelectorAll("*")).filter(el => el.classList.contains(className));
+    return Array.from(element.querySelectorAll("*")).filter((el) => el.classList.contains(className));
 }
 //export function getChildenElementsByValueId(element: HTMLElement, valueId: string): HTMLElement[] {
-//    return Array.from(element.querySelectorAll("*")).filter(el => el.getAttribute("value-id") == valueId) as HTMLElement[] 
+//    return Array.from(element.querySelectorAll("*")).filter(el => el.getAttribute("value-id") == valueId) as HTMLElement[]
 //}
-export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postURL, id, className = "validate", onSaveFunc = null) {
+export function SetupSaveCancelButtons(holderId, cancelURL, postURL, id, className = "validate", onSaveFunc = null) {
     var _a;
     let holder = null;
     if (holderId == null) {
@@ -19,17 +20,6 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
     else {
         holder = document.getElementById(holderId);
     }
-    //Setup validation
-    let changed = false;
-    for (const inputElementOriginal of GetChildenElementsByClassName(holder, className)) {
-        if (inputElementOriginal instanceof HTMLFormInputElement) {
-            const inputElement = inputElementOriginal;
-            inputElement.validationFunction = async (value) => {
-                return Promise.resolve(value.toString().length > 0);
-            };
-            inputElement.validate();
-        }
-    }
     //Check if exists
     let exists = true;
     const saveBtn = GetChildenElementsByClassName(holder, "btnSave")[0];
@@ -39,7 +29,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
     //Make save button work
     saveBtn.addEventListener("click", async () => {
         //Get elements
-        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false);
+        const progress2 = GlobalDialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false);
         const changes = [];
         //Process elements
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -73,8 +63,8 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         }
         //Wait for confirm
         progress2 === null || progress2 === void 0 ? void 0 : progress2.CloseDialog();
-        if (await dialogManager.ShowConfirmAsync("Uložit změny?", "Opravdu chcete uložit provedené změny:<br>" + changes.join("<br>"))) {
-            const progress = dialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
+        if (await GlobalDialogManager.ShowConfirmAsync("Uložit změny?", "Opravdu chcete uložit provedené změny:<br>" + changes.join("<br>"))) {
+            const progress = GlobalDialogManager.ShowProgress("Uložit změny", "Probíhá zápis do databáze, čekejte prosím...", () => { }, 0, false);
             //Create FormData
             const data = new FormData();
             data.append("action", exists ? "update" : "insert");
@@ -90,7 +80,8 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
                 }
                 else if (inputElement.type == "file") {
                     console.log("file");
-                    data.append(inputElement.getAttribute("value-id"), inputElement.getAttribute("file"));
+                    console.log(inputElement.value);
+                    data.append(inputElement.getAttribute("value-id"), inputElement.value);
                 }
                 else {
                     data.append(inputElement.getAttribute("value-id"), inputElement.value);
@@ -114,7 +105,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
             else {
                 SendToast("Nelze uložit změny!", "Změny nemohly být uloženy.", "error");
                 progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
-                await dialogManager.ShowAlertAsync("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason);
+                await GlobalDialogManager.ShowAlertAsync("Uložit změny", "Změny nemohly být uloženy, opakujte akci později.<br>Důvod: " + reason);
             }
         }
         else {
@@ -124,7 +115,7 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
     //Make cancel button work
     (_a = GetChildenElementsByClassName(holder, "btnCancel")[0]) === null || _a === void 0 ? void 0 : _a.addEventListener("click", async function () {
         //Check for changes
-        const progress2 = dialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false);
+        const progress2 = GlobalDialogManager.ShowProgress("Hledání změn", "Probíhá hledání změn, čekejte prosím...", () => { }, 0, false);
         let foundChange = false;
         const changes = [];
         for (const inputElementOriginal of document.getElementsByClassName(className)) {
@@ -140,14 +131,14 @@ export function SetupSaveCancelButtons(dialogManager, holderId, cancelURL, postU
         //Wait for confirm
         progress2 === null || progress2 === void 0 ? void 0 : progress2.CloseDialog();
         if (!exists) {
-            if (await dialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete zrušit vytváření?")) {
+            if (await GlobalDialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete zrušit vytváření?")) {
                 window.location.href = cancelURL;
             }
             return;
         }
         if (foundChange) {
-            if (await dialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"))) {
-                dialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false);
+            if (await GlobalDialogManager.ShowConfirmAsync("Smazat změny?", "Opravdu chcete smazat provedené změny:<br>" + changes.join("<br>"))) {
+                GlobalDialogManager.ShowProgress("Smazat změny", "Probíhá rušení změn, čekejte prosím...", () => { }, 0, false);
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
@@ -176,7 +167,7 @@ for (const row of document.getElementsByClassName("clickHighlightRow")) {
         }
     });
 }
-export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName) {
+export function setupTableDeleteButtons(postURL, idAttributeName) {
     //Get buttons
     for (const button of document.getElementsByClassName("btnTableDelete")) {
         button.addEventListener("click", async () => {
@@ -184,12 +175,12 @@ export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName)
                 return;
             }
             //Ask for confirm
-            if (!await dialogManager.ShowConfirmAsync("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?")) {
+            if (!(await GlobalDialogManager.ShowConfirmAsync("Opravdu smazat?", "Opravdu chcete odstranit vybraný řádek?"))) {
                 SendToast("Smazat řádek", "Mazání změn zrušeno.", "info");
                 return;
             }
             //Create FormData
-            const progress = dialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false);
+            const progress = GlobalDialogManager.ShowProgress("Mazání dat", "Probíhá mazání dat z databáze, čekejte prosím...", () => { }, 0, false);
             const formData = new FormData();
             formData.set("action", "delete");
             formData.set("id", button.getAttribute(idAttributeName));
@@ -198,7 +189,7 @@ export function setupTableDeleteButtons(dialogManager, postURL, idAttributeName)
             if (!ok) {
                 SendToast("Mazání dat", "Nelze smazat data", "error");
                 progress === null || progress === void 0 ? void 0 : progress.CloseDialog();
-                await dialogManager.ShowAlertAsync("Mazání dat", "Data nemohla být smazána, opakujte akci později.<br>Důvod: " + reason);
+                await GlobalDialogManager.ShowAlertAsync("Mazání dat", "Data nemohla být smazána, opakujte akci později.<br>Důvod: " + reason);
                 return;
             }
             //All OK

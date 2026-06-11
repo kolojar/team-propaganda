@@ -1,11 +1,11 @@
 import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
-import { SendPOSTDataToServer, SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
+import { SendPOSTDataToServerAsync } from "../formWebScripts/js/serverComunication.js";
 
 const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-SetupSaveCancelButtons(dialogManager, null, "./events.php", "./subevent.php", urlSearchParams.get("subevent") as string, "subeventValidate")
+SetupSaveCancelButtons(null, "./events.php", "./subevent.php", urlSearchParams.get("subevent") as string, "subeventValidate")
 
 //Setup minimums and maximums
 const startTime = (document.getElementById("start_time") as HTMLFormInputElement)

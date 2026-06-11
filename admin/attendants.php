@@ -94,6 +94,7 @@ require "./adminFunctions.php";
                 new filterSelector("hasPaid", "Zaplaceno", "hasPaid", filterSelectorType::BOOLEAN, filterCompareOperator::EQUALS, true),
                 new filterSelector("ra.id_registered_attendants", "Variabilní symbol", "variableSymbol", filterSelectorType::NUMBER, filterCompareOperator::EQUALS),
                 new filterSelector("school", "Základní škola", "school", filterSelectorType::TEXT, filterCompareOperator::LIKE, true, ["filterFieldId" => "school"]),
+                new filterSelector("a.id_parent","ID zákonného zástupce (interní)","parent",filterSelectorType::NUMBER,filterCompareOperator::EQUALS)
             ],
             [
                 new filterDisplayer("!attendantActionButtons", "Akce", true),

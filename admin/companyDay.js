@@ -1,8 +1,6 @@
-import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
-const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-SetupSaveCancelButtons(dialogManager, null, "./events.php", "./companyDay.php", urlSearchParams.get("companyDay"), "eventValidate", null);
+SetupSaveCancelButtons(null, "./events.php", "./companyDay.php", urlSearchParams.get("companyDay"), "eventValidate", null);
 //Setup minimums and maximums
 const activeSince = document.getElementById("active_since");
 const activeUntil = document.getElementById("active_until");
