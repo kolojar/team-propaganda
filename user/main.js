@@ -136,7 +136,7 @@ for (const btn of document.getElementsByClassName("btnDeleteAttendant")) {
         else
             values.set(field.name, { value: field.id_fields, checked: true });
     }
-    let result = await dialogManager.ShowCheckboxSelectAsync("Obory", "Vyberte obory které by mohla vaše firma zajímat.", null, values);
+    let result = await GlobalDialogManager.ShowCheckboxSelectAsync("Obory", "Vyberte obory které by mohla vaše firma zajímat.", null, values);
     console.log(result);
     if (result == null) {
         SendToast("Výběr oborů", "Akce zrušena", "info");
@@ -163,16 +163,24 @@ const getSchoolsStart = async () => {
         attendantSchool.validationFunction = async (value) => {
             const timestamp = new Date();
             const data = new FormData(undefined, null);
-            console.log(attendantSchool.value);
+            //console.log(attendantSchool.value);
+            if (attendantSchool.value == -10) {
+                document.getElementsByClassName("visibility")[0].style.display = "block";
+            }
+            else {
+                document.getElementsByClassName("visibility")[0].style.display = "none";
+            }
             data.set("query", attendantSchool.valueRaw.toString());
             const [ok, msg] = await SendPOSTDataToServerAsync("../assets/schoolSearch.php", data);
             const options = new Map();
             for (const school of JSON.parse(msg)) {
-                console.log(school);
+                //console.log(school);
                 options.set(school.name + " → " + school.address, school.id);
             }
-            console.log(options);
+            //console.log(options);
+            options.set("Má škola není v seznamu.", -10);
             attendantSchool.setOptions(options, timestamp);
+            attendantSchool.alwaysShownOptions = ["Má škola není v seznamu."];
             return Promise.resolve(true);
         };
         await attendantSchool.validate();

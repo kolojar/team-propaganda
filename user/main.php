@@ -1,6 +1,6 @@
 <?php
 session_start();
-$_SESSION["userId"] = 7;
+$_SESSION["userId"] = 6;
 if (!isset($_SESSION["userId"])) {
     header("Location: ./");
     exit();
@@ -70,7 +70,8 @@ require '../assets/sharedFunctions.php';
                 <legend>Informace o zájemci: $name $surname</legend>
                 <form-input value-id='name' label='Jméno:' class='validate' type='text' do-change-check value='$name' original-value='$name'></form-input>
                 <form-input value-id='surname' label='Přijmení:' class='validate' type='text' do-change-check value='$surname' original-value='$surname'></form-input>
-                <form-input value-id='school' label='Základní škola:' class='validate schoolValue' type='select' do-change-check original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' ></form-input>";
+                <form-input value-id='school' label='Základní škola:' class='validate schoolValue' type='select' do-change-check original-value='$schoolName → $schoolAddress' value='$schoolName → $schoolAddress' ></form-input>
+                <form-input value-id='otherschool' label='Zadejte prosím název nebo adresu školy:' class='validate visibility' type='text'></form-input>";
 
                 //Get events of attendant
                 $stmt2 = $conn->prepare("SELECT ra.id_registered_attendants, ra.id_events, ra.paid, e.name, e.price FROM registered_attendants_teamPropaganda ra JOIN events_teamPropaganda e ON ra.id_events = e.id_events WHERE ra.id_attendants = ?;");

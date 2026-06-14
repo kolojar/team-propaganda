@@ -16,6 +16,20 @@ if (isset($_POST["action"])) {
             die();
         }
 
+        if ($_POST["school"] == -10) {
+            if (!isset($_POST["otherschool"])) {
+                http_response_code(400);
+                echo "t";
+                echo "Neplatné použití funkce - chybí parametr";
+                die();
+            }
+            if (!$conn->query("INSERT INTO schools_teamPropaganda (name) VALUES ('" . $_POST["otherschool"] . "')")) {
+                http_response_code(400);
+                echo "Nepodařilo se poslat data do databáze.";
+                die();
+            }
+            $_POST["school"] = $conn->insert_id;
+        }
         //Make SQL Update
         echoCheckIfParentMatches($conn, $_POST["id"]);
         $stmt = $conn->prepare("UPDATE attendants_teamPropaganda SET name=?, surname=?, id_schools=? WHERE id_attendants=?");
