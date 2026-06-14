@@ -2,3 +2,4 @@
 cd ./formWebScripts
 git push origin HEAD:main
 cd ..
+git submodule update --remote --recursive

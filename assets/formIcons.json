@@ -6,9 +6,9 @@
     "addFile": "./icons/noteAdd32.svg",
     "file": "./icons/draft32.svg",
     "folder": "./icons/folder32.svg",
-    "edit":"./icons/edit32.svg",
+    "edit": "./icons/edit32.svg",
     "save": "./icons/save32.svg",
-    "dontSave":"./icons/dontSaveCustom.svg",
+    "dontSave": "./icons/dontSaveCustom.svg",
     "highlightUsers": "./icons/groupSearch32.svg",
     "add": "./icons/add32.svg",
     "listTable": "./icons/listAlt32.svg",
@@ -39,5 +39,6 @@
     "companyName": "./icons/domain32.svg",
     "image": "./icons/image32.svg",
     "companyDescriptionShort": "./icons/chatInfo32.svg",
-    "companyDescriptionLong": "./icons/dataInfoAlert32.svg"
+    "companyDescriptionLong": "./icons/dataInfoAlert32.svg",
+    "companySetupFields": "./icons/manageSearch32.svg"
 }
