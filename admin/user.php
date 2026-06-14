@@ -229,7 +229,11 @@ if (isset($_POST["action"])) {
         echo "<button class='purkynkaButton btnSave' form-icon='!save' exists='$exists'></button>";
         echo "<button class='purkynkaButton btnCancel' form-icon='!dontSave'></button>";
         echo "<a href='./users.php'><button class='purkynkaButton' form-icon='!listTable'><span>Zpět na seznam uživatelů</span></button></a>";
-        echo "<a href='./attendants.php?parent=$id'><button class='purkynkaButton' form-icon='!highlightUsers'><span>Zvýraznit přidružené zájemce</span></button></a>";
+        if (userType::{$type} == userType::KLAL) {
+            echo "<a href='./attendants.php?parent=$id'><button class='purkynkaButton' form-icon='!highlightUsers'><span>Zobrazit přidružené zájemce</span></button></a>";
+        } else {
+            echo "<a href='./companies.php?contact=$id'><button class='purkynkaButton' form-icon='!highlightUsers'><span>Zobrazit přidružené firmy</span></button></a>";
+        }
         echo "</div>";
         echo "</div>";
         ?>

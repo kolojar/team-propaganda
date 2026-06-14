@@ -1,11 +1,9 @@
-import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
 import { SendToast } from "../formWebScripts/js/formScript.js";
 import { setupTableDeleteButtons } from "../assets/sharedScripts.js";
-const dialogManager = new FormDialogManager();
 const urlSearchParams = new URLSearchParams(window.location.search);
-setupTableDeleteButtons(dialogManager, "./event.php", "event");
-setupTableDeleteButtons(dialogManager, "./subevent.php", "subevent");
-setupTableDeleteButtons(dialogManager, "./companyDay.php", "companyDay");
+setupTableDeleteButtons("./event.php", "event");
+setupTableDeleteButtons("./subevent.php", "subevent");
+setupTableDeleteButtons("./companyDay.php", "companyDay");
 if (urlSearchParams.has("noEventId")) {
     SendToast("Nastavení události", "Není vybrána žádná událost pro zájemce!", "error");
 }

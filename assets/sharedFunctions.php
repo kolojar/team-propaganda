@@ -110,6 +110,7 @@ enum filterCompareOperator: string
     case LESSEQUALS = "{COLUMN_NAME} <= ?";
     case MORE = "{COLUMN_NAME} > ?";
     case MOREEQUALS = "{COLUMN_NAME} >= ?";
+    case IN = "{COLUMN_NAME} IN (?)";
 }
 
 class filterSelector
@@ -612,6 +613,13 @@ function setupFilteredTable(mysqli $conn, mixed $paramsForFunctions, string $tab
                     if ($value[1]->valueFormat == filterSelectorType::NUMBER) {
                         if ($formated == null) {
                             $formated = 0;
+                        }
+                    }
+
+                    //Try to format sellect
+                    if ($value[1]->valueFormat == filterSelectorType::SELECT) {
+                        if ($formated == null) {
+                            $formated = "-";
                         }
                     }
 

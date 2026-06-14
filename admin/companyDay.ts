@@ -1,10 +1,8 @@
-import { FormDialogManager } from "../formWebScripts/js/formDialogScript.js";
-import { HTMLFormInputElement, SendToast } from "../formWebScripts/js/formScript.js";
+import { HTMLFormInputElement} from "../formWebScripts/js/formScript.js";
 import { SetupSaveCancelButtons } from "../assets/sharedScripts.js";
 
-const dialogManager = new FormDialogManager()
 const urlSearchParams = new URLSearchParams(window.location.search)
-SetupSaveCancelButtons(dialogManager, null, "./events.php", "./companyDay.php", urlSearchParams.get("companyDay") as string, "eventValidate", null)
+SetupSaveCancelButtons(null, "./events.php", "./companyDay.php", urlSearchParams.get("companyDay") as string, "eventValidate", null)
 
 //Setup minimums and maximums
 const activeSince = (document.getElementById("active_since") as HTMLFormInputElement)
