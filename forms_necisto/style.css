@@ -122,8 +122,9 @@ h5{
         margin: 0px;
 }
 
-#line{
-    width
+.line{   
+    width: 100%;
+    border-top: 2px dashed #F0F2F2;        
 }
 
 /*konec banner*/
