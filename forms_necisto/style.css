@@ -1,0 +1,237 @@
+body{
+    background: #5088B5;
+}
+
+#velke_bile_logo{
+    height: 105px;
+    width: 584px;
+}
+
+h1{
+    color: #F0F2F2;
+        -webkit-text-stroke-width: 2.5px;
+        -webkit-text-stroke-color: #F0F2F2;
+        font-family: "Roboto Slab";
+        font-size: 58px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+        letter-spacing: 2.9px;
+        text-align: center;
+        margin: 4px;
+}
+
+h2{
+    color: #F0F2F2;
+        font-family: "Roboto Slab", serif;
+        font-size: 58px;
+        font-style: normal;
+        font-weight: 300;
+        line-height: normal;
+        text-align: center;
+        margin: 4px;
+}
+
+#zkousim{
+    display:flex;
+}
+
+#terminy{
+    margin-top: 100px;
+    display: inline-block;
+    width: 290px;
+    height: 90px;
+}
+
+.banner{
+    color: var(--Color_text, #F0F2F2);
+        font-weight: 700;
+}
+
+
+h4{
+    color: var(--Color_text, #F0F2F2);
+        font-family: "Roboto Slab";
+        font-size: 28px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        margin:7px;
+}
+
+#warning{
+    color: #FAB400;
+        text-align: center;
+        font-family: "Roboto Slab";
+        font-size: 21px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 150%;
+        /* 31.5px */
+        letter-spacing: 0.21px;
+}
+
+.upozorneni{
+    color: var(--Color_text, #F0F2F2);
+    display: inline-block;
+    height: 180px;
+    width: 405px;
+    font-family: "Roboto Slab";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    letter-spacing: 0.2px;
+    text-align: center;
+    padding: 10px;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FAB400' stroke-width='4' stroke-dasharray='30%2c 30' stroke-dashoffset='5' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.banner2{
+    color: #FAB400;
+        font-family: "Roboto Slab";
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+}
+
+#nelze{
+        font-weight: 700;
+}
+
+h5{
+    color: #F0F2F2;
+        font-family: Roboto;
+        font-size: 32px;
+        font-style: italic;
+        font-weight: 300;
+        line-height: normal;
+}
+
+.star{
+    color: #D41111;
+        font-family: "Roboto Slab";
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 150%;
+        letter-spacing: 0.24px;
+}
+
+label{
+    color: var(--Color_text, #F0F2F2);
+        font-family: "Roboto Slab";
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+        /* 36px */
+        letter-spacing: 0.24px;
+}
+
+input{
+    height: 46px;
+    width: 460px;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    border-radius: 4px;
+    border: 1px solid #3E6182;
+    background: #F0F2F2;
+}
+
+.form2{
+    display: inline-block;
+}
+
+input[value="Poslat"]{
+    border-radius: 4px;
+    background: #FAB400;
+    width: 181px;
+    /*padding: 10px 19px 10px 19px;*/
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    color: var(--Color_text, #F0F2F2);
+    font-family: "Roboto Slab";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+    /* 48px */
+    letter-spacing: 0.32px;
+}
+
+#dulezite{
+    padding:10px;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FAB400' stroke-width='7' stroke-dasharray='50%2c 50' stroke-dashoffset='5' stroke-linecap='square'/%3e%3c/svg%3e");
+    /*background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FAB400' stroke-width='7' stroke-dasharray='50%2c 50'/%3e%3c/svg%3e");*/
+}
+
+#dulezite1{
+    color: #FAB400;
+        text-align: center;
+        font-family: "Roboto Slab";
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 150%;
+        /* 48px */
+        letter-spacing: 0.32px;
+}
+
+.dulezite2{
+    color: var(--Color_text, #F0F2F2);
+        text-align: center;
+        font-family: "Roboto Slab";
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%;
+        /* 36px */
+        letter-spacing: 0.24px;
+}
+
+.footer1{
+    display: flex;
+        align-items: center;
+        gap: 10px;
+
+}
+
+.footer2{
+    display:inline-block;
+}
+
+#telefon{
+    width: 48px;
+    height: 50px;
+}
+
+#email{
+    width: 53px;
+    height: 42px;
+}
+
+p{
+    color: #F0F2F2;
+        font-family: Inter;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+}
+
+#male_logo{
+    height: 79px;
+    width: 79px;
+}
+
+footer{
+    background-color: #3E6182;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
