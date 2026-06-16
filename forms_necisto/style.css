@@ -35,8 +35,17 @@ h2{
         margin: 4px;
 }
 
+#banner{
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+
 #zkousim{
     display:flex;
+    justify-content: space-between;
+    margin-right: 7rem;
+    align-items: center;
 }
 
 #terminy{
@@ -47,7 +56,7 @@ h2{
     display: inline-block;
 }
 
-.banner{
+.terminy_text{
     color: var(--Color_text, #F0F2F2);
         font-weight: 700;
 }
