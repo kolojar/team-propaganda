@@ -43,7 +43,9 @@
     <!--banner konec-->
 
     <!--forma zacatek-->
+    <div id="formular">
     <form action="vysl.php" method="POST">
+        <div id="form0">
         <div class="form1">
             <div class="form2">
                 <label for="prijmeni_zaka">Příjmení žákyně/žáka <span class="star">* </span></label><br />
@@ -57,8 +59,15 @@
         </div>
 
         <div class="form1">
+            <div class="form2">
             <label for="skola">Vyberte název základní školy <span class="star">* </span></label><br />
             <input type="text" name="skola" required><br />
+            </div>
+
+            <div id = "jina" class="form2">
+                <label for="skola">Jiná možnost<span class="star">* </span></label><br />
+                <input type="text" name="jina_skola"><br />
+            </div>
         </div>
         
         <div class="form1">
@@ -84,27 +93,33 @@
                 <input type="text" name="email"><br />
             </div>
         </div>
+    </div>
     </form>
+    </div>
     <!--forma konec-->
 
     <div>
-        <div class="form2">
-        <input type="submit" name="send" value="Poslat">
-        </div>
 
-        <div id="dulezite" class="form2">
-            <h3 id="dulezite1">Důležité informace!</h3>
-            <p class="dulezite2">Účast vašeho dítěte je zpoplatněna částkou 600 Kč.</p>
-            <p class="dulezite2">Podklady k platbě vám zašleme na vámi uvedeny e-mail z e-mailu ------</p>
-            <p class="dulezite2">K dokončení registrace dojde až po provedení úhrady.</p>
-            <p class="dulezite2">Po připsaní platby vám přijde potvrzující e-mail.</p>
-            <p class="dulezite2">A od této chvíle s vámi na 100% počítáme :-)</p>
+        <div id="cast3">
+            <input type="submit" name="send" value="Poslat">
+
+            <div id="dulezite">
+                <h3 id="dulezite1">Důležité informace!</h3>
+                <p class="dulezite2">Účast vašeho dítěte je zpoplatněna částkou 600 Kč.</p>
+                <p class="dulezite2">Podklady k platbě vám zašleme na vámi uvedeny e-mail z e-mailu ------</p>
+                <p class="dulezite2">K dokončení registrace dojde až po provedení úhrady.</p>
+                <p class="dulezite2">Po připsaní platby vám přijde potvrzující e-mail.</p>
+                <p class="dulezite2">A od této chvíle s vámi na 100% počítáme :-)</p>
+            </div>
         </div>
+        
+
     </div>
 
     <!--zacatek footer -->
     <footer>
-        <div class="fotter1">
+        <div id="footer0">
+        <div class="footer1">
             <div class="footer2">
                 <img id="telefon" src="../icon/Vector_telefon.svg" alt="ikona telefonu" />
             </div>
@@ -114,7 +129,7 @@
             </div>
         </div>
 
-        <div class="footer1">
+        <div id="logo_purk" class="footer1">
             <img id="male_logo" src="../Logo/Purkynka-ICO_bila.png" alt="logo purkyňky"/>
         </div>
 
@@ -126,6 +141,7 @@
             <div class="footer2">
             <p>alena.klobasova@purkynka.cz</p>
             </div>
+        </div>
         </div>
     </footer>
 </body>

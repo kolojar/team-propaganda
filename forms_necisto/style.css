@@ -67,7 +67,7 @@ h4{
     color: #FAB400;
         text-align: center;
         font-family: "Roboto Slab";
-        font-size: 21px;
+        font-size: 24px;
         font-style: normal;
         font-weight: 600;
         line-height: 150%;
@@ -129,6 +129,17 @@ h5{
 
 /*konec banner*/
 
+/*zacatek formy*/
+
+#formular{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 115px;
+    margin-bottom: 115px;
+}
+
+
 .star{
     color: #D41111;
         font-family: "Roboto Slab";
@@ -150,6 +161,10 @@ label{
         letter-spacing: 0.24px;
 }
 
+#jina{
+    display: none;
+}
+
 input{
     height: 46px;
     width: 460px;
@@ -161,10 +176,25 @@ input{
     background: #F0F2F2;
 }
 
+#form0{
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    row-gap: 85px;
+}
+
+.form1{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 100px;
+    column-gap: 150px;
+}
+
 .form2{
     display: inline-block;
 }
 
+
+/*konec formy*/
 input[value="Poslat"]{
     border-radius: 4px;
     background: #FAB400;
@@ -181,10 +211,32 @@ input[value="Poslat"]{
     line-height: 150%;
     /* 48px */
     letter-spacing: 0.32px;
+    border: unset;
+    align-self: center;
+    margin-bottom: 120px;
+    margin-top: 30px;
+}
+
+/*#cast3{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /*column-gap: 10px;*/
+/*}*/
+
+#cast3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
 }
 
 #dulezite{
-    padding:10px;
+    padding:40px;
+    text-align: center;
+    width: 900px;
+    margin-bottom: 120px;
+    margin-top: 30px;
+    align-self: center;
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FAB400' stroke-width='12' stroke-dasharray='50%2c 50' stroke-dashoffset='5' stroke-linecap='square'/%3e%3c/svg%3e");
     /*background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FAB400' stroke-width='7' stroke-dasharray='50%2c 50'/%3e%3c/svg%3e");*/
 }
@@ -197,6 +249,7 @@ input[value="Poslat"]{
         font-style: normal;
         font-weight: 700;
         line-height: 150%;
+        margin:0px;
         /* 48px */
         letter-spacing: 0.32px;
 }
@@ -213,10 +266,21 @@ input[value="Poslat"]{
         letter-spacing: 0.24px;
 }
 
+/*zacatek footer*/
+
+#footer0{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 100px;
+    column-gap: 150px;
+
+}
+
 .footer1{
     display: flex;
-        align-items: center;
-        gap: 10px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 
 }
 
@@ -241,6 +305,7 @@ p{
         font-style: normal;
         font-weight: 400;
         line-height: normal;
+        margin: 5px;
 }
 
 #male_logo{
@@ -251,7 +316,8 @@ p{
 footer{
     background-color: #3E6182;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    padding: 10px;
 }
 
