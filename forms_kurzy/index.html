@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihláška přípravné kurzy</title>
+    <link rel="stylesheet" href="./style.css"
+</head>
+
+<body>
+    <!--banner zacatek-->
+    <img id="velke_cerne_logo" src="../Logo/Purkyňka-HOR Brno Org_cerna.png" alt="Logo purkyňky" />
+    <div id="hlavicka">
+        <h1>PŘÍPRAVNÉ KURZY</h1>
+        <h1>na přijímací zkoušky 20**</h1>
+        <h2>PŘIHLÁŠKA</h2>
+    </div>
+
+    <div id="banner">
+    <div id="zkousim">
+        <div id="terminy">
+            <h4><span class = "terminy_text">Začínáme   </span>- středa **. ledna 20**. </h4>
+            <h4><span class = "terminy_text">Další termíny   </span>- *. února, **. února, **. února, *. března, **. března a **. března 20**. </h4>
+        </div>
+
+        <p class="upozorneni"><span id = "warning">Upozornění:</span> Kapacita kurzu je naplněna, můžete se však přihlásit jako náhradník. Pokud se uvolní místo, budeme
+            vás
+            kontaktovat. V případě, že během čekání na uvolnění místa, ztratíte o kurzy zájem, dejte nám prosím vědět.</p>
+    </div>
+
+
+    <div id="posledni_cast_banera">
+    <h3 class="banner2">Na kurzech se setkáme <span id="nelze">celkem 7x </span>, vždy ve *** v čase **:00-**:15 hodin. </h3>
+    <h5><i>Vyplnění této přihlášky vám zabere přibližně 5 min.</i></h5>
+    </div>
+    </div>
+
+    
+    <svg width="100%" height="20">
+        <polygon points=" 10,10 0,0 0,20" fill="#F0F2F2" />
+    
+        <line x1="20" y1="12" x2="100%" y2="12" stroke="#F0F2F2" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="14 12" />
+    </svg>
+    <!--banner konec-->
+
+    <!--forma zacatek-->
+    <div id="formular">
+    <form action="vysl.php" method="POST">
+        <div id="form0">
+        <div class="form1">
+            <div class="form2">
+                <label for="prijmeni_zaka">Příjmení žákyně/žáka <span class="star">* </span></label><br />
+                <input type="text" name="prijmeni_zaka" required><br />
+            </div>
+
+            <div class ="form2">
+                <label for="jmeno_zaka">Jméno žákyně/žáka <span class="star">* </span></label><br />
+                <input type="text" name="jmeno_zaka" required><br />
+            </div>
+        </div>
+
+        <div class="form1">
+            <div class="form2">
+            <label for="skola">Vyberte název základní školy <span class="star">* </span></label><br />
+            <input type="text" name="skola" required><br />
+            </div>
+
+            <div id = "jina" class="form2">
+                <label for="skola">Jiná možnost<span class="star">* </span></label><br />
+                <input type="text" name="jina_skola"><br />
+            </div>
+        </div>
+        
+        <div class="form1">
+            <div class="form2">
+                <label for="prijmeni_zastupce">Příjmení zákonného zástupce <span class="star">* </span></label><br />
+                <input type="text" name="prijmeni_zastupce" required><br />
+            </div>
+
+            <div class="form2">
+                <label for="jmeno_zastupce">Jméno zákonného zástupce <span class="star">* </span></label><br />
+                <input type="text" name="jmeno_zastupce" required><br />
+            </div>
+        </div>
+
+        <div class="form1">
+            <div class="form2">
+                <label for="telefon">Telefon na zákonného zástupce <span class="star">* </span></label><br />
+                <input type="text" name="telefon" required><br />
+            </div>
+
+            <div class="form2">
+                <label for="email">Email na žákyně/žáka <span class="star">* </span></label><br />
+                <input type="text" name="email"><br />
+            </div>
+        </div>
+    </div>
+    </form>
+    </div>
+    <!--forma konec-->
+
+    <div>
+
+        <div id="cast3">
+            <input type="submit" name="send" value="Poslat">
+
+            <div id="dulezite">
+                <h3 id="dulezite1">Důležité informace!</h3>
+                <p class="dulezite2">Účast vašeho dítěte je zpoplatněna částkou 1 600 Kč.</p>
+                <p class="dulezite2">Podklady k platbě vám zašleme na vámi uvedeny e-mail z e-mailu ------</p>
+                <p class="dulezite2">K dokončení registrace dojde až po provedení úhrady.</p>
+                <p class="dulezite2">Po připsaní platby vám přijde potvrzující e-mail.</p>
+                <p class="dulezite2">A od této chvíle s vámi na 100% počítáme :-)</p>
+            </div>
+        </div>
+        
+
+    </div>
+
+    <!--zacatek footer -->
+    <footer>
+        <div id="footer0">
+        <div class="footer1">
+            <div class="footer2">
+                <img id="telefon" src="../icon/Vector_telefon.svg" alt="ikona telefonu" />
+            </div>
+            <div class="footer2">
+                <p>+420 605 550 370</p>
+                <p>+420 541 649 193</p>
+            </div>
+        </div>
+
+        <div id="logo_purk" class="footer1">
+            <img id="male_logo" src="../Logo/Purkynka-ICO_bila.png" alt="logo purkyňky"/>
+        </div>
+
+        <div class="footer1">
+            <div class="footer2">
+                <img id = "email" src="../icon/Vector_email.svg" alt="ikona emailu"/>
+            </div>
+
+            <div class="footer2">
+            <p>alena.klobasova@purkynka.cz</p>
+            </div>
+        </div>
+        </div>
+    </footer>
+</body>
+
+</html>
