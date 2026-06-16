@@ -59,6 +59,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
     $stmt->prepare("INSERT INTO email_send_user_teamPropaganda (id_users, id_email_send, sent) VALUES (?, ?, ?)");
     if (!isset($_POST["global"])) {
         foreach (json_decode($_POST["userIds"]) as $uid) {
+            file_put_contents("php://stdout", "idk why " . $uid . $_POST["userIds"] . "\n");
             $stmt->bind_param("iii", $uid, $emailId, $sent);
             if (!$stmt->execute()) {
                 http_response_code(400);
@@ -75,6 +76,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
         };
     }
     $stmt->close();
+    echo "Email úspěšně odeslán.";
     exit;
 }
 ?>
@@ -246,7 +248,7 @@ if (isset($_POST["subject"]) && isset($_POST["message"]) && isset($_POST["userId
             e.preventDefault();
             let userIds = [];
             for (let user of document.getElementsByName("users")) {
-                if (user.checked) {
+                if (user.checked && !userIds.includes(user.value)) {
                     userIds.push(user.value);
                 }
             }
