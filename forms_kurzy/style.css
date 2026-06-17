@@ -46,7 +46,7 @@ h2{
 #zkousim{
     display:flex;
     justify-content: space-between;
-    margin-right: 7rem;
+    /*margin-right: 7rem;*/
     align-items: center;
 }
 
@@ -71,6 +71,8 @@ h4{
         font-weight: 400;
         line-height: normal;
         margin: 7px;
+        margin-right: 0px;
+        margin-left: 0px;
 }
 
 #warning{
@@ -89,6 +91,9 @@ h4{
     color: var(--Color_text, #3E6182);
     display: none;
     display: inline-block;
+    position:relative;
+    top:-70px;
+    left:-50px;
     width: 405px;
     font-family: "Roboto Slab";
     font-size: 20px;
@@ -209,8 +214,8 @@ input{
 input[value="Poslat"]{
     border-radius: 4px;
     background: #EBA800;
-    width: 181px;
-    /*padding: 10px 19px 10px 19px;*/
+    width: 190px;
+    height: 57px;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -219,7 +224,6 @@ input[value="Poslat"]{
     font-size: 32px;
     font-style: normal;
     font-weight: 500;
-    line-height: 150%;
     /* 48px */
     letter-spacing: 0.32px;
     border: unset;

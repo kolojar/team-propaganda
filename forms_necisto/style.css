@@ -206,9 +206,9 @@ input{
 /*konec formy*/
 input[value="Poslat"]{
     border-radius: 4px;
-    background: #FAB400;
-    width: 181px;
-    /*padding: 10px 19px 10px 19px;*/
+    background: #EBA800;
+    width: 190px;
+    height: 57px;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -217,7 +217,6 @@ input[value="Poslat"]{
     font-size: 32px;
     font-style: normal;
     font-weight: 500;
-    line-height: 150%;
     /* 48px */
     letter-spacing: 0.32px;
     border: unset;
